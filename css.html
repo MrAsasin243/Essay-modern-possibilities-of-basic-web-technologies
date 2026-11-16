@@ -1,4 +1,1102 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CSS — веб-платформа</title><link rel="stylesheet" href="assets/style.css"></head><body>
-<header class="topbar"><a class="brand" href="index.html"><span class="brand-mark">WEB</span><span>Веб-платформа</span></a><nav class="topnav" aria-label="Основная навигация"><a href="index.html">Главная</a><a href="html.html">HTML</a><a href="css.html" aria-current="page">CSS</a><a href="javascript.html">JavaScript</a><a href="browsers.html">Браузеры</a></nav></header>
-<main class="home-wrap"><p class="breadcrumb"><a href="index.html">Главная</a> / CSS</p><section class="hero"><p class="eyebrow">Раздел 02 · Визуальное представление</p><h1>CSS: оформление и компоновка</h1><p>Страница CSS будет посвящена синтаксису, каскаду, специфичности, наследованию, единицам измерения, типографике, блочной модели, позиционированию, Flexbox, Grid, адаптивному дизайну, псевдоклассам, анимациям и современным возможностям CSS.</p><div class="hero-meta"><span class="pill">Пока не заполнено</span><span class="pill">Следующий раздел</span></div></section><section class="content-section"><h2>План раздела</h2><ol><li>Роль CSS и способы подключения к HTML.</li><li>Синтаксис правил, селекторы и комбинаторы.</li><li>Каскад, специфичность, наследование и слои.</li><li>Цвета, шрифты, текст, размеры и единицы.</li><li>Box Model, display, overflow и видимость.</li><li>Position, stacking context и z-index.</li><li>Flexbox и CSS Grid.</li><li>Адаптивная вёрстка, media queries и container queries.</li><li>Псевдоклассы, псевдоэлементы и формы.</li><li>Переходы, трансформации и анимации.</li><li>Переменные, функции, logical properties и современные возможности.</li><li>Производительность, доступность и совместимость.</li></ol><div class="callout">Этот адрес уже добавлен в навигацию. Содержательная страница CSS будет подготовлена отдельным этапом после HTML.</div><a class="button-link" href="html.html">← Вернуться к HTML</a></section></main><footer class="site-footer">Веб-платформа · Раздел CSS запланирован.</footer></body></html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Подробный справочник по CSS: синтаксис, каскад, селекторы, блочная модель, компоновка, адаптивность, анимации, современные возможности и работа браузера.">
+  <title>CSS — веб-платформа</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="brand-mark">WEB</span><span>Веб-платформа</span></a>
+    <nav class="topnav" aria-label="Основная навигация">
+      <a href="index.html">Главная</a>
+      <a href="html.html">HTML</a>
+      <a href="css.html" aria-current="page">CSS</a>
+      <a href="javascript.html">JavaScript</a>
+      <a href="browsers.html">Браузеры</a>
+    </nav>
+  </header>
+
+  <div class="page-grid">
+    <aside class="sidebar" aria-label="Содержание страницы">
+      <p class="sidebar-label">Содержание CSS</p>
+      <a href="#role">1. Назначение CSS</a>
+      <a href="#browser">2. CSS и браузер</a>
+      <a href="#attach">3. Подключение CSS</a>
+      <a href="#syntax">4. Синтаксис</a>
+      <a href="#selectors">5. Селекторы</a>
+      <a class="sub" href="#pseudo">Псевдоклассы и псевдоэлементы</a>
+      <a href="#cascade">6. Каскад, специфичность и наследование</a>
+      <a class="sub" href="#layers">Слои каскада</a>
+      <a href="#values">7. Значения, единицы и функции</a>
+      <a href="#colors">8. Цвет и прозрачность</a>
+      <a href="#box">9. Блочная модель</a>
+      <a href="#display">10. Типы отображения</a>
+      <a href="#position">11. Позиционирование и слои</a>
+      <a href="#flex">12. Flexbox</a>
+      <a href="#grid">13. CSS Grid</a>
+      <a href="#other-layout">14. Другие способы компоновки</a>
+      <a href="#text">15. Типографика и текст</a>
+      <a href="#decoration">16. Фоны, рамки и эффекты</a>
+      <a href="#responsive">17. Адаптивный дизайн</a>
+      <a class="sub" href="#container">Container Queries</a>
+      <a href="#interaction">18. Состояния и оформление элементов</a>
+      <a href="#motion">19. Трансформации и анимации</a>
+      <a href="#modern">20. Современный CSS</a>
+      <a href="#architecture">21. Организация стилей</a>
+      <a href="#a11y">22. Доступность и производительность</a>
+      <a href="#limits">23. Границы CSS</a>
+      <a href="#summary">24. Карта возможностей</a>
+      <a href="#practice">25. Практика и источники</a>
+    </aside>
+
+    <main class="article">
+      <p class="breadcrumb"><a href="index.html">Главная</a> / CSS</p>
+      <section class="hero">
+        <p class="eyebrow">Раздел 02 · Визуальное представление веб-документа</p>
+        <h1>CSS: как браузер оформляет и размещает элементы</h1>
+        <p>CSS (Cascading Style Sheets, каскадные таблицы стилей) описывает представление структурированного документа. С его помощью задают цвета, типографику, размеры, расположение элементов, адаптивное поведение, визуальные состояния, переходы и анимации.</p>
+        <div class="hero-meta"><span class="pill">Каскад и селекторы</span><span class="pill">Box Model</span><span class="pill">Flexbox и Grid</span><span class="pill">Адаптивность</span><span class="pill">Анимации</span></div>
+      </section>
+
+      <section class="content-section" id="role">
+        <h2>1. Что такое CSS и за что он отвечает</h2>
+        <p class="lead">CSS — декларативный язык описания внешнего представления HTML- и других структурированных документов.</p>
+        <p>HTML сообщает, какие элементы и смысловые части есть в документе. CSS определяет, как эти элементы должны выглядеть и участвовать в компоновке: какой у них цвет, шрифт, размер, отступы, положение, поведение при нехватке места и визуальная реакция на состояния.</p>
+        <div class="grid-3">
+          <div class="mini-card"><h3>HTML</h3><p>Содержание и семантика: заголовок, абзац, список, кнопка, форма.</p></div>
+          <div class="mini-card"><h3>CSS</h3><p>Представление: типографика, цвет, размеры, расположение, адаптивность.</p></div>
+          <div class="mini-card"><h3>JavaScript</h3><p>Программная логика: вычисления, обработчики событий, запросы и динамика.</p></div>
+        </div>
+        <p>CSS не ограничивается «раскрашиванием» страницы. Он управляет алгоритмами компоновки: нормальным потоком, Flexbox, Grid, многоколоночной раскладкой, позиционированием и другими моделями. CSS также умеет описывать анимации, реагировать на состояния элементов и условия среды — например, ширину окна, предпочтение тёмной темы или настройку уменьшения движения.</p>
+        <div class="callout"><strong>Ключевая идея:</strong> CSS описывает правила и ограничения, а браузер вычисляет итоговые значения и применяет алгоритмы отображения. Разработчик обычно не задаёт координаты каждого пикселя вручную.</div>
+        <p>CSS развивается модульно: отдельные части стандарта описывают селекторы, каскад, размеры, цвет, сетки, анимации и другие области. Поэтому «CSS» — не одна небольшая спецификация, а семейство взаимосвязанных модулей.</p>
+      </section>
+
+      <section class="content-section" id="browser">
+        <h2>2. Как CSS обрабатывается браузером</h2>
+        <p>Когда браузер встречает CSS, он загружает таблицы стилей, разбирает их синтаксис и строит внутреннее представление правил — CSSOM (CSS Object Model). Затем браузер сопоставляет селекторы с элементами документа и вычисляет итоговые значения свойств с учётом каскада, наследования и значений по умолчанию.</p>
+        <figure>
+          <div class="diagram" aria-label="Упрощённая схема обработки CSS">
+            <div class="diagram-box"><strong>CSS-файлы и style-элементы</strong><span>Внешние, встроенные и пользовательские правила</span></div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box"><strong>CSS-парсер → CSSOM</strong><span>Разбор правил и построение модели стилей</span></div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box"><strong>Сопоставление селекторов и каскад</strong><span>Выбор значения для каждого CSS-свойства</span></div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box"><strong>Вычисление стилей</strong><span>Наследование, вычисленные и использованные значения</span></div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box"><strong>Layout → Paint → Compositing</strong><span>Компоновка, рисование и сборка слоёв</span></div>
+          </div>
+          <figcaption>Это упрощённая модель. Реальный браузер может перекрывать этапы, выполнять часть работы параллельно и повторять некоторые этапы после изменения документа или стилей.</figcaption>
+        </figure>
+        <h3>2.1. CSSOM</h3>
+        <p>CSSOM — объектная модель CSS. Она представляет таблицы стилей, правила и декларации в форме, с которой может работать браузер. JavaScript может обращаться к CSSOM через интерфейсы вроде <code>document.styleSheets</code> и <code>CSSStyleSheet</code>, а также читать вычисленный стиль элемента через <code>getComputedStyle()</code>.</p>
+        <h3>2.2. Computed style и итоговое значение</h3>
+        <p>Значение, написанное в файле, не всегда совпадает с тем, что браузер в итоге использует. Например, единицы могут быть преобразованы, проценты — рассчитаны относительно контекста, наследуемые значения — получены от родителя, а неопределённое свойство — принять начальное значение.</p>
+        <pre><code>/* Авторское правило */
+.card {
+  width: 50%;
+  color: inherit;
+  margin-inline: auto;
+}
+
+/* JavaScript может запросить вычисленный стиль */
+const card = document.querySelector(".card");
+const styles = getComputedStyle(card);
+console.log(styles.width);
+console.log(styles.color);</code></pre>
+        <p>Важно: вычисленный стиль не является готовой картинкой и не обязательно совпадает с фактическим количеством физических пикселей на дисплее. Между CSS и экраном находятся этапы компоновки, отрисовки, масштабирования и композитинга.</p>
+      </section>
+
+      <section class="content-section" id="attach">
+        <h2>3. Способы подключения CSS к HTML</h2>
+        <h3>3.1. Внешняя таблица стилей — основной способ</h3>
+        <pre><code>&lt;head&gt;
+  &lt;link rel="stylesheet" href="styles/main.css"&gt;
+&lt;/head&gt;</code></pre>
+        <p>CSS хранится в отдельном файле. Это облегчает повторное использование стилей, разделение ответственности, кеширование и сопровождение проекта.</p>
+        <h3>3.2. Встроенный блок &lt;style&gt;</h3>
+        <pre><code>&lt;head&gt;
+  &lt;style&gt;
+    body {
+      font-family: system-ui, sans-serif;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;</code></pre>
+        <p>Правила находятся непосредственно в HTML-документе. Подходит для небольших страниц, демонстраций и стилей, специфичных для одного документа.</p>
+        <h3>3.3. Атрибут style</h3>
+        <pre><code>&lt;p style="color: crimson; font-weight: 700;"&gt;
+  Важное сообщение
+&lt;/p&gt;</code></pre>
+        <p>Это inline-стиль. Он часто усложняет управление оформлением и проигрывает хорошей архитектуре внешних таблиц. Inline-декларации также имеют особое место в каскаде.</p>
+        <h3>3.4. @import</h3>
+        <pre><code>@import url("typography.css");
+
+body {
+  margin: 0;
+}</code></pre>
+        <p><code>@import</code> подключает другую таблицу стилей из CSS. Он полезен в некоторых случаях композиции стилей, но может повлиять на обнаружение и загрузку ресурсов. В типичных приложениях явное подключение файлов через HTML часто проще для управления загрузкой.</p>
+      </section>
+
+      <section class="content-section" id="syntax">
+        <h2>4. Синтаксис CSS</h2>
+        <p>Основная конструкция CSS называется правилом (CSS rule). В простом правиле есть селектор и блок деклараций.</p>
+        <pre><code>/* Селектор выбирает элементы */
+h1 {
+  color: #253b80;       /* свойство: значение */
+  font-size: 2rem;
+  margin-block: 0 1rem;
+}</code></pre>
+        <p>Составные части:</p>
+        <ul>
+          <li><strong>Селектор</strong> — описывает, к каким элементам применить правило.</li>
+          <li><strong>Декларация</strong> — пара «свойство: значение».</li>
+          <li><strong>Свойство</strong> — характеристика, которую можно изменить: <code>color</code>, <code>width</code>, <code>display</code>.</li>
+          <li><strong>Значение</strong> — выбранная настройка свойства: <code>red</code>, <code>20px</code>, <code>grid</code>.</li>
+        </ul>
+        <h3>4.1. Несколько правил и комментарии</h3>
+        <pre><code>h1, h2, h3 {
+  font-family: Georgia, serif;
+}
+
+/* Комментарии не отображаются на странице. */
+.note {
+  border-left: 4px solid royalblue;
+  padding: 1rem;
+}</code></pre>
+        <h3>4.2. At-rules — директивы CSS</h3>
+        <p>At-rule начинается с символа <code>@</code> и управляет специальной частью таблицы стилей.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Директива</th><th>Назначение</th></tr></thead>
+          <tbody>
+            <tr><td><code>@media</code></td><td>Условия среды или окна просмотра.</td></tr>
+            <tr><td><code>@supports</code></td><td>Проверка поддержки CSS-возможности.</td></tr>
+            <tr><td><code>@container</code></td><td>Условия, основанные на параметрах контейнера.</td></tr>
+            <tr><td><code>@layer</code></td><td>Управление слоями каскада.</td></tr>
+            <tr><td><code>@font-face</code></td><td>Объявление подключаемого шрифта.</td></tr>
+            <tr><td><code>@keyframes</code></td><td>Ключевые кадры анимации.</td></tr>
+            <tr><td><code>@property</code></td><td>Регистрация типизированного пользовательского свойства.</td></tr>
+            <tr><td><code>@scope</code></td><td>Ограничение области действия селекторов.</td></tr>
+            <tr><td><code>@page</code></td><td>Стили печатных страниц.</td></tr>
+            <tr><td><code>@import</code></td><td>Импорт другой таблицы стилей.</td></tr>
+          </tbody>
+        </table></div>
+        <p>Если браузер встречает неизвестное или некорректное объявление, он обычно отбрасывает соответствующее объявление или правило по правилам парсинга, а не прекращает обработку всего файла. Это позволяет CSS постепенно развиваться.</p>
+      </section>
+
+      <section class="content-section" id="selectors">
+        <h2>5. Селекторы: как выбрать элементы</h2>
+        <p>Селектор задаёт условие, по которому браузер определяет элементы, к которым применяются декларации.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Вид</th><th>Пример</th><th>Что выбирает</th></tr></thead>
+          <tbody>
+            <tr><td>Универсальный</td><td><code>*</code></td><td>Все элементы.</td></tr>
+            <tr><td>По типу</td><td><code>p</code></td><td>Все элементы <code>p</code>.</td></tr>
+            <tr><td>По классу</td><td><code>.card</code></td><td>Элементы с классом <code>card</code>.</td></tr>
+            <tr><td>По идентификатору</td><td><code>#menu</code></td><td>Элемент с id <code>menu</code>.</td></tr>
+            <tr><td>По атрибуту</td><td><code>[disabled]</code></td><td>Элементы с указанным атрибутом.</td></tr>
+            <tr><td>По значению атрибута</td><td><code>[type="email"]</code></td><td>Элементы с точным значением атрибута.</td></tr>
+            <tr><td>Групповой</td><td><code>h1, h2, p</code></td><td>Каждый тип из списка.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>5.1. Комбинаторы — отношения между элементами</h3>
+        <pre><code>article p       /* любой p внутри article */
+article &gt; p     /* p — непосредственный ребёнок article */
+h2 + p           /* p сразу после h2 на том же уровне */
+h2 ~ p           /* все последующие соседние p на том же уровне */
+.card.active     /* один элемент одновременно с двумя классами */</code></pre>
+        <p>Комбинаторы позволяют выбирать элементы по их положению в дереве документа. Они не перемещают элементы и не меняют HTML — только определяют, к каким узлам применить правила.</p>
+        <h3 id="pseudo">5.2. Псевдоклассы</h3>
+        <p>Псевдокласс выбирает элемент по состоянию, положению в структуре или другим условиям. Он начинается с одного двоеточия.</p>
+        <pre><code>button:hover { background: #294bb0; }
+input:focus-visible { outline: 3px solid orange; }
+input:invalid { border-color: crimson; }
+li:first-child { font-weight: 700; }
+tr:nth-child(even) { background: #f5f7fb; }
+.card:not(.featured) { opacity: .85; }
+form:has(input:invalid) { border-color: crimson; }</code></pre>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Группа</th><th>Примеры</th><th>Назначение</th></tr></thead>
+          <tbody>
+            <tr><td>Состояния взаимодействия</td><td><code>:hover</code>, <code>:active</code>, <code>:focus</code>, <code>:focus-visible</code></td><td>Наведение, нажатие, фокус.</td></tr>
+            <tr><td>Формы</td><td><code>:checked</code>, <code>:disabled</code>, <code>:required</code>, <code>:valid</code>, <code>:invalid</code></td><td>Состояние полей и управляющих элементов.</td></tr>
+            <tr><td>Структура</td><td><code>:first-child</code>, <code>:last-child</code>, <code>:nth-child()</code>, <code>:only-child</code></td><td>Положение относительно соседей.</td></tr>
+            <tr><td>Логические</td><td><code>:is()</code>, <code>:where()</code>, <code>:not()</code>, <code>:has()</code></td><td>Комбинирование условий и выбор по наличию потомков.</td></tr>
+            <tr><td>Документ и навигация</td><td><code>:root</code>, <code>:target</code>, <code>:lang()</code>, <code>:defined</code></td><td>Состояние документа, URL и языка.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>5.3. Псевдоэлементы</h3>
+        <p>Псевдоэлементы позволяют стилизовать определённую часть элемента или создать декоративную область, не добавляя отдельный HTML-элемент.</p>
+        <pre><code>.notice::before {
+  content: "Важно: ";
+  font-weight: 700;
+}
+
+p::first-letter { font-size: 2em; }
+::selection { background: #dce5ff; }
+input::placeholder { color: #7b8497; }
+li::marker { color: royalblue; }</code></pre>
+        <p>Для <code>::before</code> и <code>::after</code> обычно необходимо задать <code>content</code>. Они подходят для декоративных маркеров и графических деталей, но не должны заменять важное содержимое, которое пользователь обязан прочитать или использовать.</p>
+      </section>
+
+      <section class="content-section" id="cascade">
+        <h2>6. Каскад, специфичность и наследование</h2>
+        <p class="lead">Каскад — алгоритм, который разрешает конфликты, когда несколько CSS-деклараций задают разные значения одного свойства для одного элемента.</p>
+        <p>CSS расшифровывается как Cascading Style Sheets не случайно. На один элемент одновременно могут влиять правила браузера, таблицы автора сайта, пользовательские настройки, несколько подключённых файлов и inline-стили. Для каждого свойства браузер должен определить одно итоговое значение.</p>
+        <h3>6.1. Упрощённая последовательность каскада</h3>
+        <ol>
+          <li><strong>Релевантность:</strong> исключаются правила, которые не относятся к элементу или не проходят условие <code>@media</code>, <code>@supports</code> и другие условия.</li>
+          <li><strong>Источник и важность:</strong> учитывается происхождение декларации (браузер, пользователь, автор сайта), флаг <code>!important</code> и слой каскада.</li>
+          <li><strong>Специфичность:</strong> сравнивается вес селекторов, если предыдущие критерии не разрешили конфликт.</li>
+          <li><strong>Близость области:</strong> для подходящих scoped-правил может учитываться близость к корню области <code>@scope</code>.</li>
+          <li><strong>Порядок исходного кода:</strong> при прочих равных побеждает правило, расположенное позже.</li>
+        </ol>
+        <div class="callout warning"><strong>Не своди каскад к «id сильнее class».</strong> Специфичность сравнивается лишь после более ранних этапов каскада. Правило из более приоритетного источника или слоя может победить селектор с большим весом.</div>
+        <h3>6.2. Специфичность</h3>
+        <p>Для базовых селекторов удобно пользоваться условной тройкой <strong>(A, B, C)</strong>:</p>
+        <ul>
+          <li><strong>A</strong> — количество селекторов идентификаторов (#id).</li>
+          <li><strong>B</strong> — количество классов, атрибутов и псевдоклассов.</li>
+          <li><strong>C</strong> — количество селекторов типов и псевдоэлементов.</li>
+        </ul>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Селектор</th><th>Условный вес</th></tr></thead>
+          <tbody>
+            <tr><td><code>p</code></td><td><code>(0, 0, 1)</code></td></tr>
+            <tr><td><code>.note</code></td><td><code>(0, 1, 0)</code></td></tr>
+            <tr><td><code>#main</code></td><td><code>(1, 0, 0)</code></td></tr>
+            <tr><td><code>article.note p</code></td><td><code>(0, 1, 2)</code></td></tr>
+            <tr><td><code>:where(#main .note)</code></td><td><code>(0, 0, 0)</code></td></tr>
+            <tr><td><code>:is(.note, #main)</code></td><td>Максимальная специфичность среди аргументов: <code>(1, 0, 0)</code></td></tr>
+          </tbody>
+        </table></div>
+        <p>Тройка — удобная модель сравнения, а не буквальное число, которое складывают в одну сумму. Сравнение идёт по разрядам слева направо. Универсальный селектор <code>*</code>, комбинаторы и содержимое <code>:where()</code> не добавляют специфичности; <code>:is()</code>, <code>:not()</code> и <code>:has()</code> учитывают наиболее специфичный аргумент.</p>
+        <pre><code>p { color: black; }
+.article p { color: navy; }
+#intro { color: darkred; }
+
+/* Если элемент одновременно p.article и #intro,
+   значение для #intro имеет больший вес селектора. */</code></pre>
+        <h3>6.3. Наследование</h3>
+        <p>Некоторые свойства передаются от родительского элемента к потомкам, если не задано другое значение. Чаще наследуются свойства текста, например <code>color</code>, <code>font-family</code>, <code>font-size</code> и <code>line-height</code>. Геометрические свойства, например <code>margin</code>, <code>padding</code> и <code>border</code>, обычно не наследуются.</p>
+        <pre><code>body {
+  color: #263248;
+  font-family: system-ui, sans-serif;
+}
+
+/* Абзац унаследует цвет и семейство шрифта,
+   если для него не задано другое значение. */</code></pre>
+        <h3>6.4. Глобальные значения</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Значение</th><th>Смысл</th></tr></thead>
+          <tbody>
+            <tr><td><code>inherit</code></td><td>Принудительно взять значение у родителя.</td></tr>
+            <tr><td><code>initial</code></td><td>Использовать начальное значение свойства по спецификации.</td></tr>
+            <tr><td><code>unset</code></td><td>Вести себя как <code>inherit</code> для наследуемого свойства, иначе как <code>initial</code>.</td></tr>
+            <tr><td><code>revert</code></td><td>Откатить значение к предыдущему каскадному источнику.</td></tr>
+            <tr><td><code>revert-layer</code></td><td>Откатить значение к предыдущему слою каскада.</td></tr>
+          </tbody>
+        </table></div>
+        <h3 id="layers">6.5. Слои каскада — @layer</h3>
+        <p>Слои позволяют задать порядок приоритетов для крупных групп стилей. Это полезно, когда в проекте есть reset, базовые стили, компоненты, утилиты и сторонние библиотеки.</p>
+        <pre><code>@layer reset, base, components, utilities;
+
+@layer base {
+  button { font: inherit; }
+}
+
+@layer components {
+  .button { background: royalblue; color: white; }
+}
+
+@layer utilities {
+  .text-center { text-align: center; }
+}</code></pre>
+        <p>Для обычных авторских деклараций более поздний слой имеет приоритет над более ранним, а обычные правила вне слоёв — над обычными правилами внутри слоёв. Для <code>!important</code> порядок слоёв обращается. Это ещё одна причина не использовать <code>!important</code> как универсальный способ исправления конфликтов.</p>
+      </section>
+
+      <section class="content-section" id="values">
+        <h2>7. Значения, единицы измерения и CSS-функции</h2>
+        <p>Свойства CSS принимают разные типы значений: числа, длины, проценты, углы, время, цвета, ключевые слова, URL и более сложные структуры. Важно знать не только единицу, но и то, относительно чего она вычисляется.</p>
+        <h3>7.1. Длины</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Единица</th><th>Относительно чего</th><th>Типичное применение</th></tr></thead>
+          <tbody>
+            <tr><td><code>px</code></td><td>CSS-пиксель, логическая единица, не обязательно физический пиксель экрана.</td><td>Точные тонкие границы и небольшие детали.</td></tr>
+            <tr><td><code>em</code></td><td>Размер шрифта текущего контекста; точное поведение зависит от свойства.</td><td>Размеры, связанные с типографикой компонента.</td></tr>
+            <tr><td><code>rem</code></td><td>Размер шрифта корневого элемента.</td><td>Согласованная типографика и интервалы проекта.</td></tr>
+            <tr><td><code>%</code></td><td>Контекст, определённый конкретным свойством.</td><td>Ширина, размеры, позиционирование и другие пропорции.</td></tr>
+            <tr><td><code>vw</code>, <code>vh</code></td><td>Размеры viewport.</td><td>Относительные размеры области просмотра.</td></tr>
+            <tr><td><code>svh</code>, <code>lvh</code>, <code>dvh</code></td><td>Маленький, большой и динамический viewport по высоте.</td><td>Учет панелей браузера на мобильных устройствах.</td></tr>
+            <tr><td><code>ch</code>, <code>ex</code></td><td>Метрики шрифта.</td><td>Ограничение длины строки и типографические настройки.</td></tr>
+            <tr><td><code>fr</code></td><td>Доля свободного пространства в CSS Grid.</td><td>Распределение места между дорожками сетки.</td></tr>
+            <tr><td><code>cqw</code>, <code>cqi</code> и др.</td><td>Размеры query-контейнера.</td><td>Компоненты, реагирующие на размер своего контейнера.</td></tr>
+          </tbody>
+        </table></div>
+        <p>К единицам также относятся углы (<code>deg</code>, <code>rad</code>, <code>turn</code>), время (<code>s</code>, <code>ms</code>), разрешение (<code>dpi</code>, <code>dppx</code>) и другие специализированные величины.</p>
+        <h3>7.2. Функции для расчётов</h3>
+        <pre><code>.layout {
+  width: min(100% - 2rem, 72rem);
+  margin-inline: auto;
+}
+
+.title {
+  /* Ограничение адаптивного размера */
+  font-size: clamp(2rem, 5vw, 4.5rem);
+}
+
+.panel {
+  width: calc(100% - 2 * var(--gap));
+  min-width: min(100%, 18rem);
+}</code></pre>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Функция</th><th>Назначение</th></tr></thead>
+          <tbody>
+            <tr><td><code>calc()</code></td><td>Вычисления с CSS-значениями.</td></tr>
+            <tr><td><code>min()</code>, <code>max()</code></td><td>Минимум или максимум из нескольких выражений.</td></tr>
+            <tr><td><code>clamp()</code></td><td>Ограничивает значение нижней и верхней границей.</td></tr>
+            <tr><td><code>var()</code></td><td>Подставляет значение пользовательского свойства.</td></tr>
+            <tr><td><code>env()</code></td><td>Получает значения окружения, например безопасные отступы экрана.</td></tr>
+            <tr><td><code>color-mix()</code></td><td>Смешивает цвета в указанном цветовом пространстве.</td></tr>
+            <tr><td><code>minmax()</code></td><td>Задаёт диапазон размера дорожки Grid.</td></tr>
+            <tr><td><code>repeat()</code></td><td>Повторяет набор дорожек Grid.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>7.3. Пользовательские свойства — CSS variables</h3>
+        <pre><code>:root {
+  --color-primary: #3157c8;
+  --space-unit: 0.5rem;
+  --radius-card: 1rem;
+}
+
+.card {
+  color: var(--color-primary);
+  padding: calc(3 * var(--space-unit));
+  border-radius: var(--radius-card);
+}</code></pre>
+        <p>Пользовательские свойства с префиксом <code>--</code> участвуют в каскаде и обычно наследуются. Их можно переопределять на отдельных элементах, что удобно для тем, дизайн-токенов и повторно используемых компонентов. При необходимости для пользовательского свойства можно задать тип, начальное значение и правила наследования через <code>@property</code>.</p>
+      </section>
+
+      <section class="content-section" id="colors">
+        <h2>8. Цвета и прозрачность</h2>
+        <p>CSS поддерживает именованные цвета, шестнадцатеричную запись, RGB, HSL и более новые цветовые модели.</p>
+        <pre><code>.examples {
+  color: navy;
+  background: #f1f4ff;
+  border-color: rgb(40 70 150 / 65%);
+  outline-color: hsl(220 75% 45%);
+  box-shadow: 0 0 0 4px oklch(80% 0.12 250 / 40%);
+}</code></pre>
+        <p>Среди цветовых функций и пространств: <code>rgb()</code>, <code>hsl()</code>, <code>hwb()</code>, <code>lab()</code>, <code>lch()</code>, <code>oklab()</code>, <code>oklch()</code>, <code>color()</code> и <code>color-mix()</code>. Новые пространства позволяют более точно работать с восприятием светлоты и насыщенности и создавать плавные переходы между цветами.</p>
+        <h3>8.1. Цвет и прозрачность — не одно и то же, что видимость</h3>
+        <ul>
+          <li>Альфа-канал цвета делает прозрачным конкретный цветовой слой.</li>
+          <li><code>opacity</code> меняет непрозрачность всего элемента вместе с потомками и может создавать новый stacking context.</li>
+          <li><code>visibility: hidden</code> скрывает элемент, но обычно сохраняет занимаемое им место в раскладке.</li>
+          <li><code>display: none</code> исключает элемент из обычной компоновки.</li>
+        </ul>
+        <div class="callout warning"><strong>Доступность:</strong> цвет не должен быть единственным способом передать смысл. Например, ошибку поля нужно обозначать не только красной рамкой, но и текстом или другим понятным индикатором. Проверяй контраст текста и фона.</div>
+      </section>
+
+      <section class="content-section" id="box">
+        <h2>9. Блочная модель — Box Model</h2>
+        <p>В обычной CSS-компоновке каждый элемент участвует в создании прямоугольных областей. Классическая блочная модель включает содержимое, внутренние отступы, границу и внешние отступы.</p>
+        <figure>
+          <div class="diagram" aria-label="Схема блочной модели CSS">
+            <div class="diagram-box" style="background:#fff0e8;border-color:#e6a27d"><strong>Margin — внешнее пространство</strong><span>Расстояние за пределами рамки</span>
+              <div class="diagram-box" style="margin:10px;background:#fff8dc;border-color:#d7bc57"><strong>Border — граница</strong>
+                <div class="diagram-box" style="margin:10px;background:#e8f3ff;border-color:#79a8dc"><strong>Padding — внутренний отступ</strong>
+                  <div class="diagram-box" style="margin:10px;background:#e6f7ee;border-color:#6cb58b"><strong>Content — содержимое</strong><span>Текст, изображение или другой контент</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption>Схематическая модель: реальные размеры зависят от box-sizing, ограничений размеров и используемого режима компоновки.</figcaption>
+        </figure>
+        <pre><code>.box {
+  width: 300px;
+  padding: 20px;
+  border: 5px solid steelblue;
+  margin: 16px;
+  box-sizing: content-box;
+}</code></pre>
+        <p>При <code>content-box</code> заданная ширина относится только к содержимому. В приведённом примере внешняя ширина рамки составит 350 CSS-пикселей: 300 + 40 внутреннего отступа + 10 границы. Внешние отступы в эту ширину не входят.</p>
+        <pre><code>*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}</code></pre>
+        <p>При <code>border-box</code> заданная ширина включает содержимое, padding и border. Такой подход часто делает расчёт размеров предсказуемее.</p>
+        <h3>9.1. Margin collapse и overflow</h3>
+        <p>В некоторых случаях вертикальные внешние отступы соседних блочных элементов схлопываются: вместо суммы используется один отступ по правилам margin collapsing. Это не универсальное поведение всех направлений и всех типов контейнеров.</p>
+        <p>Свойство <code>overflow</code> управляет содержимым, выходящим за границы области: <code>visible</code>, <code>hidden</code>, <code>clip</code>, <code>scroll</code> и <code>auto</code>. Оно важно для прокрутки, обрезания и создания некоторых контекстов форматирования.</p>
+        <pre><code>.scroll-panel {
+  max-height: 18rem;
+  overflow: auto;
+}
+
+.image-frame img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}</code></pre>
+      </section>
+
+      <section class="content-section" id="display">
+        <h2>10. Типы отображения и потоки компоновки</h2>
+        <p>Свойство <code>display</code> определяет, какой тип CSS-бокса создаёт элемент и как его содержимое участвует в компоновке. Значение <code>display</code> — не просто переключатель «показать/скрыть».</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Значение</th><th>Основной смысл</th></tr></thead>
+          <tbody>
+            <tr><td><code>block</code></td><td>Блочный тип: обычно начинает новую строку и занимает доступную ширину.</td></tr>
+            <tr><td><code>inline</code></td><td>Строчный тип: участвует в строковом потоке текста.</td></tr>
+            <tr><td><code>inline-block</code></td><td>Ведёт себя как строчный элемент с блочной геометрией.</td></tr>
+            <tr><td><code>flow-root</code></td><td>Создаёт независимый контекст блочного форматирования.</td></tr>
+            <tr><td><code>flex</code>, <code>inline-flex</code></td><td>Включает Flexbox для непосредственных дочерних элементов.</td></tr>
+            <tr><td><code>grid</code>, <code>inline-grid</code></td><td>Включает CSS Grid.</td></tr>
+            <tr><td><code>table</code> и связанные значения</td><td>Компоновка с табличной моделью.</td></tr>
+            <tr><td><code>list-item</code></td><td>Создаёт маркер списка и основной блок.</td></tr>
+            <tr><td><code>none</code></td><td>Элемент не создаёт собственных боксов и не участвует в раскладке.</td></tr>
+            <tr><td><code>contents</code></td><td>Сам элемент не создаёт обычный контейнерный бокс; его содержимое участвует дальше в раскладке.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>10.1. Нормальный поток</h3>
+        <p>Если специально не задан другой режим, элементы располагаются в нормальном потоке. Блочные элементы последовательно располагаются вдоль блочной оси, а строчное содержимое формирует строки и переносится при нехватке места.</p>
+        <p>CSS также поддерживает независимые контексты форматирования, например BFC (Block Formatting Context). Их создание может изолировать поведение float, margin collapsing и другие эффекты. Один из явных способов создать BFC — <code>display: flow-root</code>.</p>
+        <h3>10.2. Видимость</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Свойство</th><th>Визуально скрыт?</th><th>Место в раскладке</th></tr></thead>
+          <tbody>
+            <tr><td><code>display: none</code></td><td>Да</td><td>Не занимает место.</td></tr>
+            <tr><td><code>visibility: hidden</code></td><td>Да</td><td>Обычно сохраняется.</td></tr>
+            <tr><td><code>opacity: 0</code></td><td>Да</td><td>Сохраняется; элемент может продолжать получать события.</td></tr>
+          </tbody>
+        </table></div>
+        <p>Сокрытие визуально не всегда означает удаление из клавиатурного или accessibility-взаимодействия. Для реальных интерфейсных сценариев нужно выбирать механизм в соответствии с требуемым поведением.</p>
+      </section>
+
+      <section class="content-section" id="position">
+        <h2>11. Позиционирование и управление слоями</h2>
+        <p>Свойство <code>position</code> определяет способ позиционирования элемента. Смещения обычно задают через <code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code> или логические свойства <code>inset-block</code> и <code>inset-inline</code>.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Значение</th><th>Поведение</th></tr></thead>
+          <tbody>
+            <tr><td><code>static</code></td><td>Обычное положение в нормальном потоке; смещения не применяются.</td></tr>
+            <tr><td><code>relative</code></td><td>Сохраняет место в потоке, но визуально смещается относительно своего исходного положения; часто создаёт containing block для absolute-потомков.</td></tr>
+            <tr><td><code>absolute</code></td><td>Исключается из нормального потока и позиционируется относительно своего containing block.</td></tr>
+            <tr><td><code>fixed</code></td><td>Обычно позиционируется относительно viewport, но некоторые предки могут изменить containing block.</td></tr>
+            <tr><td><code>sticky</code></td><td>Сначала ведёт себя как элемент потока, затем может закрепляться в пределах scroll-контейнера.</td></tr>
+          </tbody>
+        </table></div>
+        <pre><code>.card {
+  position: relative;
+}
+
+.card__badge {
+  position: absolute;
+  inset-block-start: 1rem;
+  inset-inline-end: 1rem;
+}
+
+.site-header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 10;
+}</code></pre>
+        <h3>11.1. Containing block</h3>
+        <p>Containing block — прямоугольная область, относительно которой рассчитываются некоторые размеры и координаты. Для абсолютно позиционированного элемента это часто ближайший позиционированный предок, но правила сложнее: содержащий блок могут создавать также трансформации, фильтры и некоторые другие свойства.</p>
+        <h3>11.2. z-index и stacking context</h3>
+        <p><code>z-index</code> участвует в порядке наложения элементов внутри контекста наложения. Нельзя считать его одной глобальной шкалой для всей страницы: дочерний элемент не может произвольно «вылезти» выше чужого родительского stacking context.</p>
+        <p>Контексты наложения создаются, среди прочего, некоторыми позиционированными элементами с z-index, элементами с <code>opacity</code> меньше единицы, трансформациями, фильтрами и <code>isolation: isolate</code>.</p>
+        <div class="callout">Когда кажется, что «z-index не работает», проверь не только числовое значение, но и stacking context предков, содержащий блок и контекст позиционирования.</div>
+      </section>
+
+      <section class="content-section" id="flex">
+        <h2>12. Flexbox — одномерная компоновка</h2>
+        <p>Flexbox предназначен для размещения элементов вдоль одной главной оси: в строку или столбец. Он удобен для навигации, панелей инструментов, групп кнопок, карточек и выравнивания элементов внутри компонента.</p>
+        <pre><code>.toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toolbar__actions {
+  display: flex;
+  gap: .5rem;
+}</code></pre>
+        <h3>12.1. Свойства flex-контейнера</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Свойство</th><th>Назначение</th></tr></thead>
+          <tbody>
+            <tr><td><code>flex-direction</code></td><td>Направление главной оси: row, row-reverse, column, column-reverse.</td></tr>
+            <tr><td><code>flex-wrap</code></td><td>Разрешает перенос элементов на новые строки.</td></tr>
+            <tr><td><code>flex-flow</code></td><td>Сокращение для direction и wrap.</td></tr>
+            <tr><td><code>justify-content</code></td><td>Распределение вдоль главной оси.</td></tr>
+            <tr><td><code>align-items</code></td><td>Выравнивание элементов по поперечной оси одной линии.</td></tr>
+            <tr><td><code>align-content</code></td><td>Распределение линий, когда есть несколько flex-линий и свободное место.</td></tr>
+            <tr><td><code>gap</code></td><td>Интервалы между элементами и линиями.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>12.2. Свойства flex-элементов</h3>
+        <ul>
+          <li><code>flex-grow</code> — насколько элемент может увеличиваться относительно других элементов.</li>
+          <li><code>flex-shrink</code> — насколько элемент может сжиматься.</li>
+          <li><code>flex-basis</code> — исходный базовый размер до распределения свободного пространства.</li>
+          <li><code>flex</code> — сокращённая запись этих трёх параметров.</li>
+          <li><code>align-self</code> — индивидуальное поперечное выравнивание.</li>
+          <li><code>order</code> — изменение визуального порядка flex-элемента; не меняет порядок в DOM и последовательность чтения.</li>
+        </ul>
+        <pre><code>.item {
+  flex: 1 1 16rem;
+}
+
+.item--fixed {
+  flex: 0 0 12rem;
+}</code></pre>
+        <div class="callout warning"><strong>Важный практический нюанс:</strong> у flex-элементов минимальный размер по умолчанию может зависеть от содержимого. Если элемент неожиданно не сжимается, иногда требуется явно задать <code>min-width: 0</code> или <code>min-inline-size: 0</code>.</div>
+        <p>Flexbox обычно выбирают для одномерной компоновки. Если нужно одновременно контролировать строки и столбцы как сетку, чаще удобнее Grid.</p>
+      </section>
+
+      <section class="content-section" id="grid">
+        <h2>13. CSS Grid — двумерная компоновка</h2>
+        <p>CSS Grid предназначен для компоновки по строкам и столбцам одновременно. Он особенно полезен для макетов страниц, каталогов, галерей и сложных интерфейсных панелей.</p>
+        <pre><code>.dashboard {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  gap: 1rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, 15rem), 1fr)
+  );
+  gap: 1rem;
+}</code></pre>
+        <h3>13.1. Основные понятия</h3>
+        <ul>
+          <li><strong>Grid container</strong> — элемент с <code>display: grid</code> или <code>inline-grid</code>.</li>
+          <li><strong>Grid item</strong> — непосредственный дочерний элемент сетки.</li>
+          <li><strong>Track</strong> — дорожка, строка или столбец сетки.</li>
+          <li><strong>Grid line</strong> — линия, ограничивающая дорожки.</li>
+          <li><strong>Grid area</strong> — прямоугольная область из одной или нескольких ячеек.</li>
+          <li><strong>Gap</strong> — промежуток между дорожками.</li>
+        </ul>
+        <h3>13.2. Основные свойства</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Свойство</th><th>Назначение</th></tr></thead>
+          <tbody>
+            <tr><td><code>grid-template-columns</code></td><td>Определяет дорожки столбцов.</td></tr>
+            <tr><td><code>grid-template-rows</code></td><td>Определяет дорожки строк.</td></tr>
+            <tr><td><code>grid-template-areas</code></td><td>Задаёт именованные области сетки.</td></tr>
+            <tr><td><code>grid-auto-columns/rows</code></td><td>Размеры неявно создаваемых дорожек.</td></tr>
+            <tr><td><code>grid-column</code>, <code>grid-row</code></td><td>Размещение элементов по линиям.</td></tr>
+            <tr><td><code>grid-auto-flow</code></td><td>Алгоритм автоматического размещения.</td></tr>
+            <tr><td><code>justify-items</code>, <code>align-items</code></td><td>Выравнивание элементов внутри ячеек.</td></tr>
+            <tr><td><code>place-items</code></td><td>Сокращение для выравнивания по двум осям.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>13.3. Именованные области</h3>
+        <pre><code>.page {
+  display: grid;
+  grid-template-columns: 16rem 1fr;
+  grid-template-areas:
+    "header header"
+    "sidebar content"
+    "footer footer";
+  gap: 1rem;
+}
+
+.header  { grid-area: header; }
+.sidebar { grid-area: sidebar; }
+.content { grid-area: content; }
+.footer  { grid-area: footer; }</code></pre>
+        <h3>13.4. Автоматические дорожки и subgrid</h3>
+        <p><code>repeat()</code>, <code>minmax()</code>, <code>auto-fit</code> и <code>auto-fill</code> позволяют создавать адаптивные сетки без отдельного media query для каждого количества столбцов. <code>subgrid</code> позволяет вложенной сетке использовать дорожки родительской сетки — это полезно, когда элементы в разных карточках должны согласовывать строки или столбцы.</p>
+        <pre><code>.catalog {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+}</code></pre>
+      </section>
+
+      <section class="content-section" id="other-layout">
+        <h2>14. Другие механизмы компоновки</h2>
+        <p>Flexbox и Grid — не единственные средства CSS. Существуют специализированные модели, которые подходят для определённых типов контента.</p>
+        <h3>14.1. Float и обтекание</h3>
+        <p><code>float</code> изначально предназначался для обтекания изображения текстом. Сейчас он полезен для редакционного контента, но не является предпочтительным способом создания общей сетки сайта.</p>
+        <pre><code>.article-image {
+  float: inline-start;
+  width: min(40%, 18rem);
+  margin-inline-end: 1rem;
+}</code></pre>
+        <p><code>clear</code> управляет тем, может ли элемент располагаться рядом с float-элементами.</p>
+        <h3>14.2. Многоколоночная раскладка</h3>
+        <pre><code>.long-text {
+  columns: 2 18rem;
+  column-gap: 2rem;
+  column-rule: 1px solid #d8deea;
+}</code></pre>
+        <p>Многоколоночная модель подходит для журнального текста и длинных списков. Она автоматически разбивает содержимое на колонки, а не строит независимую сетку карточек.</p>
+        <h3>14.3. Выравнивание</h3>
+        <p>CSS Box Alignment предоставляет общие механизмы выравнивания в Grid, Flexbox и других моделях. Основные свойства — <code>justify-content</code>, <code>align-content</code>, <code>justify-items</code>, <code>align-items</code>, <code>justify-self</code>, <code>align-self</code> и сокращения <code>place-content</code>, <code>place-items</code>, <code>place-self</code>. Точный смысл осей зависит от режима компоновки.</p>
+        <h3>14.4. Scroll Snap и управление прокруткой</h3>
+        <pre><code>.gallery {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 85%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 1rem;
+}
+
+.gallery > * {
+  scroll-snap-align: start;
+}</code></pre>
+        <p>Свойства <code>scroll-snap-type</code> и <code>scroll-snap-align</code> помогают организовать привязку прокрутки к определённым точкам. Рядом с ними существуют <code>scroll-behavior</code>, <code>scroll-margin</code>, <code>scroll-padding</code> и <code>overscroll-behavior</code>.</p>
+      </section>
+
+      <section class="content-section" id="text">
+        <h2>15. Типографика и оформление текста</h2>
+        <p>Типографика влияет не только на внешний вид, но и на читаемость, плотность информации и доступность документа.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Свойство</th><th>Что регулирует</th></tr></thead>
+          <tbody>
+            <tr><td><code>font-family</code></td><td>Семейство шрифтов и fallback-цепочку.</td></tr>
+            <tr><td><code>font-size</code></td><td>Размер шрифта.</td></tr>
+            <tr><td><code>font-weight</code></td><td>Насыщенность начертания.</td></tr>
+            <tr><td><code>font-style</code></td><td>Обычное, курсивное или наклонное начертание.</td></tr>
+            <tr><td><code>line-height</code></td><td>Высоту строки.</td></tr>
+            <tr><td><code>letter-spacing</code></td><td>Межбуквенное расстояние.</td></tr>
+            <tr><td><code>word-spacing</code></td><td>Расстояние между словами.</td></tr>
+            <tr><td><code>text-align</code></td><td>Выравнивание текста.</td></tr>
+            <tr><td><code>text-decoration</code></td><td>Подчёркивание, перечёркивание и другие линии.</td></tr>
+            <tr><td><code>text-transform</code></td><td>Преобразование регистра отображаемого текста.</td></tr>
+            <tr><td><code>white-space</code></td><td>Обработка пробелов и переносов строк.</td></tr>
+            <tr><td><code>overflow-wrap</code>, <code>word-break</code></td><td>Перенос длинных слов и последовательностей.</td></tr>
+            <tr><td><code>text-overflow</code></td><td>Отображение обрезанного текстового содержимого.</td></tr>
+          </tbody>
+        </table></div>
+        <pre><code>body {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.article {
+  max-width: 70ch;
+  text-wrap: pretty;
+}</code></pre>
+        <h3>15.1. Подключение собственных шрифтов</h3>
+        <pre><code>@font-face {
+  font-family: "Project Sans";
+  src: url("/fonts/project-sans.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}</code></pre>
+        <p><code>@font-face</code> объявляет шрифт, который браузер может загрузить и использовать. Нужно учитывать лицензии, объём файлов, подмножества символов, fallback-шрифты и стратегию отображения до загрузки шрифта.</p>
+        <h3>15.2. Writing modes и логические свойства</h3>
+        <p>Свойства <code>writing-mode</code>, <code>direction</code> и <code>text-orientation</code> позволяют учитывать разные направления письма. Логические свойства — <code>margin-inline-start</code>, <code>padding-block</code>, <code>border-inline-end</code>, <code>inset-inline</code> — привязывают оформление к понятиям inline/block, а не к физическим left/right/top/bottom. Это упрощает поддержку RTL-языков и вертикального письма.</p>
+      </section>
+
+      <section class="content-section" id="decoration">
+        <h2>16. Фоны, рамки, тени и визуальные эффекты</h2>
+        <p>CSS включает большое семейство свойств для оформления поверхностей и визуальных слоёв.</p>
+        <h3>16.1. Фоны и градиенты</h3>
+        <pre><code>.hero-panel {
+  background-color: #1d3268;
+  background-image:
+    radial-gradient(circle at top right, #7894ff, transparent 40%),
+    linear-gradient(120deg, #142347, #3157c8);
+  background-position: center;
+  background-size: cover;
+}</code></pre>
+        <p>Можно задавать несколько фоновых слоёв, изображения, повторение, размер, позицию и способ смешивания.</p>
+        <h3>16.2. Границы и тени</h3>
+        <pre><code>.panel {
+  border: 1px solid #dce2ef;
+  border-radius: 1rem;
+  box-shadow: 0 1rem 2rem rgb(20 35 70 / 12%);
+}</code></pre>
+        <p>Дополнительно доступны outline, контуры, рамки изображений, внутренние и внешние тени, индивидуальный радиус углов и свойства для управления фоном внутри границы.</p>
+        <h3>16.3. Маски, обрезка и фильтры</h3>
+        <pre><code>.avatar {
+  width: 8rem;
+  aspect-ratio: 1;
+  object-fit: cover;
+  clip-path: circle(50%);
+}
+
+.photo:hover {
+  filter: saturate(1.15) contrast(1.05);
+}</code></pre>
+        <p>К инструментам эффектов относятся <code>filter</code>, <code>backdrop-filter</code>, <code>clip-path</code>, <code>mask</code>, <code>mix-blend-mode</code>, <code>background-blend-mode</code> и различные SVG-фильтры. Их следует применять осмысленно: сложные фильтры и большие полупрозрачные поверхности могут увеличивать нагрузку на графический конвейер.</p>
+      </section>
+
+      <section class="content-section" id="responsive">
+        <h2>17. Адаптивный дизайн — Responsive Design</h2>
+        <p>Адаптивный интерфейс подстраивается под доступное пространство и условия устройства. Он должен оставаться читаемым и управляемым не только на конкретной модели телефона, но и при изменении ширины окна, масштаба, ориентации и настроек пользователя.</p>
+        <h3>17.1. Mobile-first</h3>
+        <p>Один из распространённых подходов — сначала описать базовый вариант для узкого экрана, а затем добавлять улучшения по мере появления свободного пространства.</p>
+        <pre><code>/* Базовый вариант — одна колонка */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+/* Когда пространства достаточно — две колонки */
+@media (width >= 48rem) {
+  .layout {
+    grid-template-columns: 16rem minmax(0, 1fr);
+  }
+}</code></pre>
+        <p>Breakpoints стоит выбирать по моменту, когда конкретный контент перестаёт удобно помещаться, а не только по названиям устройств.</p>
+        <h3>17.2. Media Queries</h3>
+        <p>Media queries позволяют применить CSS при выполнении условий о viewport, типе устройства вывода и предпочтениях пользователя.</p>
+        <pre><code>/* Портретная ориентация */
+@media (orientation: portrait) {
+  .sidebar { display: none; }
+}
+
+/* Пользователь предпочитает тёмную палитру */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --surface: #171c28;
+    --text: #edf1f8;
+  }
+}
+
+/* Пользователь просит уменьшить движение */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto;
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}</code></pre>
+        <p>Другие полезные media features: <code>width</code>, <code>height</code>, <code>aspect-ratio</code>, <code>resolution</code>, <code>hover</code>, <code>pointer</code>, <code>prefers-contrast</code>, <code>forced-colors</code> и <code>print</code>.</p>
+        <h3 id="container">17.3. Container Queries</h3>
+        <p>Media query обычно проверяет характеристики viewport или устройства. Container query позволяет компоненту адаптироваться к размеру своего контейнера. Это особенно полезно для повторно используемых карточек и виджетов: одна карточка может находиться в узкой боковой панели или в широком основном столбце.</p>
+        <pre><code>.card-list {
+  container-type: inline-size;
+  container-name: cards;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@container cards (width >= 36rem) {
+  .card {
+    grid-template-columns: 10rem minmax(0, 1fr);
+  }
+}</code></pre>
+        <p>Единицы <code>cqw</code>, <code>cqh</code>, <code>cqi</code> и <code>cqb</code> позволяют задавать длины относительно query-контейнера. Для проверки размера контейнера требуется соответствующий containment-контекст, например <code>container-type: inline-size</code>.</p>
+        <h3>17.4. Progressive Enhancement и @supports</h3>
+        <pre><code>.card {
+  display: block;
+}
+
+@supports (display: grid) {
+  .card-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  }
+}</code></pre>
+        <p>Прогрессивное улучшение означает, что базовый интерфейс остаётся пригодным, а современные возможности добавляются там, где браузер их поддерживает. Для проверки реальной поддержки конкретной функции используй таблицы совместимости, а не только наличие свойства в черновике стандарта.</p>
+      </section>
+
+      <section class="content-section" id="interaction">
+        <h2>18. Состояния элементов и интерактивные интерфейсы</h2>
+        <p>CSS может менять оформление в ответ на состояние элемента, не выполняя JavaScript. Это не заменяет программную логику, но позволяет оформлять фокус, наведение, выбор, валидацию и некоторые состояния взаимодействия.</p>
+        <pre><code>button {
+  background: #3157c8;
+  color: white;
+  border: 0;
+  border-radius: .6rem;
+  padding: .7rem 1rem;
+}
+
+button:hover { background: #2547ad; }
+button:active { transform: translateY(1px); }
+button:focus-visible {
+  outline: 3px solid #f0b429;
+  outline-offset: 3px;
+}
+
+input:checked + label { font-weight: 700; }
+input:disabled { opacity: .55; }
+</code></pre>
+        <h3>18.1. Акцент, курсор и события указателя</h3>
+        <p><code>cursor</code> задаёт вид курсора; <code>pointer-events</code> управляет тем, как элемент может быть целью указательных событий; <code>accent-color</code> задаёт акцентный цвет некоторых встроенных управляющих элементов. Свойство <code>appearance</code> влияет на нативное оформление контролов, но полное переоформление форм требует внимательной работы с доступностью и состояниями.</p>
+        <h3>18.2. Псевдоклассы интерактивности</h3>
+        <p>Особенно полезны <code>:focus-visible</code>, <code>:focus-within</code>, <code>:checked</code>, <code>:disabled</code>, <code>:enabled</code>, <code>:required</code>, <code>:valid</code>, <code>:invalid</code>, <code>:placeholder-shown</code>, <code>:target</code> и <code>:has()</code>.</p>
+        <div class="callout warning"><strong>Не убирай outline без замены.</strong> Видимый фокус нужен людям, управляющим сайтом клавиатурой. Визуальная индикация должна сохраняться и быть различимой.</div>
+      </section>
+
+      <section class="content-section" id="motion">
+        <h2>19. Трансформации, переходы и анимации</h2>
+        <p>CSS позволяет изменять визуальное состояние элементов плавно, по времени или по ключевым кадрам.</p>
+        <h3>19.1. Transforms</h3>
+        <pre><code>.card:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+
+.logo {
+  transform: rotate(-6deg);
+  transform-origin: center;
+}</code></pre>
+        <p>Трансформации включают перенос, масштабирование, вращение и наклон в 2D/3D. Связанные свойства: <code>transform-origin</code>, <code>transform-style</code>, <code>perspective</code> и <code>backface-visibility</code>.</p>
+        <h3>19.2. Transitions</h3>
+        <pre><code>.button {
+  background: royalblue;
+  transform: translateY(0);
+  transition:
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.button:hover {
+  background: midnightblue;
+  transform: translateY(-2px);
+}</code></pre>
+        <p>Переход интерполирует изменение значения между состояниями. Основные свойства: <code>transition-property</code>, <code>transition-duration</code>, <code>transition-timing-function</code> и <code>transition-delay</code>.</p>
+        <h3>19.3. @keyframes и animation</h3>
+        <pre><code>@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+.status-dot {
+  animation: pulse 1.4s ease-in-out infinite;
+}</code></pre>
+        <p>Анимации могут управлять длительностью, задержкой, направлением, количеством повторений, режимом заполнения и состоянием воспроизведения. Для декоративного движения нужно учитывать <code>prefers-reduced-motion</code>.</p>
+        <h3>19.4. Scroll-driven animations и View Transitions</h3>
+        <p>Современная CSS-платформа расширяет анимации за пределы обычного времени. Scroll-driven animations связывают прогресс анимации с прокруткой или видимостью элемента. View Transitions позволяют оформлять переходы между визуальными состояниями страницы; для полноценного управления переходом между состояниями обычно используется соответствующий браузерный API.</p>
+        <p>Эти возможности развиваются, а поддержка может отличаться по браузерам и версиям. Перед применением в критичном интерфейсе проверяй совместимость и предусматривай спокойный статический вариант.</p>
+      </section>
+
+      <section class="content-section" id="modern">
+        <h2>20. Современные и продвинутые возможности CSS</h2>
+        <p>Современный CSS — это не только Flexbox и Grid. В нём есть средства управления архитектурой стилей, областью действия, анимационными состояниями, геометрией, содержимым и взаимодействием с другими частями платформы.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Возможность</th><th>Для чего нужна</th><th>Примечание</th></tr></thead>
+          <tbody>
+            <tr><td>CSS Nesting</td><td>Вкладывать правила селекторов друг в друга.</td><td>Нативная возможность современного CSS; следи за специфичностью и читаемостью.</td></tr>
+            <tr><td><code>@scope</code></td><td>Ограничивать область, в которой действуют правила.</td><td>Новая возможность; совместимость со старыми браузерами нужно проверять.</td></tr>
+            <tr><td><code>@property</code></td><td>Регистрировать пользовательские свойства с типом, наследованием и начальным значением.</td><td>Может сделать custom properties анимируемыми по правилам зарегистрированного типа.</td></tr>
+            <tr><td><code>:has()</code></td><td>Выбирать элемент с учётом подходящих потомков или соседей.</td><td>Позволяет решать часть задач, которые раньше часто требовали JavaScript.</td></tr>
+            <tr><td>Logical properties</td><td>Описывать размеры и отступы относительно направления письма.</td><td>Полезны для RTL и вертикальных систем письма.</td></tr>
+            <tr><td>Anchor positioning</td><td>Позиционировать один элемент относительно другого якорного элемента.</td><td>Новое семейство возможностей; поддержку нужно проверять по целевым браузерам.</td></tr>
+            <tr><td>Scroll-driven animations</td><td>Привязывать анимацию к прогрессу прокрутки или видимости.</td><td>Поддержка и детали реализации могут различаться.</td></tr>
+            <tr><td>View Transitions</td><td>Оформлять переходы между состояниями или страницами.</td><td>CSS отвечает за стили перехода, API — за запуск и управление.</td></tr>
+            <tr><td>CSS containment</td><td>Ограничивать влияние поддерева на раскладку и отрисовку.</td><td>Может улучшать изоляцию и производительность, но меняет поведение layout.</td></tr>
+            <tr><td>Content visibility</td><td>Позволять браузеру пропускать часть работы для содержимого вне экрана.</td><td>Нужны правильные оценки размеров и тестирование прокрутки.</td></tr>
+            <tr><td>CSS masks и filters</td><td>Создавать сложные визуальные эффекты.</td><td>Могут иметь заметную графическую стоимость.</td></tr>
+            <tr><td>Print CSS</td><td>Формировать документ для печати или PDF.</td><td>Используются <code>@media print</code> и <code>@page</code>.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>20.1. CSS Nesting</h3>
+        <pre><code>.card {
+  padding: 1rem;
+
+  &amp;:hover {
+    border-color: royalblue;
+  }
+
+  .card__title {
+    font-size: 1.25rem;
+  }
+
+  @media (width >= 50rem) {
+    padding: 2rem;
+  }
+}</code></pre>
+        <p>Вложенность позволяет держать связанные правила рядом. Не стоит строить чрезмерно глубокие цепочки: они затрудняют чтение и могут повышать специфичность вложенных селекторов.</p>
+        <h3>20.2. @property</h3>
+        <pre><code>@property --progress {
+  syntax: "&lt;number&gt;";
+  inherits: false;
+  initial-value: 0;
+}
+
+.meter {
+  --progress: 0.6;
+  transform: scaleX(var(--progress));
+  transform-origin: left;
+}</code></pre>
+        <p>Регистрация сообщает браузеру допустимый тип пользовательского свойства и другие правила его обработки. Это позволяет браузеру лучше понимать значение, а в подходящих случаях — интерполировать его в анимациях.</p>
+        <h3>20.3. Anchor Positioning</h3>
+        <p>Anchor positioning предназначен для привязки элемента к другому элементу-якорю, например для позиционирования подсказки около кнопки. Это отдельный механизм CSS, а не просто комбинация абсолютного позиционирования и вручную рассчитанных координат. Из-за разной поддержки браузерами его следует считать продвинутой возможностью и проверять совместимость перед использованием.</p>
+        <h3>20.4. Печатные стили</h3>
+        <pre><code>@media print {
+  nav, .toolbar, .no-print {
+    display: none !important;
+  }
+
+  body {
+    color: black;
+    background: white;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+  }
+}
+
+@page {
+  margin: 18mm;
+}</code></pre>
+      </section>
+
+      <section class="content-section" id="architecture">
+        <h2>21. Организация и архитектура CSS в проекте</h2>
+        <p>CSS-файл может быстро превратиться в набор конфликтующих правил, если не договориться о структуре. Архитектура нужна для управляемости, повторного использования и предсказуемого каскада.</p>
+        <h3>21.1. Разделение по назначению</h3>
+        <pre><code>styles/
+  01-reset.css
+  02-tokens.css
+  03-base.css
+  04-layout.css
+  components/
+    button.css
+    card.css
+    navigation.css
+  utilities.css
+  main.css</code></pre>
+        <p>Это пример возможной структуры, а не обязательное правило. Для небольшого сайта может быть достаточно одного файла; для большой системы полезно разделять базовые стили, компоненты и дизайн-токены.</p>
+        <h3>21.2. Подходы к именованию</h3>
+        <ul>
+          <li><strong>BEM:</strong> блок, элемент и модификатор, например <code>card</code>, <code>card__title</code>, <code>card--featured</code>.</li>
+          <li><strong>Utility classes:</strong> небольшие классы-утилиты, например <code>text-center</code> или <code>mt-2</code>.</li>
+          <li><strong>Component-based:</strong> стили организуются вокруг повторно используемых UI-компонентов.</li>
+          <li><strong>CSS Modules:</strong> механизм сборки, который локализует имена классов; это не отдельная функция языка CSS.</li>
+        </ul>
+        <h3>21.3. Препроцессоры и PostCSS</h3>
+        <p>Sass/SCSS, Less и инструменты PostCSS расширяют или преобразуют CSS на этапе сборки. Они могут предоставлять дополнительные функции, переменные, миксины, преобразование синтаксиса и автопрефиксер. Не путай возможности языка CSS с возможностями инструмента сборки: браузер получает итоговый CSS, если только браузер не поддерживает исходную конструкцию нативно.</p>
+        <div class="callout"><strong>Практический ориентир:</strong> сначала изучи нативные CSS — каскад, custom properties, Grid, Flexbox, media/container queries. Затем станет понятнее, какую проблему решает конкретная библиотека или препроцессор.</div>
+      </section>
+
+      <section class="content-section" id="a11y">
+        <h2>22. Доступность, производительность и отладка</h2>
+        <h3>22.1. Доступность</h3>
+        <ul>
+          <li>Сохраняй заметный клавиатурный фокус; используй <code>:focus-visible</code>.</li>
+          <li>Проверяй контраст текста и фона.</li>
+          <li>Не передавай состояние только цветом.</li>
+          <li>Уважай <code>prefers-reduced-motion</code>.</li>
+          <li>Проверяй страницу при увеличении масштаба и изменении размера текста.</li>
+          <li>Не меняй визуальный порядок так, чтобы он противоречил порядку чтения и фокуса.</li>
+          <li>Не скрывай важное содержимое только ради визуального эффекта.</li>
+        </ul>
+        <h3>22.2. Производительность</h3>
+        <p>Изменение разных CSS-свойств может запускать разную работу браузера. Изменение ширины или положения в обычном потоке может потребовать пересчёта layout; изменение цвета часто требует paint; некоторые трансформации могут быть обработаны на этапе compositing. Но это не абсолютные гарантии: конкретный путь зависит от браузера, контекста и графического конвейера.</p>
+        <ul>
+          <li>Избегай ненужных крупных и частых изменений layout.</li>
+          <li>Не включай <code>will-change</code> без измеримой причины: оно не является универсальным ускорителем.</li>
+          <li>Ограничивай сложные фильтры, тени и большие полупрозрачные слои там, где они создают нагрузку.</li>
+          <li>Используй CSS containment и <code>content-visibility</code> только после понимания их побочных эффектов.</li>
+          <li>Проверяй реальную производительность через профилировщик браузера, а не по внешнему виду кода.</li>
+        </ul>
+        <h3>22.3. Отладка в DevTools</h3>
+        <p>Панель Elements/Inspector показывает DOM, применённые правила, перечёркнутые декларации, специфичность, вычисленные стили и модель коробки. Можно временно менять значения, включать и отключать декларации, смотреть Grid/Flex overlays, проверять media queries и искать источник правила.</p>
+        <p>Полезный порядок диагностики: выбери элемент → открой computed styles → выясни, какое правило задало свойство → проверь каскад и специфичность → проверь размеры родителя и режим layout → проверь stacking context, если проблема связана с наложением.</p>
+      </section>
+
+      <section class="content-section" id="limits">
+        <h2>23. Что CSS не делает самостоятельно</h2>
+        <p>CSS умеет описывать представление и часть реакций на состояние, но не заменяет язык программирования или браузерные API.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Задача</th><th>Чем обычно решается</th></tr></thead>
+          <tbody>
+            <tr><td>Описать семантическую структуру документа</td><td>HTML.</td></tr>
+            <tr><td>Оформить, выровнять и адаптировать элементы</td><td>CSS.</td></tr>
+            <tr><td>Вычислить сложный результат по пользовательским данным</td><td>JavaScript или серверный код.</td></tr>
+            <tr><td>Отправить произвольный сетевой запрос и разобрать ответ</td><td>JavaScript и Fetch/WebSocket API.</td></tr>
+            <tr><td>Сохранить данные в localStorage или IndexedDB</td><td>JavaScript и соответствующие Web API.</td></tr>
+            <tr><td>Получить доступ к камере или геолокации</td><td>JavaScript и Web API с разрешением пользователя.</td></tr>
+            <tr><td>Создать интерактивную графику на Canvas</td><td>Canvas API и обычно JavaScript.</td></tr>
+            <tr><td>Изменить содержимое DOM по сложному алгоритму</td><td>JavaScript.</td></tr>
+          </tbody>
+        </table></div>
+        <p>CSS может реагировать на состояние через селекторы, переключать визуальные варианты и даже выполнять анимации. Но для произвольных вычислений, хранения данных, сетевого обмена и сложных сценариев требуется программный код или другая часть платформы.</p>
+      </section>
+
+      <section class="content-section" id="summary">
+        <h2>24. Карта возможностей CSS</h2>
+        <p>Ниже — систематизация основных областей. Это карта направления, а не исчерпывающий список всех свойств: CSS включает сотни свойств, функций, селекторов и типов значений, а спецификации продолжают развиваться.</p>
+        <div class="grid-2">
+          <div class="mini-card"><h3>Синтаксис и каскад</h3><p>Правила, декларации, at-rules, источники стилей, важность, слои, специфичность, наследование.</p></div>
+          <div class="mini-card"><h3>Выбор элементов</h3><p>Селекторы типов, классов, атрибутов, комбинаторы, псевдоклассы и псевдоэлементы.</p></div>
+          <div class="mini-card"><h3>Значения и вычисления</h3><p>Единицы, проценты, цвета, функции calc/min/max/clamp, переменные, системные значения.</p></div>
+          <div class="mini-card"><h3>Геометрия</h3><p>Box Model, width/height, padding, margin, border, overflow, aspect-ratio, sizing.</p></div>
+          <div class="mini-card"><h3>Компоновка</h3><p>Normal flow, block/inline, BFC, position, float, Flexbox, Grid, columns, alignment.</p></div>
+          <div class="mini-card"><h3>Визуальное оформление</h3><p>Цвета, шрифты, текст, фоны, границы, тени, фильтры, маски, обрезка.</p></div>
+          <div class="mini-card"><h3>Адаптивность</h3><p>Media queries, viewport units, container queries, логические свойства, предпочтения пользователя.</p></div>
+          <div class="mini-card"><h3>Интерактивность и движение</h3><p>Псевдоклассы, transforms, transitions, keyframes, scroll-driven animations, view transitions.</p></div>
+          <div class="mini-card"><h3>Архитектура</h3><p>Custom properties, @layer, nesting, @scope, @property, дизайн-токены и компоненты.</p></div>
+          <div class="mini-card"><h3>Специализированные задачи</h3><p>Печать, доступность, SVG, containment, прокрутка и взаимодействие с Shadow DOM.</p></div>
+        </div>
+        <h3>Как выбрать модель компоновки</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Задача</th><th>Обычно подходит</th></tr></thead>
+          <tbody>
+            <tr><td>Расположить элементы в строку или колонку, выровнять их</td><td>Flexbox.</td></tr>
+            <tr><td>Создать сетку строк и столбцов</td><td>CSS Grid.</td></tr>
+            <tr><td>Поставить подпись или значок поверх карточки</td><td>Positioning.</td></tr>
+            <tr><td>Обтекать изображение текстом</td><td>Float.</td></tr>
+            <tr><td>Разбить длинный текст на колонки</td><td>Multi-column layout.</td></tr>
+            <tr><td>Адаптировать компонент к ширине собственной области</td><td>Container queries.</td></tr>
+            <tr><td>Адаптировать страницу к размеру окна</td><td>Media queries и fluid sizing.</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section class="content-section" id="practice">
+        <h2>25. Практика и источники</h2>
+        <p>Лучше осваивать CSS не запоминанием сотен свойств, а короткими экспериментами: меняй одно правило, наблюдай результат в браузере и объясняй, почему произошло именно так.</p>
+        <h3>25.1. Практические задания</h3>
+        <ol>
+          <li><strong>Подключение и селекторы.</strong> Создай HTML с заголовками, абзацами, ссылками и карточками. Подключи внешний CSS. Применяй типовые, классовые, атрибутные селекторы и комбинаторы.</li>
+          <li><strong>Каскад.</strong> Задай одно свойство несколькими правилами. Предскажи результат, затем проверь специфичность, источник, слой и порядок объявлений.</li>
+          <li><strong>Box Model.</strong> Создай карточку с width, padding, border и margin. Сравни <code>content-box</code> и <code>border-box</code>.</li>
+          <li><strong>Flexbox.</strong> Сделай панель навигации с логотипом слева и группой кнопок справа. Проверь поведение при узком окне.</li>
+          <li><strong>Grid.</strong> Сделай каталог карточек, автоматически меняющий число столбцов при изменении доступного пространства.</li>
+          <li><strong>Position.</strong> Добавь бейдж в угол карточки и закреплённую шапку. Разберись с containing block и z-index.</li>
+          <li><strong>Адаптивность.</strong> Добавь media query и container query. Сравни, на какие размеры они реагируют.</li>
+          <li><strong>Темы и доступность.</strong> Добавь тёмную тему, видимый keyboard focus и режим уменьшенного движения.</li>
+          <li><strong>Анимация.</strong> Создай небольшое наведение с transition и отдельную keyframes-анимацию. Уважай prefers-reduced-motion.</li>
+        </ol>
+        <h3>25.2. Официальная документация</h3>
+        <div class="resource-list">
+          <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/CSS" target="_blank" rel="noopener"><strong>MDN — CSS</strong><span>Справочник, руководства и примеры →</span></a>
+          <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/CSS/Guides" target="_blank" rel="noopener"><strong>MDN — CSS Guides</strong><span>Разделы CSS, сгруппированные по модулям →</span></a>
+          <a class="resource" href="https://www.w3.org/TR/css/" target="_blank" rel="noopener"><strong>W3C — CSS Snapshot 2026</strong><span>Состояние стабильных спецификаций CSS на 2026 год →</span></a>
+          <a class="resource" href="https://www.w3.org/Style/CSS/" target="_blank" rel="noopener"><strong>W3C — Cascading Style Sheets</strong><span>Официальная информация о CSS и работе CSS Working Group →</span></a>
+          <a class="resource" href="https://caniuse.com/" target="_blank" rel="noopener"><strong>Can I Use</strong><span>Проверка поддержки CSS-возможностей браузерами →</span></a>
+          <a class="resource" href="https://web.dev/learn/css/" target="_blank" rel="noopener"><strong>web.dev — Learn CSS</strong><span>Курс по основным концепциям и практическим приёмам →</span></a>
+        </div>
+        <div class="callout warning"><strong>О стандартах и поддержке.</strong> Публикация функции в спецификации не означает, что она одинаково доступна во всех браузерах. Даже если модуль включён в CSS Snapshot, это не гарантия совместимости с каждой старой версией. Для новых функций проверяй MDN Browser Compatibility Data и Can I Use, а также тестируй целевые браузеры.</div>
+        <div class="next-card">
+          <div><strong>Следующий раздел: JavaScript</strong><p>Перейдём от описания представления к программной логике: типы данных, функции, объекты, DOM, события, асинхронность и Web API.</p></div>
+          <a class="button-link" href="javascript.html">К JavaScript →</a>
+        </div>
+      </section>
+    </main>
+  </div>
+  <footer class="site-footer">Учебный справочник по веб-платформе · Раздел CSS · Материал подготовлен для последовательного изучения.</footer>
+</body>
+</html>
