@@ -6,6 +6,7 @@
   <meta name="description" content="Подробный справочник по HTML: синтаксис, структура, элементы, формы, мультимедиа и браузерные возможности.">
   <title>HTML — веб-платформа</title>
   <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/demo.css">
 </head>
 <body>
   <header class="topbar">
@@ -325,6 +326,7 @@
         <div class="table-wrap"><table><thead><tr><th>Тип</th><th>Назначение</th></tr></thead><tbody>
           <tr><td><code>text</code></td><td>Обычный текст.</td></tr><tr><td><code>password</code></td><td>Пароль; ввод визуально маскируется.</td></tr><tr><td><code>email</code></td><td>Электронная почта; поддерживает базовую проверку формата.</td></tr><tr><td><code>number</code></td><td>Числовое значение.</td></tr><tr><td><code>tel</code></td><td>Номер телефона.</td></tr><tr><td><code>url</code></td><td>Адрес URL.</td></tr><tr><td><code>search</code></td><td>Поисковая строка.</td></tr><tr><td><code>date</code>, <code>time</code></td><td>Дата и время.</td></tr><tr><td><code>datetime-local</code></td><td>Локальные дата и время без часового пояса.</td></tr><tr><td><code>month</code>, <code>week</code></td><td>Месяц и неделя.</td></tr><tr><td><code>color</code></td><td>Выбор цвета.</td></tr><tr><td><code>range</code></td><td>Ползунок для числового диапазона.</td></tr><tr><td><code>checkbox</code></td><td>Независимый флажок.</td></tr><tr><td><code>radio</code></td><td>Выбор одного варианта из группы.</td></tr><tr><td><code>file</code></td><td>Выбор файла или файлов.</td></tr><tr><td><code>hidden</code></td><td>Скрытое поле, отправляемое вместе с формой.</td></tr><tr><td><code>submit</code>, <code>reset</code>, <code>button</code></td><td>Кнопки отправки, сброса и обычного действия.</td></tr><tr><td><code>image</code></td><td>Кнопка отправки формы на основе изображения.</td></tr>
         </tbody></table></div>
+        <div id="demo-input-types-container"></div>
         <h3>9.2. Пример формы</h3>
         <pre><code>&lt;form action="/register" method="post"&gt;
   &lt;label for="email"&gt;Электронная почта&lt;/label&gt;
@@ -352,247 +354,351 @@
       </section>
 
       <section class="content-section" id="media">
-        <h2>10. Изображения, аудио и видео</h2>
+        <h2>10. Изображения и медиа</h2>
+        <p>HTML предоставляет встроенные средства для работы с изображениями, аудио и видео без сторонних плагинов.</p>
         <h3>10.1. Изображения</h3>
-        <pre><code>&lt;img src="photo.jpg" alt="Фотография здания" width="600" height="400"&gt;</code></pre>
-        <p>Ключевые атрибуты: <code>src</code> — ресурс изображения; <code>alt</code> — текстовая альтернатива; <code>width</code> и <code>height</code> — геометрические размеры; <code>loading="lazy"</code> — отложенная загрузка, когда это уместно; <code>decoding</code> — подсказка браузеру о декодировании.</p>
-        <h4>Адаптивные изображения</h4>
-        <p><code>picture</code>, <code>source</code>, <code>srcset</code> и <code>sizes</code> позволяют указать несколько вариантов, чтобы браузер выбрал подходящий ресурс по условиям отображения и характеристикам экрана.</p>
+        <pre><code>&lt;img src="photo.jpg" alt="Описание фотографии" width="800" height="600" loading="lazy"&gt;</code></pre>
+        <p>Атрибут <code>alt</code> обязателен: он описывает изображение для пользователей, которые не могут его увидеть. Атрибуты <code>width</code> и <code>height</code> помогают браузеру заранее зарезервировать место и избежать сдвигов макета. Атрибут <code>loading="lazy"</code> откладывает загрузку изображений, пока они не приблизятся к области просмотра.</p>
         <pre><code>&lt;picture&gt;
-  &lt;source media="(max-width: 600px)" srcset="small.webp"&gt;
-  &lt;source type="image/avif" srcset="large.avif"&gt;
-  &lt;img src="large.jpg" alt="Горный пейзаж"&gt;
-&lt;/picture&gt;
-
-&lt;img
-  src="photo-800.jpg"
-  srcset="photo-400.jpg 400w, photo-800.jpg 800w, photo-1600.jpg 1600w"
-  sizes="(max-width: 600px) 100vw, 800px"
-  alt="Горный пейзаж"
-&gt;</code></pre>
-        <h3>10.2. Аудио</h3>
+  &lt;source srcset="photo-large.webp" type="image/webp"&gt;
+  &lt;source srcset="photo-large.jpg" type="image/jpeg"&gt;
+  &lt;img src="photo-fallback.jpg" alt="Описание"&gt;
+&lt;/picture&gt;</code></pre>
+        <p>Элемент <code>picture</code> позволяет выбрать подходящий формат или вариант изображения в зависимости от поддержки браузером и условий отображения.</p>
+        <h3>10.2. Аудио и видео</h3>
         <pre><code>&lt;audio controls&gt;
-  &lt;source src="lecture.mp3" type="audio/mpeg"&gt;
-  Ваш браузер не поддерживает аудио.
-&lt;/audio&gt;</code></pre>
-        <h3>10.3. Видео</h3>
-        <pre><code>&lt;video controls width="800" poster="preview.jpg"&gt;
-  &lt;source src="lecture.mp4" type="video/mp4"&gt;
-  &lt;track src="subtitles.vtt" kind="subtitles" srclang="ru" label="Русский">
-  Ваш браузер не поддерживает видео.
+  &lt;source src="sound.mp3" type="audio/mpeg"&gt;
+  &lt;source src="sound.ogg" type="audio/ogg"&gt;
+  Браузер не поддерживает встроенное аудио.
+&lt;/audio&gt;
+
+&lt;video controls width="640" poster="preview.jpg"&gt;
+  &lt;source src="movie.mp4" type="video/mp4"&gt;
+  &lt;source src="movie.webm" type="video/webm"&gt;
+  &lt;track kind="subtitles" src="subs_ru.vtt" srclang="ru" label="Русские"&gt;
+  Браузер не поддерживает встроенное видео.
 &lt;/video&gt;</code></pre>
-        <p>У аудио и видео есть атрибуты <code>controls</code>, <code>autoplay</code>, <code>loop</code>, <code>muted</code>, <code>preload</code>. Автоматическое воспроизведение ограничивается политиками браузеров, особенно если медиа содержит звук. Субтитры и текстовые альтернативы важны для доступности.</p>
+        <p>Атрибут <code>controls</code> добавляет стандартные элементы управления. Атрибут <code>poster</code> задаёт изображение-превью для видео. Элемент <code>track</code> подключает субтитры, описания и другие дорожки в форматах WebVTT.</p>
       </section>
 
       <section class="content-section" id="embedded">
-        <h2>11. Встраивание внешних ресурсов</h2>
-        <h3>11.1. iframe</h3>
-        <p><code>iframe</code> создаёт вложенный browsing context, в котором отображается другой HTML-документ. Его применяют для карт, видеоплееров, внешних виджетов и изолированных частей интерфейса.</p>
-        <pre><code>&lt;iframe
-  src="https://example.com/widget"
-  title="Встроенный виджет"
-  width="800"
-  height="500"
-  loading="lazy"
-  referrerpolicy="strict-origin-when-cross-origin"
-&gt;&lt;/iframe&gt;</code></pre>
-        <p>Для безопасности могут использоваться атрибуты <code>sandbox</code> и <code>allow</code>. Они ограничивают или разрешают отдельные возможности вложенной страницы. Взаимодействие документов также ограничено политикой одного источника (Same-Origin Policy).</p>
-        <h3>11.2. Другие элементы</h3>
-        <ul><li><code>object</code> — встраивание внешнего ресурса с возможностью резервного содержимого.</li><li><code>embed</code> — встраивание внешнего содержимого; его практическое применение сегодня ограничено.</li><li><code>source</code> — альтернативные источники для мультимедиа и изображений.</li><li><code>track</code> — текстовые дорожки, например субтитры и описания.</li></ul>
-        <div class="callout">Встраивание другого документа не означает, что родительская страница получает полный доступ к его DOM. Для безопасной коммуникации между разными источниками применяется, например, <code>postMessage()</code> с проверкой источника сообщения.</div>
+        <h2>11. Встраиваемые ресурсы</h2>
+        <p>HTML позволяет встраивать внешние документы, плагины и другие ресурсы.</p>
+        <div class="table-wrap"><table><thead><tr><th>Элемент</th><th>Назначение</th></tr></thead><tbody>
+          <tr><td><code>iframe</code></td><td>Встраивание другого HTML-документа.</td></tr>
+          <tr><td><code>embed</code></td><td>Встраивание внешнего приложения или плагина.</td></tr>
+          <tr><td><code>object</code></td><td>Универсальный контейнер для внешних ресурсов.</td></tr>
+          <tr><td><code>video</code>, <code>audio</code></td><td>Мультимедийные ресурсы.</td></tr>
+          <tr><td><code>svg</code></td><td>Встроенная векторная графика.</td></tr>
+          <tr><td><code>math</code></td><td>Встроенные математические формулы (MathML).</td></tr>
+        </tbody></table></div>
+        <pre><code>&lt;iframe src="https://example.com"
+        width="600" height="400"
+        title="Встроенный документ"
+        sandbox="allow-scripts allow-same-origin"
+        loading="lazy"&gt;
+&lt;/iframe&gt;</code></pre>
+        <p>Атрибут <code>sandbox</code> ограничивает возможности встроенного документа. Разрешения можно добавлять точечно: <code>allow-scripts</code>, <code>allow-same-origin</code>, <code>allow-forms</code> и другие. Комбинация <code>allow-scripts</code> и <code>allow-same-origin</code> даёт встроенному документу возможность снять ограничения песочницы, поэтому её следует применять только к доверенному содержимому.</p>
       </section>
 
       <section class="content-section" id="graphics">
-        <h2>12. Графика и математическая разметка: SVG, Canvas и MathML</h2>
-        <p>HTML позволяет встраивать графическое и математическое содержимое. При этом SVG, Canvas API и MathML — отдельные технологии или интерфейсы, интегрированные с веб-документом.</p>
-        <h3>12.1. SVG — векторная графика</h3>
-        <p>SVG (Scalable Vector Graphics) описывает графику через геометрические объекты, пути, текст, заливки и другие векторные конструкции. SVG можно встроить прямо в HTML.</p>
-        <pre><code>&lt;svg viewBox="0 0 300 160" role="img" aria-label="Прямоугольник и окружность"&gt;
-  &lt;rect x="15" y="20" width="120" height="90" rx="8" fill="#3157c8"&gt;&lt;/rect&gt;
-  &lt;circle cx="220" cy="65" r="45" fill="#e49a32"&gt;&lt;/circle&gt;
+        <h2>12. SVG, Canvas и MathML</h2>
+        <p>HTML поддерживает встроенную векторную графику, программное рисование и математическую разметку.</p>
+        <h3>12.1. SVG</h3>
+        <pre><code>&lt;svg width="200" height="200" viewBox="0 0 200 200" role="img" aria-label="Круг"&gt;
+  &lt;circle cx="100" cy="100" r="80" fill="royalblue" /&gt;
 &lt;/svg&gt;</code></pre>
-        <p>SVG хорошо подходит для иконок, логотипов, схем, диаграмм и интерактивной векторной графики. Его объекты представлены в DOM и могут иметь собственные атрибуты и обработчики событий.</p>
-        <h3>12.2. Canvas — программное рисование</h3>
-        <p><code>&lt;canvas&gt;</code> задаёт область для рисования. Сам HTML создаёт поверхность, а рисование выполняется через JavaScript API, например Canvas 2D, или графические API вроде WebGL.</p>
-        <pre><code>&lt;canvas id="scene" width="400" height="220"&gt;
-  Альтернативное описание графики.
-&lt;/canvas&gt;
-
+        <p>SVG описывает графику в виде XML-элементов. Он масштабируется без потери качества, поддерживает стили CSS, анимации и события. SVG подходит для иконок, диаграмм и иллюстраций.</p>
+        <h3>12.2. Canvas</h3>
+        <pre><code>&lt;canvas id="drawing" width="400" height="300"&gt;&lt;/canvas&gt;
 &lt;script&gt;
-  const canvas = document.querySelector("#scene");
-  const context = canvas.getContext("2d");
-  context.fillStyle = "steelblue";
-  context.fillRect(30, 30, 180, 100);
+  const ctx = document.getElementById("drawing").getContext("2d");
+  ctx.fillStyle = "royalblue";
+  ctx.fillRect(50, 50, 100, 100);
 &lt;/script&gt;</code></pre>
-        <p>Canvas подходит для игр, визуализаций, симуляций и задач, где нужно часто перерисовывать большое количество графических объектов. Отдельные нарисованные фигуры сами по себе не становятся HTML-узлами DOM, поэтому интерактивность и доступность нужно продумывать отдельно.</p>
-        <h3>12.3. MathML — математическая разметка</h3>
-        <p>MathML описывает математические выражения в структурированной форме, чтобы браузер и вспомогательные технологии могли интерпретировать формулу, а не воспринимать её просто как картинку.</p>
-        <pre><code>&lt;math&gt;
-  &lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;
-  &lt;mo&gt;+&lt;/mo&gt;
-  &lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;
-  &lt;mo&gt;=&lt;/mo&gt;
-  &lt;msup&gt;&lt;mi&gt;z&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;
+        <p>Canvas предоставляет поверхность для программного рисования через JavaScript. Он подходит для игр, визуализаций данных и сложной графики, но не является семантическим содержимым документа.</p>
+        <h3>12.3. MathML</h3>
+        <pre><code>&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;
+  &lt;mrow&gt;
+    &lt;msup&gt;&lt;mi&gt;a&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;
+    &lt;mo&gt;+&lt;/mo&gt;
+    &lt;msup&gt;&lt;mi&gt;b&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;
+    &lt;mo&gt;=&lt;/mo&gt;
+    &lt;msup&gt;&lt;mi&gt;c&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;
+  &lt;/mrow&gt;
 &lt;/math&gt;</code></pre>
-        <div class="table-wrap"><table><thead><tr><th>Технология</th><th>Модель</th><th>Типичные задачи</th></tr></thead><tbody><tr><td>SVG</td><td>Векторные объекты в документе</td><td>Иконки, диаграммы, схемы, карты</td></tr><tr><td>Canvas</td><td>Рисование на графической поверхности</td><td>Игры, симуляции, динамическая графика</td></tr><tr><td>MathML</td><td>Структурированное математическое содержимое</td><td>Формулы и научные публикации</td></tr></tbody></table></div>
+        <p>MathML описывает математические формулы семантически. Вспомогательные технологии могут читать формулы, а браузеры отображают их с правильным форматированием. Поддержка MathML в браузерах развивается, и для сложных случаев иногда используют SVG или изображения с текстовыми альтернативами.</p>
       </section>
 
       <section class="content-section" id="interaction">
-        <h2>13. Встроенная интерактивность HTML</h2>
-        <p>Не вся интерактивность требует JavaScript. Некоторые элементы имеют стандартное поведение, реализованное браузером.</p>
-        <h3>13.1. Раскрывающийся блок</h3>
+        <h2>13. Встроенная интерактивность</h2>
+        <p>HTML предоставляет элементы с встроенным поведением, которое не требует JavaScript для базовой работы.</p>
+        <div class="table-wrap"><table><thead><tr><th>Элемент</th><th>Назначение</th></tr></thead><tbody>
+          <tr><td><code>details</code>, <code>summary</code></td><td>Раскрывающийся блок с заголовком.</td></tr>
+          <tr><td><code>dialog</code></td><td>Диалоговое окно или модальный блок.</td></tr>
+          <tr><td><code>popover</code> (атрибут)</td><td>Всплывающий слой поверх содержимого.</td></tr>
+          <tr><td><code>select</code>, <code>datalist</code></td><td>Выбор из списка вариантов.</td></tr>
+          <tr><td><code>progress</code>, <code>meter</code></td><td>Индикаторы выполнения и измерения.</td></tr>
+        </tbody></table></div>
         <pre><code>&lt;details&gt;
-  &lt;summary&gt;Показать пояснение&lt;/summary&gt;
-  &lt;p&gt;Дополнительный текст.&lt;/p&gt;
-&lt;/details&gt;</code></pre>
-        <p>Браузер обеспечивает открытие и закрытие содержимого. Для базового disclosure-компонента собственный сценарий не нужен.</p>
-        <h3>13.2. Диалоговое окно</h3>
-        <pre><code>&lt;dialog id="confirm-dialog"&gt;
-  &lt;h2&gt;Подтверждение&lt;/h2&gt;
-  &lt;p&gt;Продолжить операцию?&lt;/p&gt;
-  &lt;form method="dialog"&gt;
-    &lt;button value="cancel"&gt;Отмена&lt;/button&gt;
-    &lt;button value="confirm"&gt;Подтвердить&lt;/button&gt;
-  &lt;/form&gt;
+  &lt;summary&gt;Подробнее&lt;/summary&gt;
+  &lt;p&gt;Скрытое содержимое, которое раскрывается по клику.&lt;/p&gt;
+&lt;/details&gt;
+
+&lt;dialog&gt;
+  &lt;p&gt;Это диалоговое окно.&lt;/p&gt;
+  &lt;form method="dialog"&gt;&lt;button&gt;Закрыть&lt;/button&gt;&lt;/form&gt;
 &lt;/dialog&gt;
 
-&lt;script&gt;
-  document.querySelector("#confirm-dialog").showModal();
-&lt;/script&gt;</code></pre>
-        <p>HTML задаёт диалоговую структуру, а методы <code>show()</code> и <code>showModal()</code> относятся к API элемента, доступному через JavaScript. Модальный диалог получает специальное поведение, включая управление фокусом и закрытие клавишей Escape в стандартном сценарии.</p>
-        <h3>13.3. Popover API</h3>
-        <pre><code>&lt;button popovertarget="help-panel"&gt;Показать подсказку&lt;/button&gt;
-&lt;div id="help-panel" popover&gt;
-  Дополнительная информация.
-&lt;/div&gt;</code></pre>
-        <p>Атрибут <code>popover</code> совместно с <code>popovertarget</code> позволяет реализовать простой всплывающий элемент без собственного JavaScript для базового открытия и закрытия.</p>
-        <h3>13.4. Другие возможности</h3>
-        <ul><li><code>contenteditable</code> — редактирование содержимого пользователем.</li><li><code>inert</code> — исключение поддерева из обычного взаимодействия и последовательности фокуса.</li><li><code>tabindex</code> — включение элемента в клавиатурную навигацию.</li><li><code>draggable</code> — участие в HTML Drag and Drop.</li><li><code>autofocus</code> — запрос фокуса на элементе при загрузке или показе соответствующего интерфейса.</li></ul>
-        <p>Эти механизмы имеют ограничения и особенности. Например, наличие <code>draggable</code> не создаёт готовый файловый менеджер, а <code>contenteditable</code> не является полноценным текстовым редактором.</p>
+&lt;button popovertarget="tip"&gt;Показать подсказку&lt;/button&gt;
+&lt;div id="tip" popover&gt;Всплывающая подсказка.&lt;/div&gt;</code></pre>
+        <p>Элемент <code>dialog</code> можно открыть программно через методы <code>showModal()</code> или <code>show()</code>. Модальный диалог блокирует взаимодействие с остальной страницей. Атрибут <code>popover</code> создаёт всплывающий слой, который можно открыть через <code>popovertarget</code> или программно. Эти элементы предоставляют встроенное поведение без необходимости писать JavaScript.</p>
+        <div id="demo-interaction-container"></div>
       </section>
 
       <section class="content-section" id="components">
-        <h2>14. HTML Templates и Web Components</h2>
-        <p>Web Components — набор браузерных механизмов для создания собственных повторно используемых элементов. Это не отдельный фреймворк.</p>
-        <div class="table-wrap"><table><thead><tr><th>Механизм</th><th>Назначение</th></tr></thead><tbody><tr><td>Custom Elements</td><td>Регистрация собственных HTML-элементов, например <code>&lt;user-card&gt;</code>.</td></tr><tr><td>Shadow DOM</td><td>Инкапсуляция внутреннего DOM и части стилей компонента.</td></tr><tr><td>HTML Templates</td><td>Хранение фрагмента разметки, который не отображается сразу.</td></tr><tr><td>Slots</td><td>Точки размещения содержимого, переданного компоненту снаружи.</td></tr></tbody></table></div>
-        <pre><code>&lt;template id="profile-template"&gt;
-  &lt;article class="profile"&gt;
-    &lt;h2&gt;Пользователь&lt;/h2&gt;
-    &lt;p&gt;Описание профиля&lt;/p&gt;
-  &lt;/article&gt;
-&lt;/template&gt;
+        <h2>14. Web Components</h2>
+        <p>Web Components — набор браузерных API для создания переиспользуемых пользовательских элементов.</p>
+        <div class="table-wrap"><table><thead><tr><th>Технология</th><th>Назначение</th></tr></thead><tbody>
+          <tr><td>Custom Elements</td><td>Определение собственных HTML-элементов с поведением.</td></tr>
+          <tr><td>Shadow DOM</td><td>Инкапсуляция DOM и стилей внутри элемента.</td></tr>
+          <tr><td>HTML Templates</td><td>Шаблоны разметки, которые не отображаются до активации.</td></tr>
+          <tr><td>Slots</td><td>Механизм передачи содержимого в компонент.</td></tr>
+        </tbody></table></div>
+        <pre><code>class MyCard extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this.shadowRoot.innerHTML = `
+      &lt;style&gt;
+        :host { display: block; padding: 1rem; border: 1px solid #ccc; }
+      &lt;/style&gt;
+      &lt;slot&gt;Содержимое по умолчанию&lt;/slot&gt;
+    `;
+  }
+}
 
-&lt;user-card&gt;
-  &lt;span slot="name"&gt;Анна&lt;/span&gt;
-&lt;/user-card&gt;</code></pre>
-        <p>Сам по себе тег <code>user-card</code> не становится стандартным компонентом. Его поведение регистрируется через JavaScript API Custom Elements. Shadow DOM и шаблоны — части общей модели компонентов.</p>
+customElements.define("my-card", MyCard);</code></pre>
+        <pre><code>&lt;my-card&gt;Пользовательское содержимое&lt;/my-card&gt;</code></pre>
+        <p>Web Components позволяют создавать компоненты, которые работают как обычные HTML-элементы. Shadow DOM изолирует стили и разметку компонента от остального документа. Это полезно для библиотек компонентов и виджетов, которые должны работать в разных контекстах без конфликтов стилей.</p>
       </section>
 
       <section class="content-section" id="metadata">
-        <h2>15. Метаданные и управление загрузкой ресурсов</h2>
-        <h3>15.1. Метаданные и связи</h3>
-        <ul><li><code>title</code> — заголовок документа.</li><li><code>meta</code> — кодировка, описание, viewport и другие метаданные.</li><li><code>link</code> — связь документа с внешним ресурсом или документом.</li><li><code>base</code> — базовый URL для относительных адресов и контекст по умолчанию для ссылок.</li><li><code>style</code> — таблица CSS внутри документа.</li><li><code>script</code> — встроенный сценарий или ссылка на него.</li><li><code>noscript</code> — альтернативное содержимое, когда сценарии недоступны или отключены.</li></ul>
-        <h3>15.2. Режимы подключения скриптов</h3>
-        <div class="table-wrap"><table><thead><tr><th>Запись</th><th>Общее поведение</th></tr></thead><tbody>
-          <tr><td><code>&lt;script src="app.js"&gt;</code></td><td>Обычный классический скрипт при разборе документа может приостановить парсер, пока не загрузится и не выполнится.</td></tr>
-          <tr><td><code>defer</code></td><td>Классический внешний скрипт загружается параллельно с разбором HTML и выполняется после завершения разбора; порядок таких скриптов сохраняется.</td></tr>
-          <tr><td><code>async</code></td><td>Внешний скрипт загружается параллельно и выполняется, когда готов; порядок выполнения нескольких async-скриптов не гарантируется.</td></tr>
-          <tr><td><code>type="module"</code></td><td>Подключает JavaScript-модуль; модули по умолчанию откладываются до завершения разбора документа, если не задано иное поведение.</td></tr>
+        <h2>15. Метаданные и загрузка ресурсов</h2>
+        <p>Элементы <code>head</code> и специальные атрибуты управляют тем, как браузер загружает и обрабатывает ресурсы.</p>
+        <h3>15.1. Метаданные</h3>
+        <pre><code>&lt;meta charset="utf-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+&lt;meta name="description" content="Описание страницы"&gt;
+&lt;meta name="theme-color" content="#3157c8"&gt;
+
+&lt;link rel="icon" href="favicon.ico"&gt;
+&lt;link rel="manifest" href="site.webmanifest"&gt;
+&lt;link rel="canonical" href="https://example.com/page"&gt;</code></pre>
+        <p>Метаданные помогают поисковым системам, социальным сетям и браузерам понимать документ. Атрибут <code>theme-color</code> задаёт цвет интерфейса браузера на мобильных устройствах. Файл <code>manifest</code> описывает параметры веб-приложения для установки.</p>
+        <h3>15.2. Загрузка скриптов</h3>
+        <pre><code>&lt;script src="old.js"&gt;&lt;/script&gt;
+&lt;script src="defer.js" defer&gt;&lt;/script&gt;
+&lt;script src="async.js" async&gt;&lt;/script&gt;
+&lt;script type="module" src="module.js"&gt;&lt;/script&gt;</code></pre>
+        <div class="table-wrap"><table><thead><tr><th>Атрибут</th><th>Поведение</th></tr></thead><tbody>
+          <tr><td>(обычный)</td><td>Блокирует парсинг HTML, загружается и выполняется немедленно.</td></tr>
+          <tr><td><code>defer</code></td><td>Загружается параллельно, выполняется после разбора HTML в порядке появления.</td></tr>
+          <tr><td><code>async</code></td><td>Загружается параллельно, выполняется сразу после загрузки, порядок не гарантирован.</td></tr>
+          <tr><td><code>type="module"</code></td><td>Загружается как ES-модуль, откладывается по умолчанию (как defer), поддерживает import/export.</td></tr>
         </tbody></table></div>
-        <h3>15.3. Подсказки загрузчику ресурсов</h3>
-        <p>Элементы <code>link</code> с различными значениями <code>rel</code> позволяют сообщить браузеру о предполагаемом использовании ресурсов.</p>
-        <ul><li><code>preload</code> — ресурс нужен текущей странице и может быть загружен заранее.</li><li><code>prefetch</code> — ресурс может понадобиться в будущем.</li><li><code>preconnect</code> — заранее начать установление соединения с источником.</li><li><code>dns-prefetch</code> — заранее выполнить разрешение доменного имени.</li><li><code>icon</code> — указать иконку сайта.</li><li><code>canonical</code> — сообщить предпочтительный URL документа поисковым системам.</li></ul>
-        <pre><code>&lt;link rel="icon" href="/favicon.ico"&gt;
-&lt;link rel="preconnect" href="https://cdn.example.com"&gt;
-&lt;link rel="preload" href="/fonts/site.woff2" as="font" type="font/woff2" crossorigin&gt;
-&lt;script src="app.js" defer&gt;&lt;/script&gt;</code></pre>
-        <p>Подсказки загрузки нужно использовать осмысленно: избыточные preload/preconnect могут ухудшить приоритеты загрузки и расходовать сетевые ресурсы.</p>
+        <h3>15.3. Предзагрузка и предварительное подключение</h3>
+        <pre><code>&lt;link rel="preload" href="font.woff2" as="font" type="font/woff2" crossorigin&gt;
+&lt;link rel="prefetch" href="next-page.html"&gt;
+&lt;link rel="preconnect" href="https://api.example.com"&gt;
+&lt;link rel="dns-prefetch" href="https://cdn.example.com"&gt;</code></pre>
+        <p>Resource hints помогают браузеру оптимизировать загрузку. <code>preload</code> указывает на критичные ресурсы, которые нужно загрузить рано. <code>prefetch</code> загружает ресурсы, которые могут понадобиться позже. <code>preconnect</code> устанавливает соединение с сервером заранее. <code>dns-prefetch</code> выполняет DNS-разрешение заранее.</p>
       </section>
 
       <section class="content-section" id="a11y">
-        <h2>16. Доступность, семантика и поисковые системы</h2>
-        <p>Доступность веба (Web Accessibility) означает, что документ должен быть пригоден для людей с разными способами восприятия и управления интерфейсом. Семантический HTML даёт вспомогательным технологиям важную информацию о назначении элементов.</p>
-        <div class="table-wrap"><table><thead><tr><th>Практика</th><th>Почему важна</th></tr></thead><tbody>
-          <tr><td>Осмысленные заголовки</td><td>Помогают ориентироваться по структуре страницы.</td></tr><tr><td>Правильные кнопки и ссылки</td><td>Сохраняют клавиатурное и вспомогательное поведение.</td></tr><tr><td>Подписи <code>label</code> для полей</td><td>Связывают название и элемент формы.</td></tr><tr><td>Осмысленный <code>alt</code></td><td>Даёт текстовую альтернативу значимым изображениям.</td></tr><tr><td>Атрибут <code>lang</code></td><td>Помогает выбрать правильное произношение и обработку языка.</td></tr><tr><td>Заголовки таблиц и <code>scope</code></td><td>Объясняют отношения между заголовками и значениями.</td></tr><tr><td>Видимый фокус</td><td>Позволяет понимать, где находится клавиатурный ввод.</td></tr></tbody></table></div>
-        <h3>16.1. Нативный элемент лучше имитации</h3>
-        <pre><code>&lt;button type="button"&gt;Сохранить&lt;/button&gt;</code></pre>
-        <p>Кнопка уже имеет ожидаемую семантику, получает клавиатурный фокус и активируется стандартными способами. Если вместо неё использовать обычный <code>div</code>, придётся отдельно реализовывать роль, фокус, клавиатурную активацию и состояния.</p>
-        <h3>16.2. ARIA</h3>
-        <p>ARIA (Accessible Rich Internet Applications) — набор атрибутов для уточнения роли, состояния и свойств интерфейса для вспомогательных технологий. ARIA полезна, когда нативной семантики недостаточно, но не должна заменять подходящий HTML-элемент.</p>
-        <h3>16.3. SEO и структурированные данные</h3>
-        <p>HTML помогает поисковым системам понять заголовки, ссылки, основной материал, язык и метаданные документа. Для более формального описания сущностей используют структурированные данные, например JSON-LD. Наличие разметки не гарантирует определённое место в поисковой выдаче или специальный сниппет.</p>
+        <h2>16. Доступность и SEO</h2>
+        <p>Доступность (accessibility) и поисковая оптимизация (SEO) тесно связаны: обе требуют семантической разметки, текстовых альтернатив и понятной структуры.</p>
+        <h3>16.1. Доступность</h3>
+        <ul>
+          <li>Используй семантические элементы: <code>button</code> вместо <code>div onclick</code>, <code>nav</code> для навигации.</li>
+          <li>Добавляй <code>alt</code> к изображениям, <code>label</code> к полям форм.</li>
+          <li>Обеспечивай клавиатурную навигацию и видимый фокус.</li>
+          <li>Проверяй контраст текста и фона.</li>
+          <li>Используй ARIA только там, где нативной семантики недостаточно.</li>
+          <li>Тестируй со скринридерами и клавиатурой.</li>
+        </ul>
+        <pre><code>&lt;button type="button" aria-label="Закрыть окно"&gt;×&lt;/button&gt;
+
+&lt;label for="search"&gt;Поиск&lt;/label&gt;
+&lt;input id="search" type="search" aria-describedby="search-help"&gt;
+&lt;small id="search-help"&gt;Введите запрос для поиска&lt;/small&gt;</code></pre>
+        <h3>16.2. SEO</h3>
+        <ul>
+          <li>Используй один <code>h1</code> на страницу и логическую иерархию заголовков.</li>
+          <li>Добавляй <code>meta description</code> с кратким описанием страницы.</li>
+          <li>Используй <code>link rel="canonical"</code> для указания канонического URL.</li>
+          <li>Создавай <code>sitemap.xml</code> и <code>robots.txt</code>.</li>
+          <li>Обеспечивай быструю загрузку и мобильную адаптивность.</li>
+          <li>Используй структурированные данные (Schema.org) для расширенного отображения в поиске.</li>
+        </ul>
       </section>
 
       <section class="content-section" id="security">
-        <h2>17. Безопасность и границы HTML</h2>
-        <p>HTML участвует в безопасности веб-приложения, но сам по себе не заменяет серверную защиту и политики браузера.</p>
-        <ul>
-          <li><strong>Валидация форм:</strong> помогает пользователю, но сервер повторно проверяет все входящие данные.</li>
-          <li><strong>iframe sandbox:</strong> ограничивает возможности встроенного документа; набор разрешений нужно выбирать осторожно.</li>
-          <li><strong>Внешние ссылки:</strong> при открытии новых вкладок учитывают безопасность и ожидаемое поведение пользователя.</li>
-          <li><strong>Вывод пользовательского HTML:</strong> нельзя без очистки вставлять недоверенную разметку как доверенное содержимое.</li>
-          <li><strong>Политики безопасности:</strong> Content Security Policy и другие механизмы браузера обычно настраиваются HTTP-заголовками или метатегами в поддерживаемых случаях.</li>
-        </ul>
-        <h3>17.1. Чего HTML не делает самостоятельно</h3>
-        <div class="table-wrap"><table><thead><tr><th>Задача</th><th>Основной механизм</th></tr></thead><tbody>
-          <tr><td>Создать структуру документа</td><td>HTML</td></tr><tr><td>Оформить сетку и расположение</td><td>CSS</td></tr><tr><td>Выполнить алгоритм</td><td>JavaScript или другой подходящий механизм</td></tr><tr><td>Изменять DOM во время работы</td><td>Обычно JavaScript DOM API</td></tr><tr><td>Обращаться к камере или геолокации</td><td>Браузерные Web API, обычно из JavaScript, с разрешениями пользователя</td></tr><tr><td>Хранить данные приложения</td><td>Web Storage, IndexedDB и другие API</td></tr><tr><td>Обрабатывать бизнес-логику и авторизацию</td><td>Серверная часть приложения; клиентские проверки не заменяют её</td></tr></tbody></table></div>
-        <p>Граница терминов иногда размыта: HTML Standard описывает не только набор тегов, но и ряд связанных алгоритмов и API браузерной платформы. В учебных целях полезно отличать разметку документа от API, доступных веб-приложению.</p>
+        <h2>17. Безопасность и ограничения</h2>
+        <p>HTML-документы выполняются в контексте браузера, который применяет модель безопасности для защиты пользователей.</p>
+        <h3>17.1. Same-Origin Policy</h3>
+        <p>Браузер ограничивает взаимодействие между документами из разных источников (origin). Origin определяется схемой, хостом и портом. Например, <code>https://example.com</code> и <code>https://api.example.com</code> — разные origin.</p>
+        <h3>17.2. Content Security Policy</h3>
+        <pre><code>Content-Security-Policy: default-src 'self'; script-src 'self' https://trusted.cdn.com</code></pre>
+        <p>CSP ограничивает источники, из которых можно загружать скрипты, стили, изображения и другие ресурсы. Это снижает риск XSS-атак. Политика передаётся через HTTP-заголовок или <code>meta</code>-тег.</p>
+        <h3>17.3. Subresource Integrity</h3>
+        <pre><code>&lt;script src="https://cdn.example.com/lib.js"
+        integrity="sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8wC"
+        crossorigin="anonymous"&gt;&lt;/script&gt;</code></pre>
+        <p>Атрибут <code>integrity</code> проверяет, что загруженный ресурс соответствует ожидаемому хэшу. Если файл был изменён, браузер не выполнит его. Это защищает от компрометации CDN.</p>
+        <h3>17.4. Referrer Policy</h3>
+        <pre><code>&lt;meta name="referrer" content="strict-origin-when-cross-origin"&gt;</code></pre>
+        <p>Политика referrer управляет тем, какая информация о URL отправляется в заголовке <code>Referer</code> при переходе по ссылкам или загрузке ресурсов. Это важно для конфиденциальности.</p>
       </section>
 
       <section class="content-section" id="obsolete">
-        <h2>18. Устаревшие и нежелательные элементы</h2>
-        <p>Некоторые элементы и атрибуты сохранились в старых материалах, но больше не рекомендуются для новых проектов. Они часто отвечали за визуальное оформление, которое теперь следует описывать через CSS.</p>
-        <div class="table-wrap"><table><thead><tr><th>Старый подход</th><th>Предпочтительный подход</th></tr></thead><tbody>
-          <tr><td><code>&lt;font&gt;</code>, <code>&lt;center&gt;</code></td><td>CSS: типографика и выравнивание.</td></tr><tr><td><code>&lt;big&gt;</code>, <code>&lt;strike&gt;</code></td><td>CSS и семантически подходящие элементы.</td></tr><tr><td>Таблицы для всей компоновки сайта</td><td>CSS Grid и Flexbox.</td></tr><tr><td>Атрибуты презентационного оформления</td><td>Внешние таблицы стилей.</td></tr></tbody></table></div>
-        <p>Существуют и элементы, которые имели узкое назначение или зависели от устаревших браузерных плагинов. Перед использованием незнакомого тега проверяй актуальную документацию и статус поддержки.</p>
+        <h2>18. Устаревшие элементы</h2>
+        <p>Некоторые HTML-элементы устарели и не должны использоваться в новых документах. Они сохранены для обратной совместимости, но их функциональность заменена CSS или другими механизмами.</p>
+        <div class="table-wrap"><table><thead><tr><th>Устаревший элемент</th><th>Современная замена</th></tr></thead><tbody>
+          <tr><td><code>font</code>, <code>center</code>, <code>big</code>, <code>small</code> (визуальное оформление)</td><td>CSS для стилизации.</td></tr>
+          <tr><td><code>frame</code>, <code>frameset</code></td><td><code>iframe</code> или серверные шаблоны.</td></tr>
+          <tr><td><code>marquee</code>, <code>blink</code></td><td>CSS-анимации (если действительно нужны).</td></tr>
+          <tr><td><code>applet</code></td><td>Java-апплеты больше не поддерживаются; используйте WebAssembly или JavaScript.</td></tr>
+          <tr><td><code>acronym</code></td><td><code>abbr</code>.</td></tr>
+        </tbody></table></div>
+        <p>Использование устаревших элементов ухудшает доступность, семантику и совместимость с современными инструментами. Валидатор HTML предупредит о таких элементах.</p>
       </section>
 
       <section class="content-section" id="summary">
         <h2>19. Карта возможностей HTML</h2>
-        <p>Ниже — сжатая карта основных областей. Это удобный ориентир, когда нужно вспомнить, в каком направлении искать нужный элемент.</p>
+        <p>HTML предоставляет широкий набор возможностей для структурирования документа, форм, мультимедиа, графики и взаимодействия с браузером.</p>
         <div class="grid-2">
-          <div class="mini-card"><h3>Документ и метаданные</h3><p><span class="tag">html</span><span class="tag">head</span><span class="tag">body</span><span class="tag">meta</span><span class="tag">title</span><span class="tag">link</span></p></div>
-          <div class="mini-card"><h3>Структура и семантика</h3><p><span class="tag">header</span><span class="tag">nav</span><span class="tag">main</span><span class="tag">article</span><span class="tag">section</span><span class="tag">footer</span></p></div>
-          <div class="mini-card"><h3>Текст и навигация</h3><p><span class="tag">h1–h6</span><span class="tag">p</span><span class="tag">strong</span><span class="tag">a</span><span class="tag">ul</span><span class="tag">ol</span></p></div>
-          <div class="mini-card"><h3>Таблицы и формы</h3><p><span class="tag">table</span><span class="tag">tr</span><span class="tag">th</span><span class="tag">form</span><span class="tag">input</span><span class="tag">select</span></p></div>
-          <div class="mini-card"><h3>Изображения и медиа</h3><p><span class="tag">img</span><span class="tag">picture</span><span class="tag">audio</span><span class="tag">video</span><span class="tag">track</span></p></div>
-          <div class="mini-card"><h3>Графика и встраивание</h3><p><span class="tag">svg</span><span class="tag">canvas</span><span class="tag">math</span><span class="tag">iframe</span></p></div>
-          <div class="mini-card"><h3>Интерактивность</h3><p><span class="tag">details</span><span class="tag">dialog</span><span class="tag">popover</span><span class="tag">button</span></p></div>
-          <div class="mini-card"><h3>Компоненты</h3><p><span class="tag">template</span><span class="tag">slot</span><span class="tag">custom elements</span><span class="tag">shadow DOM</span></p></div>
+          <div class="mini-card"><h3>Структура и семантика</h3><p>Заголовки, абзацы, списки, таблицы, секционные элементы, метаданные.</p></div>
+          <div class="mini-card"><h3>Формы и ввод</h3><p>Поля ввода, валидация, отправка данных, файлы.</p></div>
+          <div class="mini-card"><h3>Мультимедиа</h3><p>Изображения, аудио, видео, субтитры.</p></div>
+          <div class="mini-card"><h3>Графика</h3><p>SVG, Canvas, MathML.</p></div>
+          <div class="mini-card"><h3>Интерактивность</h3><p>Details, dialog, popover, встроенные контролы.</p></div>
+          <div class="mini-card"><h3>Компоненты</h3><p>Web Components, Shadow DOM, слоты.</p></div>
+          <div class="mini-card"><h3>Безопасность</h3><p>Sandbox, CSP, SRI, Referrer Policy.</p></div>
+          <div class="mini-card"><h3>Производительность</h3><p>Lazy loading, preload, prefetch, preconnect.</p></div>
         </div>
       </section>
 
       <section class="content-section" id="practice">
-        <h2>20. Практика и авторитетные источники</h2>
-        <h3>20.1. Практическая последовательность</h3>
+        <h2>20. Практика и источники</h2>
+        <p>Лучший способ изучить HTML — создавать реальные документы и проверять их в браузере и валидаторе.</p>
+        <h3>20.1. Практические задания</h3>
         <ol>
-          <li>Создай простой документ с корректным каркасом <code>doctype</code>, <code>html</code>, <code>head</code> и <code>body</code>.</li>
-          <li>Собери семантическую страницу: шапка, навигация, основное содержимое, статья и подвал.</li>
-          <li>Добавь заголовки, списки, ссылки, изображения и таблицу с заголовочными ячейками.</li>
-          <li>Создай форму регистрации с подписями, несколькими типами полей и встроенной валидацией.</li>
-          <li>Добавь аудио или видео с альтернативным содержимым и субтитрами.</li>
-          <li>Попробуй встроить SVG, создать Canvas-поверхность и добавить раскрывающийся блок <code>details</code>.</li>
-          <li>Проверь разметку валидатором и пройди страницу клавиатурой без мыши.</li>
+          <li>Создай страницу с заголовком, навигацией, основным содержимым и подвалом. Используй семантические элементы.</li>
+          <li>Добавь форму регистрации с разными типами полей и встроенной валидацией.</li>
+          <li>Вставь изображение с <code>alt</code>, аудио и видео с субтитрами.</li>
+          <li>Создай раскрывающийся блок с <code>details</code> и модальное окно с <code>dialog</code>.</li>
+          <li>Проверь страницу в валидаторе W3C и исправь ошибки.</li>
+          <li>Протестируй страницу с клавиатурой и скринридером.</li>
         </ol>
-        <h3>20.2. Документация</h3>
+        <h3>20.2. Официальная документация</h3>
         <div class="resource-list">
-          <a class="resource" href="https://html.spec.whatwg.org/" target="_blank" rel="noopener"><strong>WHATWG — HTML Living Standard</strong><span>Нормативная спецификация HTML ↗</span></a>
-          <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank" rel="noopener"><strong>MDN — HTML</strong><span>Обучающие материалы и справочник ↗</span></a>
-          <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements" target="_blank" rel="noopener"><strong>MDN — справочник HTML-элементов</strong><span>Элементы по функциональным группам ↗</span></a>
-          <a class="resource" href="https://validator.w3.org/" target="_blank" rel="noopener"><strong>Nu Html Checker</strong><span>Проверка корректности HTML-разметки ↗</span></a>
-          <a class="resource" href="https://www.w3.org/WAI/fundamentals/accessibility-intro/" target="_blank" rel="noopener"><strong>W3C WAI — введение в доступность</strong><span>Принципы доступного веба ↗</span></a>
-          <a class="resource" href="https://caniuse.com/" target="_blank" rel="noopener"><strong>Can I use</strong><span>Совместимость возможностей с браузерами ↗</span></a>
+          <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank" rel="noopener"><strong>MDN — HTML</strong><span>Справочник и руководства →</span></a>
+          <a class="resource" href="https://html.spec.whatwg.org/" target="_blank" rel="noopener"><strong>WHATWG — HTML Living Standard</strong><span>Официальная спецификация →</span></a>
+          <a class="resource" href="https://validator.w3.org/" target="_blank" rel="noopener"><strong>W3C Validator</strong><span>Проверка валидности HTML →</span></a>
+          <a class="resource" href="https://web.dev/learn/html/" target="_blank" rel="noopener"><strong>web.dev — Learn HTML</strong><span>Курс по HTML →</span></a>
+          <a class="resource" href="https://caniuse.com/" target="_blank" rel="noopener"><strong>Can I Use</strong><span>Проверка поддержки возможностей браузерами →</span></a>
         </div>
-        <div class="callout success"><strong>Критерий освоения HTML:</strong> ты можешь по описанию содержимого выбрать подходящие элементы, построить корректную семантическую структуру, создать рабочую форму и объяснить, какие задачи относятся уже к CSS, JavaScript или браузерным API.</div>
+        <div class="callout">
+          <strong>Принцип изучения:</strong> HTML — это фундамент. Без уверенного владения структурой документа, семантикой и формами невозможно эффективно использовать CSS и JavaScript. Уделяй время практике и проверке в валидаторе.
+        </div>
+        <div class="next-card">
+          <div><strong>Следующий раздел: CSS</strong><p>Перейдём от структуры документа к его оформлению: каскад, селекторы, блочная модель, Flexbox, Grid, адаптивность и анимации.</p></div>
+          <a class="button-link" href="css.html">К CSS →</a>
+        </div>
       </section>
-
-      <div class="next-card">
-        <div><strong>Следующий раздел: CSS</strong><p>Перейдём от смысла и структуры к визуальному представлению и компоновке.</p></div>
-        <a class="button-link" href="css.html">Открыть страницу CSS →</a>
-      </div>
     </main>
   </div>
 
-  <footer class="site-footer">Веб-платформа · Раздел HTML · Учебный материал, дополненный ссылками на спецификацию и документацию.</footer>
+  <footer class="site-footer">Учебный справочник по веб-платформе · Раздел HTML · Материал подготовлен для последовательного изучения.</footer>
+  
+  <script src="assets/demo.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // ==========================================
+      // 1. ДЕМО: Встроенная интерактивность (iframe)
+      // ==========================================
+      var interactionContainer = document.getElementById('demo-interaction-container');
+      if (interactionContainer) {
+        var code = '<details>\n' +
+          '  <summary>Нажми, чтобы раскрыть</summary>\n' +
+          '  <p>Это содержимое <code>&lt;details&gt;</code>. Оно работает без JavaScript.</p>\n' +
+          '</details>\n\n' +
+          '<br>\n\n' +
+          '<button popovertarget="my-popover">Открыть поповер</button>\n' +
+          '<div id="my-popover" popover>Привет! Я Popover API. Нажми вне меня, чтобы закрыть.</div>\n\n' +
+          '<br><br>\n\n' +
+          '<button onclick="document.getElementById(\'my-dialog\').showModal()">Открыть диалог</button>\n' +
+          '<dialog id="my-dialog">\n' +
+          '  <p>Это нативный &lt;dialog&gt;. Он блокирует взаимодействие с фоном.</p>\n' +
+          '  <form method="dialog"><button>Закрыть</button></form>\n' +
+          '</dialog>';
+
+        var shell = DemoEngine.createShell('interaction-native', 'Встроенная интерактивность', code, false, 'iframe');
+        interactionContainer.appendChild(shell);
+
+        DemoEngine.register('interaction-native', {
+          supports: function () { return true; },
+          init: function (liveArea) {
+            if (!('popover' in HTMLElement.prototype)) {
+              var warning = document.createElement('p');
+              warning.className = 'demo-unsupported-msg';
+              warning.textContent = '⚠️ Popover API не поддерживается в этом браузере. Элементы details и dialog будут работать.';
+              liveArea.prepend(warning);
+            }
+          },
+          cleanup: function (liveArea) {
+            var iframe = liveArea.querySelector('iframe');
+            if (iframe) iframe.srcdoc = '';
+          }
+        });
+      }
+
+      // ==========================================
+      // 2. ДЕМО: Все типы input (iframe)
+      // ==========================================
+      var inputContainer = document.getElementById('demo-input-types-container');
+      if (inputContainer) {
+        var inputTypes = ['text', 'password', 'email', 'number', 'tel', 'url', 'search',
+          'date', 'time', 'datetime-local', 'month', 'week', 'color', 'range',
+          'checkbox', 'radio', 'file', 'hidden', 'submit', 'button'];
+        var code = '<form onsubmit="event.preventDefault()" style="display:grid;gap:8px;">\n';
+        inputTypes.forEach(function (type) {
+          if (type === 'hidden') {
+            code += '  <!-- <input type="hidden" name="hidden" value="secret"> (скрыт) -->\n';
+          } else if (type === 'submit' || type === 'button') {
+            code += '  <input type="' + type + '" value="Кнопка: ' + type + '">\n';
+          } else {
+            code += '  <label style="display:flex;align-items:center;gap:8px;font-size:14px;">\n' +
+              '    <span style="width:100px;color:#667085;">' + type + ':</span>\n' +
+              '    <input type="' + type + '" name="' + type + '" value="test" style="flex:1;">\n' +
+              '  </label>\n';
+          }
+        });
+        code += '</form>';
+
+        var shell = DemoEngine.createShell('input-types', 'Все типы input (20+)', code, false, 'iframe');
+        inputContainer.appendChild(shell);
+
+        DemoEngine.register('input-types', {
+          init: function () { },
+          cleanup: function (liveArea) {
+            var iframe = liveArea.querySelector('iframe');
+            if (iframe) iframe.srcdoc = '';
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>
