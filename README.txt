@@ -9,9 +9,9 @@
 - index.html — главная страница и навигация;
 - html.html — подробный раздел HTML;
 - css.html — подробный раздел CSS;
-- javascript.html — заготовка следующего раздела JavaScript;
+- javascript.html — подробный раздел JavaScript;
 - browsers.html — заготовка раздела об устройстве браузеров;
 - assets/style.css — общие стили сайта.
 
 Сайт статический: для просмотра не нужны сервер, сборка, npm или сторонние библиотеки.
-Для проверки поддержки новых CSS-возможностей используйте MDN Browser Compatibility Data и Can I Use.
+Для проверки поддержки HTML, CSS и JavaScript-возможностей используйте MDN Browser Compatibility Data и Can I Use.
