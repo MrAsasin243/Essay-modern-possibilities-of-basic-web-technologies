@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Учебный справочник по HTML, CSS, JavaScript и устройству браузеров.">
+  <title>Веб-платформа — учебный справочник</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="brand-mark">WEB</span><span>Веб-платформа</span></a>
+    <nav class="topnav" aria-label="Основная навигация">
+      <a href="index.html" aria-current="page">Главная</a>
+      <a href="html.html">HTML</a>
+      <a href="css.html">CSS</a>
+      <a href="javascript.html">JavaScript</a>
+      <a href="browsers.html">Браузеры</a>
+    </nav>
+  </header>
+
+  <main class="home-wrap">
+    <section class="hero home-hero">
+      <p class="eyebrow">Справочник и учебный маршрут</p>
+      <h1>Как устроена современная веб-платформа</h1>
+      <p>Последовательно разберём HTML, CSS, JavaScript и браузеры: от базовых принципов до API, механизмов отображения, безопасности и производительности.</p>
+      <div class="hero-meta">
+        <span class="pill">4 больших раздела</span>
+        <span class="pill">Примеры кода</span>
+        <span class="pill">Ссылки на спецификации</span>
+        <span class="pill">Работает локально</span>
+      </div>
+    </section>
+
+    <section class="chapter-grid" aria-label="Разделы справочника">
+      <a class="chapter-card" href="html.html">
+        <span class="chapter-num">Раздел 01</span>
+        <h2>HTML</h2>
+        <p>Структура документа, семантические элементы, формы, мультимедиа, графика, доступность и взаимодействие с браузером.</p>
+        <span class="chapter-status">Материал подготовлен →</span>
+      </a>
+      <a class="chapter-card" href="css.html">
+        <span class="chapter-num">Раздел 02</span>
+        <h2>CSS</h2>
+        <p>Каскад, селекторы, специфичность, наследование, блочная модель, Flexbox, Grid, адаптивность, анимации.</p>
+        <span class="chapter-status planned">Следующий раздел · в плане →</span>
+      </a>
+      <a class="chapter-card" href="javascript.html">
+        <span class="chapter-num">Раздел 03</span>
+        <h2>JavaScript</h2>
+        <p>Язык, типы данных, функции, объекты, асинхронность, DOM, события, сетевые запросы и Web API.</p>
+        <span class="chapter-status planned">В плане →</span>
+      </a>
+      <a class="chapter-card" href="browsers.html">
+        <span class="chapter-num">Раздел 04</span>
+        <h2>Браузеры</h2>
+        <p>Архитектура браузера, движки, парсинг, DOM и CSSOM, компоновка, отрисовка, безопасность и инструменты разработчика.</p>
+        <span class="chapter-status planned">В плане →</span>
+      </a>
+    </section>
+
+    <section class="home-section">
+      <h2>Как пользоваться справочником</h2>
+      <ol>
+        <li>Открывай разделы по порядку: HTML → CSS → JavaScript → браузеры.</li>
+        <li>Изучай определения и назначение технологий, затем разбирай примеры кода.</li>
+        <li>Проверяй примеры в браузере: создай отдельную папку, сохрани HTML-файл и открой его.</li>
+        <li>Используй ссылки на MDN и спецификации для уточнения деталей и совместимости.</li>
+      </ol>
+      <div class="callout">
+        <strong>Принцип структуры:</strong> HTML описывает содержимое и семантику, CSS — представление, JavaScript — программное поведение. Браузер реализует платформу, которая обрабатывает эти технологии и предоставляет Web API.
+      </div>
+    </section>
+
+    <section class="home-section">
+      <h2>Маршрут обучения</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Этап</th><th>Главный вопрос</th><th>Результат</th></tr></thead>
+          <tbody>
+            <tr><td>HTML</td><td>Что находится в документе и что это означает?</td><td>Семантически корректная структура страницы.</td></tr>
+            <tr><td>CSS</td><td>Как содержимое выглядит и располагается?</td><td>Адаптивный и оформленный интерфейс.</td></tr>
+            <tr><td>JavaScript</td><td>Как страница реагирует и выполняет логику?</td><td>Динамическое веб-приложение.</td></tr>
+            <tr><td>Браузеры</td><td>Как всё это загружается, выполняется и отображается?</td><td>Понимание платформы и её ограничений.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">Учебный справочник по веб-платформе · Материалы будут дополняться последовательно.</footer>
+</body>
+</html>
