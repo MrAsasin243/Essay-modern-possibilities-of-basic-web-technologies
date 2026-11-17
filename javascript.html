@@ -3,65 +3,91 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Подробный справочник по JavaScript: язык, DOM, события, асинхронность, сеть, хранилища и Web API.">
+  <meta name="description" content="Подробный справочник по JavaScript: язык ECMAScript, DOM, события, асинхронность, сеть, браузерные API, безопасность и инструменты разработчика.">
   <title>JavaScript — веб-платформа</title>
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/demo.css">
+  <script src="assets/demo.js" defer></script>
 </head>
 <body>
   <header class="topbar">
     <a class="brand" href="index.html"><span class="brand-mark">WEB</span><span>Веб-платформа</span></a>
     <nav class="topnav" aria-label="Основная навигация">
-      <a href="index.html">Главная</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="javascript.html" aria-current="page">JavaScript</a><a href="browsers.html">Браузеры</a>
+      <a href="index.html">Главная</a>
+      <a href="html.html">HTML</a>
+      <a href="css.html">CSS</a>
+      <a href="javascript.html" aria-current="page">JavaScript</a>
+      <a href="browsers.html">Браузеры</a>
     </nav>
   </header>
 
   <div class="page-grid">
-    <aside class="sidebar" aria-label="Содержание страницы">
+    <aside class="sidebar" aria-label="Содержание раздела">
       <p class="sidebar-label">Содержание JavaScript</p>
       <a href="#overview">1. Что такое JavaScript</a>
-      <a href="#runtime">2. ECMAScript и среда</a>
+      <a href="#runtime">2. Язык и среда выполнения</a>
       <a href="#connect">3. Подключение к HTML</a>
-      <a href="#syntax">4. Синтаксис</a>
-      <a href="#variables">5. Переменные</a>
+      <a href="#syntax">4. Синтаксис и режимы</a>
+      <a href="#variables">5. Переменные и область видимости</a>
       <a href="#types">6. Типы данных</a>
-      <a href="#operators">7. Операторы</a>
+      <a href="#operators">7. Операторы и преобразования</a>
       <a href="#control">8. Управление потоком</a>
-      <a href="#functions">9. Функции</a>
+      <a href="#functions">9. Функции и замыкания</a>
       <a href="#collections">10. Массивы и коллекции</a>
-      <a href="#objects">11. Объекты и классы</a>
-      <a href="#errors">12. Ошибки</a>
+      <a href="#objects">11. Объекты, прототипы, классы</a>
+      <a href="#errors">12. Ошибки и исключения</a>
       <a href="#modules">13. Модули</a>
       <a href="#dom">14. DOM</a>
       <a href="#events">15. События</a>
-      <a href="#forms">16. Формы</a>
-      <a href="#async">17. Асинхронность</a>
-      <a href="#network">18. Сеть</a>
-      <a href="#storage">19. Хранилища</a>
-      <a href="#apis">20. Web API</a>
-      <a href="#workers">21. Workers</a>
+      <a href="#forms">16. Работа с формами</a>
+      <a href="#async">17. Асинхронность и Event Loop</a>
+      <a href="#network">18. Сеть и Fetch API</a>
+      <a href="#storage">19. Хранение данных</a>
+      <a href="#apis">20. Браузерные Web API</a>
+      <a href="#workers">21. Workers и фоновые задачи</a>
       <a href="#security">22. Безопасность</a>
       <a href="#performance">23. Производительность</a>
-      <a href="#debug">24. Отладка</a>
-      <a href="#patterns">25. Архитектура</a>
-      <a href="#compat">26. Совместимость</a>
+      <a href="#debug">24. Отладка и тестирование</a>
+      <a href="#patterns">25. Архитектура клиентского кода</a>
+      <a href="#compat">26. Совместимость и стандарты</a>
       <a href="#practice">27. Практика</a>
-      <a href="#resources">28. Источники</a>
+      <a href="#resources">28. Документация</a>
     </aside>
 
     <main class="article">
       <p class="breadcrumb"><a href="index.html">Главная</a> / JavaScript</p>
+
       <section class="hero">
-        <p class="eyebrow">Раздел 03 · Программная логика веб-приложений</p>
-        <h1>JavaScript: язык, DOM, события и Web API</h1>
-        <p>JavaScript — динамический язык программирования, который превращает статический HTML-документ в интерактивное приложение. Он управляет DOM, обрабатывает события, отправляет сетевые запросы, хранит данные и обращается к возможностям браузера.</p>
-        <div class="hero-meta"><span class="pill">Язык</span><span class="pill">DOM</span><span class="pill">События</span><span class="pill">Асинхронность</span></div>
+        <p class="eyebrow">Раздел 03 · Логика и поведение</p>
+        <h1>JavaScript: язык программирования веба</h1>
+        <p>От базового синтаксиса до построения динамических приложений: разберём сам язык, модель выполнения, DOM, события, сеть, хранилища и интерфейсы браузера.</p>
+        <div class="hero-meta">
+          <span class="pill">Язык ECMAScript</span>
+          <span class="pill">Браузерные API</span>
+          <span class="pill">Примеры кода</span>
+          <span class="pill">Практические задания</span>
+        </div>
       </section>
 
       <section class="content-section" id="overview">
         <h2>1. Что такое JavaScript</h2>
         <p class="lead">JavaScript (JS) — динамический мультипарадигменный язык программирования. Он позволяет описывать вычисления, преобразование данных, правила работы приложения и реакцию программы на события.</p>
         <p>В веб-разработке JavaScript чаще всего запускается в браузере. Он может читать и изменять DOM, обрабатывать действия пользователя, отправлять запросы на сервер, хранить данные на клиенте и обращаться к возможностям устройства через Web API.</p>
+        <div class="grid-3">
+          <div class="mini-card"><h3>Императивный стиль</h3><p>Программист описывает последовательность команд и изменение состояния.</p></div>
+          <div class="mini-card"><h3>Объектный стиль</h3><p>Данные и поведение можно организовывать вокруг объектов, прототипов и классов.</p></div>
+          <div class="mini-card"><h3>Функциональный стиль</h3><p>Функции можно передавать как значения, комбинировать и использовать для преобразования данных.</p></div>
+        </div>
+        <h3>Что JavaScript делает на странице</h3>
+        <ul>
+          <li>Реагирует на нажатия, ввод текста, прокрутку, перетаскивание и другие события.</li>
+          <li>Изменяет содержимое и структуру страницы через DOM.</li>
+          <li>Проверяет данные форм и показывает ошибки пользователю.</li>
+          <li>Получает и отправляет данные через сеть.</li>
+          <li>Создаёт интерактивные графики, редакторы, игры и сложные интерфейсы.</li>
+          <li>Использует браузерные API: хранилища, геолокацию, мультимедиа, уведомления и другие возможности.</li>
+        </ul>
+        <div class="callout"><strong>Важно:</strong> JavaScript и Java — разные языки. Сходство названий историческое и не означает, что это варианты одной технологии.</div>
       </section>
 
       <section class="content-section" id="runtime">
@@ -77,60 +103,105 @@
             <tr><td><strong>Web API</strong></td><td>Интерфейсы, предоставляемые веб-платформой, а не ядром ECMAScript.</td><td><code>document</code>, <code>fetch()</code>, <code>localStorage</code>.</td></tr>
           </tbody>
         </table></div>
+        <p>Например, массив <code>Array</code> и метод <code>map()</code> относятся к стандартной библиотеке языка. Объект <code>document</code> относится к браузерной модели документа. В среде Node.js глобального браузерного <code>document</code> обычно нет, зато доступны серверные API.</p>
+        <figure><div class="diagram">
+          <div class="diagram-box"><strong>Код JavaScript</strong><span>Исходный текст программы</span></div>
+          <div class="diagram-arrow">↓</div>
+          <div class="diagram-box"><strong>Движок JavaScript</strong><span>Разбор, компиляция и выполнение</span></div>
+          <div class="diagram-arrow">↓</div>
+          <div class="diagram-box"><strong>Среда выполнения</strong><span>Очереди задач, таймеры, сеть, события и доступные API</span></div>
+          <div class="diagram-arrow">↓</div>
+          <div class="diagram-box"><strong>Результат</strong><span>Изменённые данные, интерфейс, запросы, вычисления</span></div>
+        </div><figcaption>Упрощённая модель: браузерная среда включает намного больше компонентов, чем показано на схеме.</figcaption></figure>
+        <div class="callout success"><strong>Стандарты:</strong> опубликованная редакция ECMAScript 2026 — 17-е издание стандарта ECMA-262 (июнь 2026 года). Текущий редакторский проект ECMAScript 2027 — ещё развивающийся черновик; наличие функции в черновике не гарантирует её поддержку в браузерах.</div>
       </section>
 
       <section class="content-section" id="connect">
         <h2>3. Подключение JavaScript к HTML</h2>
         <p>Код можно разместить в HTML-документе или подключить отдельным файлом. Для реального проекта обычно удобнее внешние файлы: код разделён по назначению, его проще обслуживать и кэшировать.</p>
-        <pre><code>&lt;!-- Встроенный скрипт --&gt;
-&lt;script&gt;
-  console.log("Привет из встроенного скрипта");
-&lt;/script&gt;
-
-&lt;!-- Внешний скрипт --&gt;
-&lt;script src="app.js"&gt;&lt;/script&gt;
-
-&lt;!-- Модуль --&gt;
-&lt;script type="module" src="app.js"&gt;&lt;/script&gt;
-
-&lt;!-- Отложенное выполнение --&gt;
-&lt;script src="app.js" defer&gt;&lt;/script&gt;
-
-&lt;!-- Асинхронная загрузка --&gt;
-&lt;script src="analytics.js" async&gt;&lt;/script&gt;</code></pre>
+        <h3>Встроенный сценарий</h3>
+        <pre><code>&lt;script&gt;
+  console.log("Страница загружена");
+&lt;/script&gt;</code></pre>
+        <h3>Внешний файл</h3>
+        <pre><code>&lt;script src="app.js" defer&gt;&lt;/script&gt;</code></pre>
+        <h3>Как отличаются режимы загрузки</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Вариант</th><th>Поведение</th><th>Когда применять</th></tr></thead>
+          <tbody>
+            <tr><td>Обычный <code>script</code></td><td>Парсер HTML приостанавливается, скрипт загружается и выполняется, затем разбор продолжается.</td><td>Редкие случаи, когда выполнение действительно должно происходить в конкретной точке разбора.</td></tr>
+            <tr><td><code>defer</code></td><td>Загрузка идёт параллельно разбору HTML; выполнение — после разбора документа, с сохранением порядка таких скриптов.</td><td>Обычные внешние скрипты, которым нужен уже разобранный документ.</td></tr>
+            <tr><td><code>async</code></td><td>Загрузка идёт параллельно; выполнение начинается сразу после готовности, порядок между такими скриптами не гарантируется.</td><td>Независимые скрипты, например некоторые счётчики или сторонние интеграции.</td></tr>
+            <tr><td><code>type="module"</code></td><td>Включает модульную систему; модули по умолчанию откладываются до разбора HTML и имеют собственную область модуля.</td><td>Современный код приложения, разделённый на модули.</td></tr>
+          </tbody>
+        </table></div>
+        <div class="callout warning"><strong>Не путай:</strong> <code>defer</code> и <code>async</code> — не режимы самого языка. Это атрибуты HTML-элемента <code>script</code>, влияющие на загрузку и выполнение сценария браузером.</div>
       </section>
 
       <section class="content-section" id="syntax">
         <h2>4. Синтаксис и базовые правила</h2>
         <h3>Инструкции и выражения</h3>
         <p><strong>Выражение</strong> вычисляется в значение. <strong>Инструкция</strong> организует выполнение действия или последовательности действий.</p>
-        <pre><code>// Выражение — вычисляется в значение
-2 + 2
-Math.max(1, 2, 3)
-x > 5 ? "больше" : "меньше или равно"
+        <pre><code>2 + 3                 // выражение: значение 5
+const total = 2 + 3;  // объявление переменной — инструкция
+console.log(total);  // вызов функции как инструкция</code></pre>
+        <h3>Комментарии</h3>
+        <pre><code>// Однострочный комментарий
 
-// Инструкция — выполняет действие
-let x = 10;
-if (x > 5) {
-  console.log("x больше пяти");
-}</code></pre>
+/*
+  Многострочный
+  комментарий
+*/</code></pre>
+        <h3>Точка с запятой</h3>
+        <p>В JavaScript действует автоматическая вставка точек с запятой (ASI), но она не делает любые переносы строк безопасными. В командах проекта следует придерживаться единого стиля форматирования и явно ставить точки с запятой либо последовательно использовать выбранное соглашение.</p>
+        <h3>Строгий режим</h3>
+        <pre><code>"use strict";
+
+// В строгом режиме некоторые ошибочные или неоднозначные
+// конструкции вызывают исключения вместо тихого поведения.</code></pre>
+        <p>Код JavaScript-модуля автоматически выполняется в строгом режиме. В классических сценариях строгий режим можно включить директивой в начале скрипта или функции.</p>
+        <h3>Имена и регистр</h3>
+        <p>Имена чувствительны к регистру: <code>userName</code> и <code>username</code> — разные идентификаторы. Имя не может начинаться с цифры, а зарезервированные ключевые слова нельзя использовать как обычные имена переменных.</p>
       </section>
 
       <section class="content-section" id="variables">
         <h2>5. Переменные и область видимости</h2>
         <p>Переменная связывает имя со значением. В современном JavaScript в основном используются <code>const</code> и <code>let</code>.</p>
-        <pre><code>// const — для значений, которые не переприсваиваются
-const API_URL = "https://api.example.com";
-const user = { name: "Алексей" };
+        <pre><code>const siteName = "Web Guide"; // нельзя переназначить
+let pageViews = 0;             // можно переназначить
+pageViews += 1;
 
-// let — для значений, которые могут изменяться
-let count = 0;
-count = count + 1;
+var legacyValue = 10;          // старый способ объявления</code></pre>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Объявление</th><th>Повторное объявление в той же области</th><th>Область видимости</th><th>Особенности</th></tr></thead>
+          <tbody>
+            <tr><td><code>const</code></td><td>Нет</td><td>Блочная</td><td>Нужно сразу присвоить начальное значение; нельзя переназначить переменную.</td></tr>
+            <tr><td><code>let</code></td><td>Нет</td><td>Блочная</td><td>Можно переназначать значение.</td></tr>
+            <tr><td><code>var</code></td><td>Да, в пределах допустимых правил</td><td>Функциональная или глобальная</td><td>Имеет исторические особенности поднятия объявления и взаимодействия с глобальным объектом.</td></tr>
+          </tbody>
+        </table></div>
+        <p><code>const</code> запрещает переназначить саму переменную, но не делает объект или массив неизменяемым.</p>
+        <pre><code>const user = { name: "Алексей" };
+user.name = "Иван";       // допустимо
+// user = {};              // TypeError: переназначение запрещено</code></pre>
+        <h3>Область видимости</h3>
+        <p>Область видимости (scope) определяет, из каких частей программы доступно имя. Основные виды: глобальная, функциональная и блочная.</p>
+        <pre><code>const globalValue = "видно снаружи";
 
-// var — устаревший способ, имеет функциональную область видимости
-// Не рекомендуется в современном коде
-var oldStyle = "избегай var";</code></pre>
-        <div class="callout warning"><strong>Область видимости:</strong> <code>let</code> и <code>const</code> имеют блочную область видимости (ограничены фигурными скобками <code>{}</code>). <code>var</code> имеет функциональную область видимости, что может привести к неожиданным ошибкам.</div>
+function example() {
+  const functionValue = "видно внутри функции";
+
+  if (true) {
+    const blockValue = "видно только в блоке";
+    console.log(blockValue);
+  }
+
+  // console.log(blockValue); // ReferenceError
+}</code></pre>
+        <h3>Поднятие (hoisting) и временная мёртвая зона</h3>
+        <p>Объявления обрабатываются до выполнения соответствующего кода, но это не означает, что все переменные можно безопасно использовать до строки объявления. Для <code>let</code> и <code>const</code> до инициализации действует временная мёртвая зона (TDZ).</p>
+        <pre><code>console.log(value); // ReferenceError
+let value = 5;</code></pre>
       </section>
 
       <section class="content-section" id="types">
@@ -149,21 +220,37 @@ var oldStyle = "избегай var";</code></pre>
             <tr><td><code>symbol</code></td><td><code>Symbol("id")</code></td><td>Уникальные идентификаторы свойств.</td></tr>
           </tbody>
         </table></div>
-        <h3>Объекты</h3>
-        <pre><code>// Объект — коллекция пар ключ-значение
-const user = {
-  name: "Алексей",
-  age: 30,
-  isActive: true
-};
+        <p>Кроме примитивов существуют объекты: обычные объекты, массивы, функции, даты, регулярные выражения, коллекции и другие структуры.</p>
+        <pre><code>typeof "text"       // "string"
+typeof 42           // "number"
+typeof 42n          // "bigint"
+typeof true         // "boolean"
+typeof undefined    // "undefined"
+typeof Symbol()     // "symbol"
+typeof {}           // "object"
+typeof []           // "object"
+typeof null         // "object" — историческая особенность
 
-// Массив — упорядоченная коллекция
-const numbers = [1, 2, 3, 4, 5];
+typeof function() {} // "function"</code></pre>
+        <h3>Примитивы и объекты: копирование</h3>
+        <p>При присваивании примитивного значения переменная получает само значение. При присваивании объекта копируется ссылка на объект.</p>
+        <pre><code>let a = 10;
+let b = a;
+b = 20;
+console.log(a); // 10
 
-// Функция — тоже объект
-function greet(name) {
-  return `Привет, ${name}`;
-}</code></pre>
+const first = { score: 5 };
+const second = first;
+second.score = 9;
+console.log(first.score); // 9 — обе переменные обращаются к одному объекту</code></pre>
+        <h3>Проверка и преобразование типов</h3>
+        <pre><code>Number("42")       // 42
+String(42)         // "42"
+Boolean(0)         // false
+Boolean("hello")  // true
+
+Number("текст")   // NaN</code></pre>
+        <p>Ложными (falsy) являются <code>false</code>, <code>0</code>, <code>-0</code>, <code>0n</code>, <code>""</code>, <code>null</code>, <code>undefined</code> и <code>NaN</code>. Практически все остальные значения истинны, в том числе пустой массив <code>[]</code> и пустой объект <code>{}</code>.</p>
       </section>
 
       <section class="content-section" id="operators">
@@ -176,7 +263,21 @@ function greet(name) {
 5 === "5"      // false: типы различаются
 5 == "5"       // true: произошло преобразование типов
 5 !== "5"      // true</code></pre>
-        <div class="callout warning"><strong>Строгое равенство:</strong> используй <code>===</code> и <code>!==</code> вместо <code>==</code> и <code>!=</code>. Операторы <code>==</code> выполняют неявное преобразование типов, что часто приводит к неожиданным результатам.</div>
+        <p>Обычно предпочтительны строгое равенство <code>===</code> и строгое неравенство <code>!==</code>, поскольку они не выполняют неявное приведение типов.</p>
+        <h3>Логические операторы</h3>
+        <ul>
+          <li><code>&amp;&amp;</code> — логическое И с коротким замыканием.</li>
+          <li><code>||</code> — логическое ИЛИ с коротким замыканием.</li>
+          <li><code>!</code> — логическое НЕ.</li>
+          <li><code>??</code> — оператор нулевого слияния: берёт правую часть, только если левая равна <code>null</code> или <code>undefined</code>.</li>
+          <li><code>?.</code> — optional chaining: безопасный доступ при <code>null</code> или <code>undefined</code>.</li>
+        </ul>
+        <pre><code>const displayName = user.name ?? "Гость";
+const city = user.address?.city;
+const isReady = hasData && isValid;</code></pre>
+        <h3>Остальные полезные группы</h3>
+        <p>Операторы присваивания (<code>=</code>, <code>+=</code>, <code>??=</code>), побитовые операторы, условный оператор <code>? :</code>, оператор распространения <code>...</code>, оператор остаточных параметров, <code>typeof</code>, <code>instanceof</code>, <code>in</code>, <code>delete</code>, <code>new</code>, <code>await</code> и другие.</p>
+        <div class="callout">Оператор <code>||</code> выбирает правую часть для любого falsy-значения, а <code>??</code> — только для <code>null</code> и <code>undefined</code>. Для значений вроде нуля или пустой строки это принципиально важно.</div>
       </section>
 
       <section class="content-section" id="control">
@@ -185,13 +286,24 @@ function greet(name) {
         <h3>Условия</h3>
         <pre><code>if (temperature > 25) {
   console.log("Жарко");
-} else if (temperature < 10) {
+} else if (temperature &lt; 10) {
   console.log("Холодно");
 } else {
   console.log("Умеренная температура");
+}
+
+switch (status) {
+  case "loading":
+    console.log("Загрузка");
+    break;
+  case "success":
+    console.log("Готово");
+    break;
+  default:
+    console.log("Неизвестное состояние");
 }</code></pre>
         <h3>Циклы</h3>
-        <pre><code>for (let i = 0; i < 3; i++) {
+        <pre><code>for (let i = 0; i &lt; 3; i++) {
   console.log(i);
 }
 
@@ -206,6 +318,7 @@ for (const item of items) {
 for (const key in object) {
   console.log(key); // перечисляемые ключи объекта
 }</code></pre>
+        <p><code>break</code> завершает цикл или конструкцию <code>switch</code>, <code>continue</code> переходит к следующей итерации. Для массивов часто удобнее применять методы <code>forEach</code>, <code>map</code>, <code>filter</code>, <code>find</code> и другие — выбор зависит от задачи.</p>
       </section>
 
       <section class="content-section" id="functions">
@@ -225,20 +338,43 @@ const result = sum(2, 3); // 5</code></pre>
 const square = (x) => x * x;
 const greet = name => `Привет, ${name}`;
 const createUser = () => ({ active: true });</code></pre>
-        <h3>Замыкания</h3>
+        <h3>Параметры по умолчанию и остаточные параметры</h3>
+        <pre><code>function greet(name = "Гость") {
+  return `Здравствуйте, ${name}`;
+}
+
+function average(...numbers) {
+  const total = numbers.reduce((sum, n) => sum + n, 0);
+  return numbers.length === 0 ? 0 : total / numbers.length;
+}</code></pre>
+        <h3>Область видимости и замыкание</h3>
+        <p>Замыкание (closure) возникает, когда функция сохраняет доступ к лексическому окружению, в котором была создана, даже после завершения внешней функции.</p>
         <pre><code>function createCounter() {
   let count = 0;
+
   return function () {
-    count = count + 1;
+    count += 1;
     return count;
   };
 }
 
 const counter = createCounter();
 console.log(counter()); // 1
-console.log(counter()); // 2
-console.log(counter()); // 3</code></pre>
-        <p>Замыкание — это функция, которая «помнит» переменные из области видимости, в которой она была создана, даже после того как внешняя функция завершила выполнение.</p>
+console.log(counter()); // 2</code></pre>
+        <h3>Контекст <code>this</code></h3>
+        <p>В обычной функции значение <code>this</code> в основном определяется способом вызова. В стрелочной функции собственного <code>this</code> нет: она использует значение из окружающего лексического контекста.</p>
+        <pre><code>const user = {
+  name: "Ирина",
+  sayName() {
+    console.log(this.name);
+  }
+};
+
+user.sayName(); // "Ирина"
+
+const detached = user.sayName;
+// detached(); // в строгом режиме this будет undefined</code></pre>
+        <p>Для управления контекстом существуют <code>call()</code>, <code>apply()</code> и <code>bind()</code>. Понимание <code>this</code>, замыканий, областей видимости и передачи функций необходимо для работы с событиями, callbacks и асинхронным кодом.</p>
       </section>
 
       <section class="content-section" id="collections">
@@ -254,18 +390,35 @@ const first = numbers.find(x => x > 2);
 const total = numbers.reduce((sum, x) => sum + x, 0);
 
 const copy = [...numbers];          // поверхностная копия</code></pre>
-        <h3>Объекты-коллекции</h3>
-        <pre><code>// Map — коллекция пар ключ-значение с любыми ключами
-const map = new Map();
-map.set("name", "Алексей");
-map.set(42, "число");
+        <div class="table-wrap"><table>
+          <thead><tr><th>Метод</th><th>Что делает</th><th>Возвращаемое значение</th></tr></thead>
+          <tbody>
+            <tr><td><code>map()</code></td><td>Преобразует каждый элемент.</td><td>Новый массив.</td></tr>
+            <tr><td><code>filter()</code></td><td>Оставляет элементы, прошедшие условие.</td><td>Новый массив.</td></tr>
+            <tr><td><code>find()</code></td><td>Ищет первый подходящий элемент.</td><td>Элемент или <code>undefined</code>.</td></tr>
+            <tr><td><code>some()</code> / <code>every()</code></td><td>Проверяет, удовлетворяет ли условию хотя бы один / каждый элемент.</td><td>Boolean.</td></tr>
+            <tr><td><code>reduce()</code></td><td>Сводит элементы к одному результату.</td><td>Любое итоговое значение.</td></tr>
+            <tr><td><code>sort()</code></td><td>Сортирует массив на месте.</td><td>Тот же массив.</td></tr>
+            <tr><td><code>slice()</code></td><td>Возвращает часть массива без изменения исходного.</td><td>Новый массив.</td></tr>
+            <tr><td><code>splice()</code></td><td>Удаляет, заменяет или вставляет элементы.</td><td>Массив удалённых элементов.</td></tr>
+          </tbody>
+        </table></div>
+        <div class="callout warning"><strong>Внимание:</strong> не все методы создают копию. Например, <code>sort()</code>, <code>reverse()</code> и <code>splice()</code> изменяют исходный массив. Для предсказуемой логики отслеживай, меняется ли исходная структура.</div>
+        <h3>Map, Set, WeakMap и WeakSet</h3>
+        <pre><code>const scores = new Map();
+scores.set("math", 95);
+scores.set("physics", 88);
+console.log(scores.get("math"));
 
-// Set — коллекция уникальных значений
-const set = new Set([1, 2, 2, 3, 3, 3]);
-// set содержит: 1, 2, 3
-
-// WeakMap и WeakSet — для слабых ссылок
-// Ключи должны быть объектами, не препятствуют сборке мусора</code></pre>
+const uniqueTags = new Set(["html", "css", "html"]);
+console.log(uniqueTags.size); // 2</code></pre>
+        <ul>
+          <li><code>Map</code> хранит пары ключ–значение; ключом может быть значение любого типа.</li>
+          <li><code>Set</code> хранит уникальные значения.</li>
+          <li><code>WeakMap</code> и <code>WeakSet</code> используют слабые ссылки на объекты и имеют ограничения на перечисление.</li>
+        </ul>
+        <h3>Другие структуры</h3>
+        <p>Стандарт языка также включает строки и регулярные выражения, <code>Date</code>, <code>RegExp</code>, <code>JSON</code>, типизированные массивы, <code>ArrayBuffer</code>, <code>DataView</code>, итераторы и генераторы. Они нужны для текста, дат, двоичных данных и последовательной обработки значений.</p>
       </section>
 
       <section class="content-section" id="objects">
@@ -284,6 +437,14 @@ const set = new Set([1, 2, 2, 3, 3, 3]);
 console.log(product.title);
 product.price = 4200;
 product.category = "Периферия";</code></pre>
+        <p>Свойства объекта можно читать, создавать, менять и удалять. Для доступа к свойству используются точка или квадратные скобки: <code>object.name</code> и <code>object["name"]</code>.</p>
+        <h3>Деструктуризация и spread</h3>
+        <pre><code>const { title, price } = product;
+const updated = { ...product, price: 3990 };
+
+const [first, second] = ["HTML", "CSS"];
+const combined = [...[1, 2], 3, 4];</code></pre>
+        <p>Spread создаёт поверхностную копию. Вложенные объекты по-прежнему могут ссылаться на те же значения.</p>
         <h3>Прототипное наследование</h3>
         <p>У объектов есть внутренний прототип. При обращении к отсутствующему собственному свойству JavaScript может искать его выше по цепочке прототипов. Это основа наследования в языке.</p>
         <pre><code>const animal = {
@@ -314,7 +475,7 @@ class Admin extends User {
 
 const admin = new Admin("Алексей");
 console.log(admin.introduce());</code></pre>
-        <div class="callout"><strong>Классы — синтаксический сахар.</strong> Классы в JavaScript — это синтаксическая надстройка над прототипным наследованием. Под капотом они работают через функции-конструкторы и цепочки прототипов.</div>
+        <p>Синтаксис <code>class</code> предоставляет удобную форму для работы с прототипным механизмом, а не отдельную от него модель объектов. Классы поддерживают конструкторы, методы, статические члены, геттеры/сеттеры, наследование и приватные поля с префиксом <code>#</code>.</p>
       </section>
 
       <section class="content-section" id="errors">
@@ -328,23 +489,14 @@ console.log(admin.introduce());</code></pre>
 } finally {
   console.log("Этот блок выполнится в любом случае");
 }</code></pre>
-        <h3>Типы ошибок</h3>
-        <pre><code>// Синтаксическая ошибка
-// SyntaxError: Unexpected token
-
-// Ошибка выполнения
-// ReferenceError: x is not defined
-// TypeError: Cannot read property 'length' of undefined
-
-// Пользовательские ошибки
-class ValidationError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = "ValidationError";
+        <p>Для генерации исключения применяется <code>throw</code>. Существуют встроенные виды ошибок: <code>Error</code>, <code>TypeError</code>, <code>RangeError</code>, <code>ReferenceError</code>, <code>SyntaxError</code> и другие.</p>
+        <pre><code>function divide(a, b) {
+  if (b === 0) {
+    throw new RangeError("Деление на ноль запрещено");
   }
-}
-
-throw new ValidationError("Некорректный email");</code></pre>
+  return a / b;
+}</code></pre>
+        <p>Не следует без разбора перехватывать все исключения и игнорировать их. Обработка должна либо исправлять ожидаемую ситуацию, либо добавлять контекст и передавать ошибку дальше.</p>
       </section>
 
       <section class="content-section" id="modules">
@@ -360,18 +512,18 @@ export const PI = Math.PI;
 // app.js
 import { add, PI } from "./math.js";
 console.log(add(2, 3), PI);</code></pre>
-        <h3>Типы импорта</h3>
-        <pre><code>// Именованный импорт
-import { add, subtract } from "./math.js";
-
-// Импорт по умолчанию
-import Calculator from "./Calculator.js";
-
-// Импорт всего модуля как объекта
-import * as MathUtils from "./math.js";
-
-// Динамический импорт (для ленивой загрузки)
-const module = await import("./heavy-module.js");</code></pre>
+        <p>В HTML модуль подключается так:</p>
+        <pre><code>&lt;script type="module" src="./app.js"&gt;&lt;/script&gt;</code></pre>
+        <h3>Основные возможности</h3>
+        <ul>
+          <li>Именованные экспорты и импорты.</li>
+          <li>Экспорт по умолчанию (<code>default</code>).</li>
+          <li>Переименование импортируемых значений через <code>as</code>.</li>
+          <li>Динамический импорт через <code>import()</code>, возвращающий Promise.</li>
+          <li>Top-level <code>await</code> в ES-модулях.</li>
+          <li>Изоляция верхнеуровневых имён модуля от глобальной области.</li>
+        </ul>
+        <p>В реальных проектах модули часто объединяются сборщиками или обрабатываются инструментами разработки. Но браузеры также умеют загружать ES-модули непосредственно.</p>
       </section>
 
       <section class="content-section" id="dom">
@@ -388,15 +540,24 @@ title.classList.toggle("compact");
 
 const input = document.querySelector("input");
 console.log(input.value);</code></pre>
-        <h3>Создание и вставка элементов</h3>
-        <pre><code>const newCard = document.createElement("div");
-newCard.className = "card";
-newCard.textContent = "Новая карточка";
+        <h3>Создание и удаление элементов</h3>
+        <pre><code>const item = document.createElement("li");
+item.textContent = "Новый пункт";
+document.querySelector("ul").append(item);
 
-document.body.appendChild(newCard);
+item.remove();</code></pre>
+        <h3>Атрибуты и свойства</h3>
+        <pre><code>const link = document.querySelector("a");
+link.setAttribute("href", "https://example.com");
+console.log(link.getAttribute("href"));</code></pre>
+        <p>Не путай HTML-атрибуты и DOM-свойства: они связаны, но не всегда тождественны. Например, атрибут задаёт исходное значение, а DOM-свойство может отражать текущее состояние элемента формы.</p>
+        <h3>DOM и CSS</h3>
+        <pre><code>const box = document.querySelector(".box");
+box.style.backgroundColor = "gold";
 
-// Или через insertAdjacentHTML
-container.insertAdjacentHTML("beforeend", '<div class="card">Ещё одна</div>');</code></pre>
+const styles = getComputedStyle(box);
+console.log(styles.width);</code></pre>
+        <p>Для изменения оформления обычно предпочтительнее переключать CSS-классы, а не записывать множество отдельных inline-стилей. DOM позволяет также работать с теневым DOM (Shadow DOM), диапазонами, наблюдателями изменений и другими интерфейсами.</p>
       </section>
 
       <section class="content-section" id="events">
@@ -408,38 +569,36 @@ container.insertAdjacentHTML("beforeend", '<div class="card">Ещё одна</di
 button.addEventListener("click", (event) => {
   console.log("Нажата кнопка", event);
 });</code></pre>
-        <div id="demo-propagation-container"></div>
-        <h3>Распространение событий</h3>
-        <p>События проходят через три фазы:</p>
-        <ol>
-          <li><strong>Capture (перехват):</strong> событие спускается от <code>window</code> к целевому элементу.</li>
-          <li><strong>Target (цель):</strong> событие достигает целевого элемента.</li>
-          <li><strong>Bubble (всплытие):</strong> событие поднимается от целевого элемента обратно к <code>window</code>.</li>
-        </ol>
-        <pre><code>// Подписка в фазе bubble (по умолчанию)
-element.addEventListener("click", handler);
+        <p><code>addEventListener()</code> — основной универсальный способ подписки. Он позволяет добавить несколько независимых обработчиков и управлять их параметрами.</p>
+        <h3>Типы событий</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Группа</th><th>Примеры</th></tr></thead>
+          <tbody>
+            <tr><td>Мышь и указатель</td><td><code>click</code>, <code>dblclick</code>, <code>pointerdown</code>, <code>pointermove</code>, <code>pointerup</code>.</td></tr>
+            <tr><td>Клавиатура</td><td><code>keydown</code>, <code>keyup</code>.</td></tr>
+            <tr><td>Поля формы</td><td><code>input</code>, <code>change</code>, <code>submit</code>, <code>focus</code>, <code>blur</code>.</td></tr>
+            <tr><td>Документ и окно</td><td><code>DOMContentLoaded</code>, <code>load</code>, <code>resize</code>, <code>scroll</code>.</td></tr>
+            <tr><td>Медиа</td><td><code>play</code>, <code>pause</code>, <code>ended</code>, <code>timeupdate</code>.</td></tr>
+            <tr><td>Drag and Drop</td><td><code>dragstart</code>, <code>dragover</code>, <code>drop</code>.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>Распространение события</h3>
+        <p>События, поддерживающие bubbling, проходят фазы захвата (capture), достижения цели (target) и всплытия (bubble). Это позволяет обработчику на родительском элементе реагировать на события дочерних элементов.</p>
+        <pre><code>document.querySelector("ul").addEventListener("click", (event) => {
+  const item = event.target.closest("li");
+  if (!item) return;
 
-// Подписка в фазе capture
-element.addEventListener("click", handler, true);
-
-// Остановка распространения
-event.stopPropagation();
-
-// Предотвращение действия по умолчанию
-event.preventDefault();</code></pre>
-        <h3>Делегирование событий</h3>
-        <pre><code>// Вместо подписки на каждую кнопку
-document.querySelectorAll(".card button").forEach(btn => {
-  btn.addEventListener("click", handler);
-});
-
-// Подписываемся на родителя
-document.querySelector(".card-list").addEventListener("click", (event) => {
-  const button = event.target.closest("button");
-  if (button) {
-    console.log("Нажата кнопка:", button.textContent);
-  }
+  console.log("Выбран пункт:", item.textContent);
 });</code></pre>
+        <p>Этот приём называется делегированием событий. Он удобен для динамически создаваемых списков: не нужно устанавливать обработчик на каждый дочерний элемент.</p>
+        <h3>Параметры и методы события</h3>
+        <ul>
+          <li><code>event.target</code> — элемент, на котором возникло событие.</li>
+          <li><code>event.currentTarget</code> — элемент, на котором сейчас выполняется обработчик.</li>
+          <li><code>preventDefault()</code> — отменяет действие браузера по умолчанию, если оно отменяемое.</li>
+          <li><code>stopPropagation()</code> — останавливает дальнейшее распространение события.</li>
+          <li><code>once</code>, <code>capture</code>, <code>passive</code>, <code>signal</code> — опции обработчика.</li>
+        </ul>
       </section>
 
       <section class="content-section" id="forms">
@@ -455,15 +614,18 @@ form.addEventListener("submit", (event) => {
 
   console.log("Пользователь указал:", email);
 });</code></pre>
-        <h3>Валидация через Constraint Validation API</h3>
-        <pre><code>const input = document.querySelector("input[type='email']");
+        <h3>Встроенная валидация и Constraint Validation API</h3>
+        <p>HTML умеет проверять обязательные поля, диапазоны и форматы. JavaScript может дополнять эту проверку через <code>checkValidity()</code>, <code>reportValidity()</code>, <code>setCustomValidity()</code> и свойства <code>validity</code>.</p>
+        <pre><code>const emailInput = document.querySelector("#email");
 
-if (!input.checkValidity()) {
-  console.log("Ошибки валидации:", input.validationMessage);
-  input.setCustomValidity("Введите корректный email");
-} else {
-  input.setCustomValidity("");
-}</code></pre>
+emailInput.addEventListener("input", () => {
+  if (emailInput.value.endsWith("@example.invalid")) {
+    emailInput.setCustomValidity("Укажите рабочий адрес электронной почты");
+  } else {
+    emailInput.setCustomValidity("");
+  }
+});</code></pre>
+        <p>Проверка на клиенте нужна для удобства, но не заменяет серверную валидацию. Любой запрос можно сформировать вне интерфейса сайта.</p>
       </section>
 
       <section class="content-section" id="async">
@@ -505,27 +667,34 @@ promise
     throw error;
   }
 }</code></pre>
-        <div id="demo-eventloop-container"></div>
-        <h3>Event Loop</h3>
-        <p>Event Loop — механизм координации выполнения синхронного кода, микрозадач (Promise, queueMicrotask) и макрозадач (setTimeout, setInterval, I/O).</p>
-        <pre><code>console.log("1");
+        <p>Функция с <code>async</code> всегда возвращает Promise. <code>await</code> приостанавливает продолжение этой async-функции до завершения Promise, но не блокирует весь поток выполнения JavaScript.</p>
+        <h3>Event Loop: упрощённая модель</h3>
+        <figure><div class="diagram">
+          <div class="diagram-box"><strong>Текущий стек вызовов</strong><span>Выполняется синхронный JavaScript</span></div>
+          <div class="diagram-arrow">↓</div>
+          <div class="diagram-box"><strong>Ожидание внешней операции</strong><span>Сеть, таймер, ввод, событие платформы</span></div>
+          <div class="diagram-arrow">↓</div>
+          <div class="diagram-box"><strong>Очереди задач</strong><span>Завершившиеся операции планируют callbacks</span></div>
+          <div class="diagram-arrow">↓</div>
+          <div class="diagram-box"><strong>Microtask checkpoint</strong><span>Выполняются ожидающие microtasks, например реакции Promise</span></div>
+          <div class="diagram-arrow">↓</div>
+          <div class="diagram-box"><strong>Возможность обновить отображение</strong><span>Браузер может выполнить рендеринг перед следующими задачами</span></div>
+        </div><figcaption>Это учебная схема, а не точная модель всех внутренних очередей и правил планирования браузера.</figcaption></figure>
+        <p>Основные термины:</p>
+        <ul>
+          <li><strong>Call stack</strong> — стек текущих вызовов.</li>
+          <li><strong>Task (macrotask в распространённой терминологии)</strong> — работа, например обработчик события или задача таймера.</li>
+          <li><strong>Microtask</strong> — задача с более высоким приоритетом в соответствующей точке цикла; сюда относятся реакции Promise и MutationObserver.</li>
+          <li><strong>Run-to-completion</strong> — текущая задача выполняется до завершения, прежде чем будет начата следующая задача в том же агенте.</li>
+        </ul>
+        <pre><code>console.log("A");
 
-setTimeout(() => {
-  console.log("2");
-}, 0);
+setTimeout(() => console.log("B: task"), 0);
+Promise.resolve().then(() => console.log("C: microtask"));
 
-Promise.resolve().then(() => {
-  console.log("3");
-});
-
-queueMicrotask(() => {
-  console.log("4");
-});
-
-console.log("5");
-
-// Порядок вывода: 1, 5, 3, 4, 2
-// Синхронный код → микрозадачи → макрозадачи</code></pre>
+console.log("D");
+// Порядок: A, D, C: microtask, B: task</code></pre>
+        <div class="callout warning"><strong>Производительность:</strong> длинный синхронный цикл на главном потоке мешает обработке ввода и обновлению интерфейса. Асинхронное ожидание помогает с I/O, но само по себе не делает тяжёлые вычисления параллельными. Для таких вычислений могут использоваться Web Workers.</div>
       </section>
 
       <section class="content-section" id="network">
@@ -543,32 +712,51 @@ console.log("5");
   const users = await response.json();
   return users;
 }</code></pre>
-        <h3>Отмена запросов через AbortController</h3>
-        <pre><code>const controller = new AbortController();
-
-fetch("/api/data", { signal: controller.signal })
-  .then(response => response.json())
-  .catch(error => {
-    if (error.name === "AbortError") {
-      console.log("Запрос отменён");
-    }
+        <p>Fetch API работает с объектами <code>Request</code> и <code>Response</code>. Ответ можно читать как JSON, текст, Blob, ArrayBuffer, FormData и другими способами.</p>
+        <h3>Отправка JSON</h3>
+        <pre><code>async function createTask(task) {
+  const response = await fetch("/api/tasks", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(task)
   });
 
-// Отмена запроса
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
+createTask({ title: "Изучить JavaScript", done: false });</code></pre>
+        <h3>Отмена запроса</h3>
+        <pre><code>const controller = new AbortController();
+
+fetch("/api/report", { signal: controller.signal });
+
+// При необходимости отменить операцию:
 controller.abort();</code></pre>
-        <h3>WebSocket</h3>
+        <h3>CORS и Same-Origin Policy</h3>
+        <p>Политика одного источника (Same-Origin Policy) ограничивает доступ страницы к данным другого источника. CORS — механизм, с помощью которого сервер может явно разрешить браузеру предоставить странице доступ к определённому междоменному ответу.</p>
+        <div class="callout warning"><strong>Важно:</strong> CORS настраивается ответами сервера. Добавление произвольного заголовка в браузерный JavaScript не позволяет обойти эту защиту. Режим <code>no-cors</code> не превращает ответ в доступный для чтения: он, как правило, даёт непрозрачный Response.</div>
+        <h3>Другие сетевые технологии</h3>
+        <ul>
+          <li><strong>XMLHttpRequest</strong> — более старый API сетевых запросов; всё ещё используется в некоторых проектах.</li>
+          <li><strong>WebSocket</strong> — двустороннее постоянное соединение для обмена сообщениями в реальном времени.</li>
+          <li><strong>Server-Sent Events (EventSource)</strong> — поток событий от сервера к клиенту.</li>
+          <li><strong>WebRTC</strong> — обмен аудио, видео и данными между участниками, часто напрямую между браузерами.</li>
+          <li><strong>WebTransport</strong> — современный транспортный API для определённых сценариев низкой задержки; поддержка и условия использования зависят от браузеров и сервера.</li>
+        </ul>
         <pre><code>const socket = new WebSocket("wss://example.com/socket");
 
 socket.addEventListener("open", () => {
-  socket.send("Привет, сервер!");
+  socket.send(JSON.stringify({ type: "hello" }));
 });
 
-socket.addEventListener("message", (event) => {
-  console.log("Получено:", event.data);
-});
-
-socket.addEventListener("close", () => {
-  console.log("Соединение закрыто");
+socket.addEventListener("message", event => {
+  console.log("Сообщение:", event.data);
 });</code></pre>
       </section>
 
@@ -585,19 +773,18 @@ socket.addEventListener("close", () => {
             <tr><td><strong>Cache API</strong></td><td>Кэширование сетевых Response, в частности в Service Worker.</td><td>Работает с запросами и ответами, а не является обычной базой объектов.</td></tr>
           </tbody>
         </table></div>
-        <pre><code>// localStorage
-localStorage.setItem("theme", "dark");
+        <h3>localStorage</h3>
+        <pre><code>localStorage.setItem("theme", "dark");
 const theme = localStorage.getItem("theme");
+localStorage.removeItem("theme");
 
-// sessionStorage
-sessionStorage.setItem("temp", "data");
-
-// IndexedDB (упрощённо)
-const request = indexedDB.open("MyDatabase", 1);
-request.onupgradeneeded = (event) => {
-  const db = event.target.result;
-  db.createObjectStore("users", { keyPath: "id" });
-};</code></pre>
+const settings = { language: "ru", compact: true };
+localStorage.setItem("settings", JSON.stringify(settings));
+const restored = JSON.parse(localStorage.getItem("settings"));</code></pre>
+        <h3>IndexedDB</h3>
+        <p>IndexedDB подходит для офлайн-данных, больших каталогов, пользовательских документов и других структур. Работа ведётся через транзакции и object stores; API асинхронный и событийный (в современных приложениях часто используют обёртки-библиотеки).</p>
+        <h3>Что нельзя хранить бездумно</h3>
+        <p>Не сохраняй секреты, пароли или долговременные токены в доступных JavaScript хранилищах без понимания модели угроз. При XSS вредоносный код может прочитать данные, доступные странице. Для сессионных cookie часто используют <code>HttpOnly</code>, <code>Secure</code> и подходящий <code>SameSite</code>, а сервер должен правильно проверять авторизацию и защищаться от CSRF.</p>
       </section>
 
       <section class="content-section" id="apis">
@@ -619,6 +806,17 @@ request.onupgradeneeded = (event) => {
             <tr><td>Интернационализация</td><td>Форматирование дат, чисел, сортировка и сегментация текста.</td><td>Intl.DateTimeFormat, Intl.NumberFormat, Intl.Collator.</td></tr>
           </tbody>
         </table></div>
+        <h3>Пример: запрос геолокации</h3>
+        <pre><code>if ("geolocation" in navigator) {
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      console.log(position.coords.latitude);
+      console.log(position.coords.longitude);
+    },
+    error => console.error("Геолокация недоступна:", error)
+  );
+}</code></pre>
+        <p>Такие API часто требуют защищённого контекста (обычно HTTPS), явного разрешения пользователя, соблюдения политик документа и поддержки конкретным браузером. Наличие API не означает, что браузер обязан предоставить доступ в каждой ситуации.</p>
       </section>
 
       <section class="content-section" id="workers">
@@ -639,16 +837,15 @@ self.addEventListener("message", event => {
   const sum = event.data.numbers.reduce((a, b) => a + b, 0);
   self.postMessage(sum);
 });</code></pre>
-        <h3>Типы Workers</h3>
-        <div class="table-wrap"><table>
-          <thead><tr><th>Тип</th><th>Назначение</th></tr></thead>
-          <tbody>
-            <tr><td>Dedicated Worker</td><td>Один worker для одной страницы.</td></tr>
-            <tr><td>Shared Worker</td><td>Один worker для нескольких страниц одного origin.</td></tr>
-            <tr><td>Service Worker</td><td>Фоновый worker с отдельным жизненным циклом, перехватывает fetch-запросы.</td></tr>
-            <tr><td>Worklet</td><td>Лёгкий worker для специфичных задач: аудио, рендеринг, layout.</td></tr>
-          </tbody>
-        </table></div>
+        <h3>Виды workers и смежные возможности</h3>
+        <ul>
+          <li><strong>Dedicated Worker</strong> — worker, связанный с одним создавшим его контекстом.</li>
+          <li><strong>Shared Worker</strong> — может использоваться несколькими одноимёнными контекстами в поддерживаемых сценариях.</li>
+          <li><strong>Service Worker</strong> — отдельный сценарий для перехвата сетевых запросов, кэширования, офлайн-поведения и push-событий; работает с ограниченным жизненным циклом и обычно требует HTTPS.</li>
+          <li><strong>Worklet</strong> — специализированная лёгкая среда для конкретных операций, например обработки графики или аудио.</li>
+          <li><strong>Atomics и SharedArrayBuffer</strong> — механизмы совместной памяти и синхронизации между агентами при выполнении требований безопасности, включая cross-origin isolation.</li>
+        </ul>
+        <div class="callout">Worker не превращает любой код в параллельный автоматически. Нужно отдельно спроектировать передачу данных, синхронизацию, обработку ошибок и завершение фоновой задачи.</div>
       </section>
 
       <section class="content-section" id="security">
@@ -660,21 +857,18 @@ self.addEventListener("message", event => {
 element.innerHTML = userInput;
 
 // Для обычного текста безопаснее:
-element.textContent = userInput;
-
-// Для вставки HTML с экранированием:
-function escapeHTML(str) {
-  return str.replace(/[&<>"']/g, char => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
-  }[char]));
-}
-
-element.innerHTML = escapeHTML(userInput);</code></pre>
-        <div class="callout warning"><strong>Принцип:</strong> никогда не вставляй недоверенный пользовательский ввод через <code>innerHTML</code>, <code>eval()</code>, <code>Function()</code> или динамические <code>script src</code> без тщательной проверки и экранирования.</div>
+element.textContent = userInput;</code></pre>
+        <p>Если действительно нужно отображать пользовательский HTML, требуется проверенный санитайзер и продуманная политика доверенных типов. Простая замена нескольких символов вручную не является надёжной очисткой HTML.</p>
+        <h3>Другие важные риски</h3>
+        <ul>
+          <li><strong>CSRF</strong> — попытка заставить браузер авторизованного пользователя выполнить нежелательный запрос. Используют подходящие cookie-политики, CSRF-токены и серверную проверку происхождения запросов.</li>
+          <li><strong>CORS</strong> — механизм контроля доступа к междоменным ответам, а не универсальная защита API от злоупотреблений.</li>
+          <li><strong>CSP</strong> — Content Security Policy ограничивает источники и виды исполняемого контента.</li>
+          <li><strong>Clickjacking</strong> — обман пользователя через встраивание интерфейса в чужой контекст; важны заголовки и политики встраивания.</li>
+          <li><strong>Утечка секретов</strong> — любой секрет, встроенный в клиентский JS-бандл, доступен пользователю и не может считаться секретом.</li>
+          <li><strong>Недоверенные зависимости</strong> — сторонний пакет получает возможности кода приложения в той же среде выполнения.</li>
+        </ul>
+        <div class="callout warning"><strong>Принцип:</strong> никогда не полагайся на скрытую кнопку, проверку JavaScript или значение в localStorage как на механизм авторизации. Сервер должен проверять личность, права и корректность каждого критически важного запроса.</div>
       </section>
 
       <section class="content-section" id="performance">
@@ -691,27 +885,18 @@ element.innerHTML = escapeHTML(userInput);</code></pre>
           <li>Следить за объёмом JavaScript, стоимостью зависимостей и количеством сетевых запросов.</li>
           <li>Измерять реальные показатели, а не оптимизировать на основе догадок.</li>
         </ul>
-        <h3>Throttle и Debounce</h3>
-        <pre><code>// Throttle — выполнение не чаще указанного интервала
-function throttle(fn, delay) {
-  let lastCall = 0;
-  return function (...args) {
-    const now = Date.now();
-    if (now - lastCall >= delay) {
-      lastCall = now;
-      fn.apply(this, args);
-    }
-  };
-}
-
-// Debounce — выполнение после паузы
-function debounce(fn, delay) {
-  let timeoutId;
-  return function (...args) {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => fn.apply(this, args), delay);
-  };
-}</code></pre>
+        <h3>Полезные механизмы</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Механизм</th><th>Назначение</th></tr></thead>
+          <tbody>
+            <tr><td><code>requestAnimationFrame()</code></td><td>Планирует работу перед следующим обновлением кадра для визуальных изменений.</td></tr>
+            <tr><td><code>requestIdleCallback()</code></td><td>Позволяет планировать некритичную работу в периоды простоя; поддержка и пригодность ограничены, требуется fallback.</td></tr>
+            <tr><td><code>AbortController</code></td><td>Отмена поддерживающих сигнал API операций, например fetch.</td></tr>
+            <tr><td><code>IntersectionObserver</code></td><td>Наблюдение за пересечением элемента с областью видимости или другим контейнером.</td></tr>
+            <tr><td><code>ResizeObserver</code></td><td>Наблюдение за изменением размеров элемента.</td></tr>
+            <tr><td><code>Performance API</code></td><td>Измерение времени и пользовательских метрик.</td></tr>
+          </tbody>
+        </table></div>
       </section>
 
       <section class="content-section" id="debug">
@@ -743,6 +928,7 @@ console.timeEnd("calculation");</code></pre>
           <div class="mini-card"><h3>End-to-end</h3><p>Проверяют сценарии через реальный браузер или близкое к нему окружение.</p></div>
           <div class="mini-card"><h3>Статический анализ</h3><p>Линтеры, форматтеры и проверка типов находят часть проблем до запуска.</p></div>
         </div>
+        <p>Популярные инструменты экосистемы: ESLint, Prettier, TypeScript, Vitest, Jest, Playwright и WebdriverIO. Это не встроенные возможности ECMAScript, а инструменты и дополнительные технологии.</p>
       </section>
 
       <section class="content-section" id="patterns">
@@ -755,6 +941,10 @@ console.timeEnd("calculation");</code></pre>
           <div class="mini-card"><h3>Доступ к данным</h3><p>HTTP-клиент, сериализация, кэширование, работа с хранилищем.</p></div>
           <div class="mini-card"><h3>Инфраструктура</h3><p>Конфигурация, логирование, обработка ошибок, метрики и интеграции.</p></div>
         </div>
+        <h3>Нативный JavaScript и фреймворки</h3>
+        <p>В небольшом проекте можно обойтись HTML, CSS и нативным JavaScript. Для сложных приложений часто используют библиотеки или фреймворки, например React, Vue, Angular, Svelte. Они помогают организовать компоненты, состояние и обновление интерфейса, но не заменяют HTML, CSS, JavaScript и браузерные API.</p>
+        <h3>Типизация</h3>
+        <p>JavaScript динамически типизирован. TypeScript добавляет статическую систему типов и компилируется/транспилируется в JavaScript. Браузер обычно исполняет получившийся JavaScript, а не TypeScript как таковой. Типизация помогает проектировать API и обнаруживать ошибки до запуска, но не заменяет проверку входных данных во время выполнения.</p>
       </section>
 
       <section class="content-section" id="compat">
@@ -768,6 +958,13 @@ console.timeEnd("calculation");</code></pre>
           <li>Реализовать альтернативный сценарий (fallback), когда это необходимо.</li>
           <li>Проверить поведение на реальных целевых браузерах и устройствах.</li>
         </ol>
+        <pre><code>if ("IntersectionObserver" in window) {
+  // Современный путь
+} else {
+  // Упрощённый запасной вариант
+}</code></pre>
+        <p>Не следует проверять браузер по строке user-agent, если можно проверить конкретную возможность. Feature detection обычно надёжнее определения названия браузера.</p>
+        <div class="callout"><strong>Контекст на ноябрь 2026 года:</strong> опубликован ECMAScript 2026; работа над будущими редакциями продолжается. Для реального проекта следует сверять поддержку каждой нужной функции с целевой матрицей браузеров и актуальными данными совместимости.</div>
       </section>
 
       <section class="content-section" id="practice">
@@ -801,6 +998,7 @@ console.timeEnd("calculation");</code></pre>
           <li>Вынеси тяжёлое вычисление в Web Worker.</li>
           <li>Раздели приложение на модули: интерфейс, данные, бизнес-логика и конфигурация.</li>
         </ol>
+        <div class="callout success"><strong>Критерий освоения:</strong> ты можешь объяснить, что именно выполняет язык, что делает браузер, где находится состояние и как данные проходят от действия пользователя до результата на экране.</div>
       </section>
 
       <section class="content-section" id="resources">
@@ -811,6 +1009,10 @@ console.timeEnd("calculation");</code></pre>
           <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide" target="_blank" rel="noopener"><strong>MDN: JavaScript Guide</strong><span>Последовательное руководство по языку →</span></a>
           <a class="resource" href="https://tc39.es/ecma262/" target="_blank" rel="noopener"><strong>ECMA-262 / TC39</strong><span>Спецификация ECMAScript и текущий проект стандарта →</span></a>
           <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/API" target="_blank" rel="noopener"><strong>MDN: Web APIs</strong><span>Справочник браузерных интерфейсов →</span></a>
+          <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model" target="_blank" rel="noopener"><strong>MDN: DOM</strong><span>Объектная модель документа →</span></a>
+          <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API" target="_blank" rel="noopener"><strong>MDN: Fetch API</strong><span>Сетевые запросы в браузере →</span></a>
+          <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model" target="_blank" rel="noopener"><strong>MDN: Execution model</strong><span>Стек вызовов, задачи и модель выполнения →</span></a>
+          <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules" target="_blank" rel="noopener"><strong>MDN: JavaScript modules</strong><span>Импорты, экспорты и модульная организация →</span></a>
           <a class="resource" href="https://caniuse.com/" target="_blank" rel="noopener"><strong>Can I Use</strong><span>Совместимость Web API и функций браузеров →</span></a>
         </div>
       </section>
@@ -825,182 +1027,14 @@ console.timeEnd("calculation");</code></pre>
           <div class="mini-card"><h3>Инженерная практика</h3><p>Архитектура, безопасность, производительность, тестирование и отладка.</p></div>
           <div class="mini-card"><h3>Экосистема</h3><p>Пакеты, сборщики, линтеры, TypeScript, библиотеки и фреймворки.</p></div>
         </div>
+        <div class="next-card">
+          <div><strong>Следующий раздел: браузеры</strong><p>Разберём движки, процессы, загрузку документа, DOM/CSSOM, layout, paint, compositing, безопасность и DevTools.</p></div>
+          <a class="button-link" href="browsers.html">Перейти к браузерам →</a>
+        </div>
       </section>
 
-      <div class="next-card">
-        <div><strong>Следующий раздел: Браузеры</strong><p>Перейдём от программной логики к устройству платформы: архитектура браузера, движки, конвейер рендеринга, безопасность и производительность.</p></div>
-        <a class="button-link" href="browsers.html">К браузерам →</a>
-      </div>
     </main>
   </div>
-
-  <footer class="site-footer">Учебный справочник по веб-платформе · Раздел JavaScript · Материал подготовлен для последовательного изучения.</footer>
-  
-  <script src="assets/demo.js" defer></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // ==========================================
-      // 1. ДЕМО: Event Loop с реальными таймингами
-      // ==========================================
-      var elContainer = document.getElementById('demo-eventloop-container');
-      if (elContainer) {
-        var code = '// Нажмите "Запустить", чтобы увидеть реальный порядок выполнения\n// и временные метки (performance.now)';
-        var shell = DemoEngine.createShell('js-eventloop', 'Визуализатор Event Loop', code, false, 'parent');
-        elContainer.appendChild(shell);
-
-        DemoEngine.register('js-eventloop', {
-          init: function (liveArea) {
-            var logArea = document.createElement('div');
-            logArea.style.cssText = 'font-family:monospace;font-size:13px;background:#f8f9fd;padding:12px;border-radius:8px;max-height:300px;overflow:auto;';
-            liveArea.appendChild(logArea);
-
-            var btn = document.createElement('button');
-            btn.textContent = 'Запустить Event Loop';
-            btn.style.cssText = 'margin-top:12px;padding:8px 16px;border-radius:6px;border:1px solid var(--line);cursor:pointer;font-weight:600;';
-            liveArea.appendChild(btn);
-
-            var timeoutId = null;
-            var rafId = null;
-
-            var run = function () {
-              logArea.innerHTML = '';
-              var log = function (msg, type) {
-                type = type || 'info';
-                var div = document.createElement('div');
-                div.style.color = type === 'error' ? '#b42318' : (type === 'highlight' ? '#16794b' : '#172033');
-                div.textContent = '[' + performance.now().toFixed(2) + 'ms] ' + msg;
-                logArea.appendChild(div);
-              };
-
-              log('1. Синхронный код: начало', 'highlight');
-
-              timeoutId = setTimeout(function () {
-                log('4. Macrotask: setTimeout callback', 'highlight');
-              }, 0);
-
-              Promise.resolve().then(function () {
-                log('3. Microtask: Promise.then', 'highlight');
-                queueMicrotask(function () {
-                  log('3.1. Вложенная Microtask: queueMicrotask', 'highlight');
-                });
-              });
-
-              rafId = requestAnimationFrame(function () {
-                log('3.5. Render: requestAnimationFrame (перед paint)', 'highlight');
-              });
-
-              log('2. Синхронный код: конец', 'highlight');
-              log('--- Ожидание завершения микрозадач и рендера ---');
-            };
-
-            btn.addEventListener('click', run);
-            liveArea._elBtn = btn;
-            liveArea._elRun = run;
-            liveArea._elCleanup = function () {
-              if (timeoutId) clearTimeout(timeoutId);
-              if (rafId) cancelAnimationFrame(rafId);
-            };
-          },
-          cleanup: function (liveArea) {
-            if (liveArea._elBtn) liveArea._elBtn.removeEventListener('click', liveArea._elRun);
-            if (liveArea._elCleanup) liveArea._elCleanup();
-          }
-        });
-      }
-
-      // ==========================================
-      // 2. ДЕМО: Визуализатор распространения событий
-      // ==========================================
-      var propContainer = document.getElementById('demo-propagation-container');
-      if (propContainer) {
-        var code = '<div class="prop-visualizer" style="display:flex;justify-content:center;align-items:center;height:200px;">\n' +
-          '  <div id="prop-grandparent" class="prop-box" data-name="Grandparent">\n' +
-          '    Grandparent\n' +
-          '    <div id="prop-parent" class="prop-box" data-name="Parent">\n' +
-          '      Parent\n' +
-          '      <div id="prop-child" class="prop-box" data-name="Child (Target)">\n' +
-          '        Child\n' +
-          '      </div>\n' +
-          '    </div>\n' +
-          '  </div>\n' +
-          '</div>\n' +
-          '<div id="prop-log" style="margin-top:12px;font-family:monospace;font-size:13px;min-height:60px;"></div>';
-        var shell = DemoEngine.createShell('js-propagation', 'Визуализатор: Capture → Target → Bubble', code, false, 'parent');
-        propContainer.appendChild(shell);
-
-        DemoEngine.register('js-propagation', {
-          init: function (liveArea) {
-            // Создаём элементы программно
-            var container = document.createElement('div');
-            container.innerHTML = 
-              '<div class="prop-visualizer" style="display:flex;justify-content:center;align-items:center;height:200px;">' +
-                '<div id="prop-grandparent" class="prop-box" data-name="Grandparent">' +
-                  'Grandparent' +
-                  '<div id="prop-parent" class="prop-box" data-name="Parent">' +
-                    'Parent' +
-                    '<div id="prop-child" class="prop-box" data-name="Child (Target)">' +
-                      'Child' +
-                    '</div>' +
-                  '</div>' +
-                '</div>' +
-              '</div>' +
-              '<div id="prop-log" style="margin-top:12px;font-family:monospace;font-size:13px;min-height:60px;"></div>';
-            liveArea.appendChild(container);
-
-            var boxes = liveArea.querySelectorAll('.prop-box');
-            var log = liveArea.querySelector('#prop-log');
-            var handlers = [];
-
-            var logEvent = function (name, phase) {
-              var div = document.createElement('div');
-              div.textContent = (phase === 'capture' ? '⬇️ Capture' : '⬆️ Bubble') + ': ' + name;
-              div.style.color = phase === 'capture' ? '#3157c8' : '#16794b';
-              log.appendChild(div);
-            };
-
-            boxes.forEach(function (box) {
-              var name = box.dataset.name;
-
-              var captureHandler = function (e) {
-                e.stopPropagation();
-                box.style.borderColor = '#3157c8';
-                box.style.boxShadow = '0 0 0 3px rgba(49, 87, 200, 0.3)';
-                logEvent(name, 'capture');
-                setTimeout(function () {
-                  box.style.borderColor = '';
-                  box.style.boxShadow = '';
-                }, 800);
-              };
-              box.addEventListener('click', captureHandler, true);
-              handlers.push({ el: box, fn: captureHandler, phase: true });
-
-              var bubbleHandler = function (e) {
-                box.style.borderColor = '#16794b';
-                box.style.boxShadow = '0 0 0 3px rgba(22, 121, 75, 0.3)';
-                logEvent(name, 'bubble');
-                setTimeout(function () {
-                  box.style.borderColor = '';
-                  box.style.boxShadow = '';
-                }, 800);
-              };
-              box.addEventListener('click', bubbleHandler, false);
-              handlers.push({ el: box, fn: bubbleHandler, phase: false });
-            });
-
-            liveArea._propHandlers = handlers;
-            liveArea._propLog = log;
-          },
-          cleanup: function (liveArea) {
-            if (liveArea._propHandlers) {
-              liveArea._propHandlers.forEach(function (h) {
-                h.el.removeEventListener('click', h.fn, h.phase);
-              });
-            }
-            if (liveArea._propLog) liveArea._propLog.innerHTML = '';
-          }
-        });
-      }
-    });
-  </script>
+  <footer class="site-footer">Веб-платформа · Раздел JavaScript · Материал для системного изучения и практики.</footer>
 </body>
 </html>

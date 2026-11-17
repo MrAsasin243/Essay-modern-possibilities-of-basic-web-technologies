@@ -3,340 +3,656 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Подробный справочник по устройству браузеров: архитектура, движки, парсинг, DOM и CSSOM, компоновка, отрисовка, безопасность и инструменты разработчика.">
+  <meta name="description" content="Подробный справочник по устройству браузеров: архитектура, движки, сеть, DOM, CSSOM, рендеринг, JavaScript runtime, безопасность, хранилища и DevTools.">
   <title>Браузеры — веб-платформа</title>
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/demo.css">
+  <script src="assets/demo.js" defer></script>
 </head>
 <body>
   <header class="topbar">
     <a class="brand" href="index.html"><span class="brand-mark">WEB</span><span>Веб-платформа</span></a>
     <nav class="topnav" aria-label="Основная навигация">
-      <a href="index.html">Главная</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="javascript.html">JavaScript</a><a href="browsers.html" aria-current="page">Браузеры</a>
+      <a href="index.html">Главная</a>
+      <a href="html.html">HTML</a>
+      <a href="css.html">CSS</a>
+      <a href="javascript.html">JavaScript</a>
+      <a href="browsers.html" aria-current="page">Браузеры</a>
     </nav>
   </header>
 
   <div class="page-grid">
-    <aside class="sidebar" aria-label="Содержание страницы">
-      <p class="sidebar-label">Содержание Браузеры</p>
+    <aside class="sidebar" aria-label="Содержание раздела">
+      <p class="sidebar-label">Содержание · Браузеры</p>
       <a href="#overview">1. Что такое браузер</a>
-      <a href="#architecture">2. Архитектура браузера</a>
-      <a href="#engines">3. Движки</a>
-      <a href="#parsing">4. Парсинг HTML и CSS</a>
-      <a href="#dom">5. DOM и CSSOM</a>
-      <a href="#rendering">6. Конвейер рендеринга</a>
-      <a href="#javascript">7. JavaScript и Event Loop</a>
-      <a href="#network">8. Сеть и ресурсы</a>
-      <a href="#storage">9. Хранилища</a>
-      <a href="#security">10. Безопасность</a>
-      <a href="#devtools">11. DevTools</a>
-      <a href="#performance">12. Производительность</a>
-      <a href="#compatibility">13. Совместимость</a>
-      <a href="#pwa">14. PWA и офлайн</a>
-      <a href="#workflow">15. Рабочий процесс</a>
-      <a href="#practice">16. Практика</a>
-      <a href="#glossary">17. Словарь</a>
-      <a href="#resources">18. Источники</a>
+      <a href="#engine">2. Браузер и движок</a>
+      <a href="#engines">3. Основные движки</a>
+      <a href="#architecture">4. Архитектура и процессы</a>
+      <a class="sub" href="#processes">Процессы и потоки</a>
+      <a href="#navigation">5. Что происходит при открытии URL</a>
+      <a href="#network">6. Сеть: DNS, TLS, HTTP</a>
+      <a href="#parsing">7. Разбор HTML и DOM</a>
+      <a href="#cssom">8. CSSOM и вычисление стилей</a>
+      <a href="#rendering">9. Критический путь рендеринга</a>
+      <a class="sub" href="#layout">Layout и reflow</a>
+      <a class="sub" href="#paint">Paint, raster и compositing</a>
+      <a href="#resources">10. Изображения, шрифты и медиа</a>
+      <a href="#runtime">11. JavaScript runtime и Event Loop</a>
+      <a href="#loading">12. Загрузка скриптов и события документа</a>
+      <a href="#apis">13. Браузерные API</a>
+      <a href="#storage">14. Cookies, Cache и хранилища</a>
+      <a href="#security">15. Безопасность веб-платформы</a>
+      <a class="sub" href="#origin">Origin, SOP и CORS</a>
+      <a class="sub" href="#protections">CSP, sandbox и permissions</a>
+      <a href="#a11y">16. Доступность и дерево доступности</a>
+      <a href="#devtools">17. DevTools</a>
+      <a href="#performance">18. Производительность</a>
+      <a href="#compatibility">19. Совместимость браузеров</a>
+      <a href="#pwa">20. PWA и офлайн-возможности</a>
+      <a href="#workflow">21. Практический рабочий процесс</a>
+      <a href="#practice">22. Практические задания</a>
+      <a href="#glossary">23. Словарь терминов</a>
+      <a href="#resources-list">24. Документация</a>
     </aside>
 
     <main class="article">
       <p class="breadcrumb"><a href="index.html">Главная</a> / Браузеры</p>
-      <section class="hero">
-        <p class="eyebrow">Раздел 04 · Платформа выполнения веб-приложений</p>
-        <h1>Браузеры: архитектура, движки и конвейер рендеринга</h1>
-        <p>Браузер — это не просто программа для отображения веб-страниц. Это сложная платформа, которая обрабатывает HTML, CSS и JavaScript, управляет сетевыми запросами, обеспечивает безопасность и выполняет код в изолированных процессах.</p>
-        <div class="hero-meta"><span class="pill">Архитектура</span><span class="pill">Движки</span><span class="pill">Рендеринг</span><span class="pill">Безопасность</span></div>
-      </section>
 
-      <section class="content-section" id="overview">
-        <h2>1. Что такое браузер и как он работает</h2>
-        <p class="lead">Браузер — приложение, которое загружает веб-ресурсы с сервера или локального хранилища, интерпретирует HTML, CSS и JavaScript, и отображает результат в виде интерактивной страницы.</p>
-        <p>Современный браузер — это не монолитная программа, а набор cooperating процессов и потоков, каждый из которых отвечает за свою задачу: пользовательский интерфейс, сетевые запросы, рендеринг, выполнение JavaScript и другие.</p>
-        <div class="grid-3">
-          <div class="mini-card"><h3>UI-процесс</h3><p>Управляет интерфейсом браузера: адресная строка, вкладки, кнопки навигации.</p></div>
-          <div class="mini-card"><h3>Renderer-процесс</h3><p>Обрабатывает и отображает содержимое вкладки: HTML, CSS, JavaScript.</p></div>
-          <div class="mini-card"><h3>Network-процесс</h3><p>Управляет сетевыми запросами, кэшем и загрузкой ресурсов.</p></div>
+      <section class="hero">
+        <p class="eyebrow">Раздел 04 · Среда выполнения и отображения</p>
+        <h1>Браузеры: как веб-страница становится приложением</h1>
+        <p>Разберём браузер как программную платформу: от адресной строки и сетевого запроса до DOM, CSSOM, исполнения JavaScript, компоновки, отрисовки пикселей и защиты пользователя. Отдельно посмотрим, как разработчик исследует всё это через DevTools.</p>
+        <div class="hero-meta">
+          <span class="pill">Архитектура и движки</span>
+          <span class="pill">Network → Render</span>
+          <span class="pill">Безопасность</span>
+          <span class="pill">DevTools</span>
         </div>
       </section>
 
-      <section class="content-section" id="architecture">
-        <h2>2. Архитектура браузера</h2>
-        <p>Современные браузеры используют многопроцессную архитектуру для изоляции вкладок, повышения стабильности и безопасности.</p>
-        <figure>
-          <div class="diagram" aria-label="Упрощённая архитектура браузера">
-            <div class="diagram-box"><strong>Browser Process</strong><span>UI, навигация, управление вкладками</span></div>
-            <div class="diagram-arrow">↕ IPC</div>
-            <div class="diagram-box"><strong>Renderer Process (per tab)</strong><span>HTML, CSS, JavaScript, DOM</span></div>
-            <div class="diagram-arrow">↕ IPC</div>
-            <div class="diagram-box"><strong>Network Process</strong><span>HTTP-запросы, кэш, загрузка ресурсов</span></div>
-            <div class="diagram-arrow">↕ IPC</div>
-            <div class="diagram-box"><strong>GPU Process</strong><span>Композиция слоёв, отрисовка</span></div>
-          </div>
-          <figcaption>Схема упрощена: реальные браузеры включают десятки процессов и потоков для разных задач.</figcaption>
-        </figure>
-        <h3>2.1. Изоляция процессов</h3>
-        <p>Каждая вкладка обычно выполняется в отдельном renderer-процессе. Это означает, что если одна вкладка зависает или падает, другие вкладки продолжают работать. Изоляция также повышает безопасность: компрометация одной страницы не даёт прямого доступа к памяти других вкладок.</p>
-        <h3>2.2. Site Isolation</h3>
-        <p>Site Isolation — механизм, который разделяет документы из разных сайтов в разные процессы, даже если они находятся в одной вкладке (например, через iframe). Это снижает риск атак типа Spectre и ограничивает последствия уязвимостей движка рендеринга.</p>
+      <section class="content-section" id="overview">
+        <h2>1. Что такое браузер</h2>
+        <p class="lead">Веб-браузер — приложение, которое получает веб-ресурсы, интерпретирует документы и код, отображает интерфейс и предоставляет веб-страницам контролируемый доступ к возможностям устройства.</p>
+        <p>Браузер — не просто «окно для HTML». Это сложная система, объединяющая пользовательский интерфейс, сетевой стек, механизмы хранения, движки обработки веб-стандартов, графическую подсистему и средства безопасности.</p>
+        <div class="grid-3">
+          <div class="mini-card"><h3>Получение данных</h3><p>URL, DNS, HTTP(S), кэш, соединения, загрузка документов и ресурсов.</p></div>
+          <div class="mini-card"><h3>Обработка страницы</h3><p>HTML, CSS, JavaScript, DOM, layout, paint и вывод изображения.</p></div>
+          <div class="mini-card"><h3>Среда приложения</h3><p>События, хранилища, мультимедиа, сеть, разрешения и безопасность.</p></div>
+        </div>
+        <div class="callout"><strong>Главное различие:</strong> браузер — это целое приложение и платформа; браузерный движок — лишь одна из его частей. Движок не обязан отвечать за адресную строку, историю, менеджер загрузок, синхронизацию или все сетевые функции браузера.</div>
+        <p>Для веб-разработчика браузер одновременно является средой исполнения и конечной целью: код должен соответствовать стандартам, корректно работать на разных устройствах и не предполагать, что у каждого пользователя одна и та же реализация.</p>
+      </section>
+
+      <section class="content-section" id="engine">
+        <h2>2. Браузер, движок отображения и JavaScript-движок</h2>
+        <p>Внутри браузера можно выделить несколько крупных частей. Их границы и названия зависят от реализации, но концептуально полезно различать три уровня.</p>
+        <div class="grid-3">
+          <div class="mini-card"><h3>Браузерное приложение</h3><p>Вкладки, адресная строка, меню, история, закладки, загрузки, профиль, настройки и управление процессами.</p></div>
+          <div class="mini-card"><h3>Движок отображения</h3><p>Разбирает HTML и CSS, строит DOM и CSSOM, рассчитывает стили, геометрию и формирует изображение страницы.</p></div>
+          <div class="mini-card"><h3>JavaScript-движок</h3><p>Разбирает, компилирует и исполняет JavaScript, управляет памятью и сборкой мусора.</p></div>
+        </div>
+        <p>Например, движок отображения может предоставлять объекты DOM, а JavaScript-движок исполняет код, который обращается к ним. Но DOM API не является частью ядра языка ECMAScript: это интерфейс браузерной среды, связанный с HTML-движком.</p>
+        <div class="callout"><strong>Не путай:</strong> <code>Array</code>, <code>Map</code>, <code>Promise</code> — встроенные возможности языка JavaScript. <code>document</code>, <code>window</code>, <code>fetch()</code>, <code>localStorage</code> — браузерные API, которые среда предоставляет JavaScript-коду.</div>
       </section>
 
       <section class="content-section" id="engines">
-        <h2>3. Движки браузера</h2>
-        <p>Браузер состоит из нескольких ключевых компонентов, каждый из которых реализует свою часть веб-платформы.</p>
+        <h2>3. Основные браузерные движки</h2>
+        <p>Браузеры могут использовать разные движки. От этого зависят поддержка веб-стандартов, особенности реализации, ошибки отображения и доступные инструменты.</p>
         <div class="table-wrap"><table>
-          <thead><tr><th>Компонент</th><th>Назначение</th><th>Примеры</th></tr></thead>
+          <thead><tr><th>Браузер / семейство</th><th>Движок отображения</th><th>JavaScript-движок</th><th>Комментарий</th></tr></thead>
           <tbody>
-            <tr><td><strong>Движок рендеринга</strong></td><td>Разбирает HTML и CSS, строит DOM и CSSOM, вычисляет layout, paint и composite.</td><td>Blink (Chrome, Edge), Gecko (Firefox), WebKit (Safari).</td></tr>
-            <tr><td><strong>Движок JavaScript</strong></td><td>Разбирает и выполняет JavaScript-код.</td><td>V8 (Chrome, Edge), SpiderMonkey (Firefox), JavaScriptCore (Safari).</td></tr>
-            <tr><td><strong>Сетевой стек</strong></td><td>Управляет HTTP/HTTPS-запросами, кэшем, DNS, TLS.</td><td>Реализация зависит от браузера.</td></tr>
-            <tr><td><strong>Графический стек</strong></td><td>Композиция слоёв, отрисовка через GPU.</td><td>Skia, Core Graphics.</td></tr>
+            <tr><td>Google Chrome и большинство Chromium-браузеров</td><td><strong>Blink</strong></td><td><strong>V8</strong></td><td>Chromium — открытая база, на которой построено много браузеров: например, Edge, Brave, Opera и Vivaldi для соответствующих платформ.</td></tr>
+            <tr><td>Mozilla Firefox</td><td><strong>Gecko</strong></td><td><strong>SpiderMonkey</strong></td><td>Самостоятельная технологическая ветка Mozilla со своей архитектурой и инструментами.</td></tr>
+            <tr><td>Apple Safari</td><td><strong>WebKit</strong></td><td><strong>JavaScriptCore</strong></td><td>WebKit также используется в ряде приложений экосистемы Apple.</td></tr>
           </tbody>
         </table></div>
-        <h3>3.1. Основные движки</h3>
+        <p>Это полезная базовая карта, но не универсальная таблица для всех устройств и выпусков. У одного бренда могут быть разные платформенные сборки, а мобильные платформы и правила распространения браузеров могут накладывать дополнительные ограничения.</p>
+        <h3>3.1. Почему движки важны</h3>
         <ul>
-          <li><strong>Blink</strong> — движок рендеринга Chromium, используется в Chrome, Edge, Opera, Brave и других.</li>
-          <li><strong>Gecko</strong> — движок рендеринга Firefox.</li>
-          <li><strong>WebKit</strong> — движок рендеринга Safari (и исторически Chrome).</li>
-          <li><strong>V8</strong> — JavaScript-движок Chromium.</li>
-          <li><strong>SpiderMonkey</strong> — JavaScript-движок Firefox.</li>
-          <li><strong>JavaScriptCore</strong> — JavaScript-движок WebKit.</li>
+          <li>Новый CSS API может уже поддерживаться одним движком и ещё не поддерживаться другим.</li>
+          <li>Различия могут проявляться в деталях шрифтов, форм, прокрутки, видео и системных элементов.</li>
+          <li>Оптимизации и внутренние алгоритмы рендеринга могут отличаться.</li>
+          <li>Баг может быть связан с конкретным движком, версией браузера, операционной системой или видеодрайвером.</li>
         </ul>
+        <div class="callout"><strong>Практический вывод:</strong> проверяй возможности по конкретной функции, а не по общему впечатлению «браузер современный». Для этого подходят MDN Browser Compatibility Data и Can I Use.</div>
       </section>
 
-      <section class="content-section" id="parsing">
-        <h2>4. Парсинг HTML и CSS</h2>
-        <p>Когда браузер получает HTML-документ, он запускает HTML-парсер. Парсер читает поток символов, токенизирует разметку и строит дерево DOM. Парсинг может продолжаться по мере получения данных из сети.</p>
-        <pre><code>HTML-документ (байты)
-  ↓
-HTML-парсер (токенизация)
-  ↓
-DOM (дерево узлов)
-  ↓
-Совместная обработка с CSS и JavaScript
-  ↓
-Отображение страницы</code></pre>
-        <h3>4.1. CSS-парсер</h3>
-        <p>CSS-парсер читает таблицы стилей и строит CSSOM (CSS Object Model) — дерево CSS-правил. CSSOM используется для вычисления стилей элементов DOM.</p>
-        <pre><code>CSS-файл (байты)
-  ↓
-CSS-парсер
-  ↓
-CSSOM (дерево правил)
-  ↓
-Вычисление стилей (стили + DOM = Render Tree)</code></pre>
-        <h3>4.2. Блокирующие ресурсы</h3>
-        <p>CSS является render-blocking ресурсом: браузер не начинает рендеринг, пока не загрузит и не разберёт все CSS-файлы. JavaScript по умолчанию также блокирует парсинг HTML, если не указан атрибут <code>defer</code> или <code>async</code>.</p>
-      </section>
-
-      <section class="content-section" id="dom">
-        <h2>5. DOM и CSSOM</h2>
-        <p>DOM (Document Object Model) — объектное представление HTML-документа в виде дерева узлов. CSSOM — объектное представление CSS-правил. Вместе они формируют основу для рендеринга и взаимодействия с JavaScript.</p>
-        <pre><code>DOM:
-Document
-└── html
-    ├── head
-    │   └── title
-    └── body
-        ├── h1
-        └── p
-
-CSSOM:
-body { color: black; }
-  └── h1 { color: blue; }
-      └── p { font-size: 16px; }</code></pre>
-        <h3>5.1. Render Tree</h3>
-        <p>Render Tree — дерево элементов, которые будут отображены на странице. Оно строится на основе DOM и CSSOM, но исключает невидимые элементы (например, <code>display: none</code>).</p>
-        <h3>5.2. Layout (Reflow)</h3>
-        <p>Layout — вычисление геометрии каждого элемента: позиция, размеры, отступы. Это дорогостоящая операция, особенно для сложных раскладок.</p>
-        <h3>5.3. Paint</h3>
-        <p>Paint — подготовка операций рисования: заполнение пикселей, текст, границы, тени, градиенты.</p>
-        <h3>5.4. Composite</h3>
-        <p>Composite — сборка слоёв в итоговый кадр. Современные браузеры используют GPU для ускорения композиции.</p>
-      </section>
-
-      <section class="content-section" id="rendering">
-        <h2>6. Конвейер рендеринга</h2>
-        <p>Конвейер рендеринга — последовательность шагов, которые браузер выполняет для отображения страницы.</p>
+      <section class="content-section" id="architecture">
+        <h2>4. Архитектура браузера: процессы и потоки</h2>
+        <p>Современные браузеры обычно используют многопроцессную архитектуру. Вместо того чтобы выполнять всю работу в одном процессе, они разделяют разные типы задач между процессами и потоками. Это повышает устойчивость и помогает ограничивать доступ веб-контента к системе.</p>
         <figure>
-          <div class="diagram" aria-label="Конвейер рендеринга">
-            <div class="diagram-box"><strong>Parse HTML → DOM</strong></div>
-            <div class="diagram-arrow">↓</div>
-            <div class="diagram-box"><strong>Parse CSS → CSSOM</strong></div>
-            <div class="diagram-arrow">↓</div>
-            <div class="diagram-box"><strong>DOM + CSSOM → Render Tree</strong></div>
-            <div class="diagram-arrow">↓</div>
-            <div class="diagram-box"><strong>Layout (вычисление геометрии)</strong></div>
-            <div class="diagram-arrow">↓</div>
-            <div class="diagram-box"><strong>Paint (подготовка рисования)</strong></div>
-            <div class="diagram-arrow">↓</div>
-            <div class="diagram-box"><strong>Composite (сборка слоёв)</strong></div>
+          <div class="diagram" role="group" aria-label="Концептуальная схема процессов браузера">
+            <div class="diagram-box"><strong>Browser process</strong><span>Окна, вкладки, навигация, управление и координация</span></div>
+            <div class="diagram-arrow">↕ IPC — межпроцессное взаимодействие</div>
+            <div class="grid-2">
+              <div class="diagram-box"><strong>Renderer process</strong><span>Blink / Gecko, DOM, CSS, JavaScript и страница</span></div>
+              <div class="diagram-box"><strong>Network process</strong><span>Сетевые запросы, соединения, HTTP и кэш</span></div>
+              <div class="diagram-box"><strong>GPU process</strong><span>Графические операции и композиция слоёв</span></div>
+              <div class="diagram-box"><strong>Utility processes</strong><span>Изолированные вспомогательные службы и декодеры</span></div>
+            </div>
           </div>
-          <figcaption>Этапы могут перекрываться и выполняться параллельно для разных частей страницы.</figcaption>
+          <figcaption>Упрощённая концептуальная схема Chromium-подобной архитектуры. Реальное распределение процессов зависит от браузера, ОС, сайта, режима изоляции и доступных ресурсов.</figcaption>
         </figure>
-        <h3>6.1. Стоимость изменений</h3>
-        <p>Разные CSS-свойства запускают разную работу браузера:</p>
-        <ul>
-          <li><strong>Layout-triggering:</strong> изменение <code>width</code>, <code>height</code>, <code>margin</code>, <code>padding</code>, <code>font-size</code> требует пересчёта геометрии.</li>
-          <li><strong>Paint-triggering:</strong> изменение <code>color</code>, <code>background</code>, <code>border</code>, <code>box-shadow</code> требует перерисовки.</li>
-          <li><strong>Composite-only:</strong> изменение <code>transform</code>, <code>opacity</code> может быть обработано на этапе композиции без layout и paint.</li>
-        </ul>
-        <div class="callout"><strong>Оптимизация:</strong> для плавных анимаций предпочитай <code>transform</code> и <code>opacity</code> вместо изменения геометрии. Но конкретный путь зависит от браузера, контекста и графического конвейера.</div>
+        <h3 id="processes">4.1. Что такое процесс и поток</h3>
+        <p><strong>Процесс</strong> — выполняющийся экземпляр программы с собственным адресным пространством и ресурсами. <strong>Поток</strong> — последовательность выполнения внутри процесса. Один процесс может иметь несколько потоков, которые выполняют разные задачи.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Компонент</th><th>Типичная ответственность</th></tr></thead>
+          <tbody>
+            <tr><td>Browser process</td><td>Пользовательский интерфейс браузера, вкладки, навигация, управление другими процессами и часть системных интеграций.</td></tr>
+            <tr><td>Renderer process</td><td>Обработка веб-страницы: HTML/CSS, DOM, выполнение JavaScript, layout и подготовка визуального результата.</td></tr>
+            <tr><td>Network service/process</td><td>Сетевые операции и получение ресурсов. Конкретная реализация может быть отдельным процессом или набором служб.</td></tr>
+            <tr><td>GPU process</td><td>Координация операций с графическим оборудованием, композитинг и ускоренные графические пути.</td></tr>
+            <tr><td>Utility process</td><td>Вспомогательные изолированные задачи — например, обработка отдельных типов данных.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>4.2. Почему не обязательно один процесс на вкладку</h3>
+        <p>Распространённая схема «каждая вкладка — отдельный процесс» является упрощением. Браузер может группировать документы по сайтам, использовать несколько процессов для одного сложного сайта или повторно использовать процессы в пределах своих правил. На распределение влияют Site Isolation, память, тип документа и реализация конкретного браузера.</p>
+        <h3>4.3. IPC</h3>
+        <p>Когда разные процессы должны обменяться данными, используется IPC (Inter-Process Communication). Например, renderer может запросить загрузку ресурса, а браузерный или сетевой процесс выполняет запрос и возвращает результат. IPC требует формализованных сообщений и проверок, поскольку граница процесса — также важная граница безопасности.</p>
+        <div class="callout"><strong>Зачем это разработчику?</strong> Если JavaScript завис в одном renderer-процессе, браузерное окно и другие вкладки не обязательно должны полностью зависнуть вместе с ним. Многопроцессность помогает изоляции, но не делает приложение неуязвимым к чрезмерной нагрузке.</div>
       </section>
 
-      <section class="content-section" id="javascript">
-        <h2>7. JavaScript и Event Loop</h2>
-        <p>JavaScript выполняется в renderer-процессе в основном потоке (main thread). Этот поток обрабатывает JavaScript, события, layout и paint. Длинная синхронная задача в main thread блокирует пользовательский интерфейс.</p>
-        <h3>7.1. Event Loop</h3>
-        <p>Event Loop — механизм координации выполнения синхронного кода, микрозадач (Promise, queueMicrotask) и макрозадач (setTimeout, setInterval, I/O).</p>
-        <pre><code>Порядок выполнения:
-1. Синхронный код
-2. Микрозадачи (Promise.then, queueMicrotask)
-3. Рендеринг (requestAnimationFrame, layout, paint)
-4. Макрозадачи (setTimeout, setInterval, I/O)
-5. Повторить с шага 2</code></pre>
-        <h3>7.2. Main Thread и Web Workers</h3>
-        <p>Web Workers выполняют JavaScript в отдельном потоке без доступа к DOM. Это позволяет вынести тяжёлые вычисления из main thread и не блокировать пользовательский интерфейс.</p>
+      <section class="content-section" id="navigation">
+        <h2>5. Что происходит, когда пользователь открывает URL</h2>
+        <p>Ввод адреса в адресную строку запускает цепочку действий. Ниже — учебная модель типичной навигации. Некоторые этапы могут быть пропущены благодаря кэшу, Service Worker, уже открытому соединению или другим механизмам.</p>
+        <figure>
+          <div class="diagram" role="group" aria-label="Последовательность загрузки сайта">
+            <div class="diagram-box"><strong>1. Разбор URL</strong><span>Схема, хост, порт, путь, параметры и фрагмент</span></div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box"><strong>2. Проверка локальных источников</strong><span>Кэш, Service Worker, политика браузера</span></div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box"><strong>3. Разрешение имени и соединение</strong><span>DNS, транспорт, TLS — если нужны</span></div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box"><strong>4. HTTP-запрос и ответ</strong><span>HTML, заголовки, статус и тело ответа</span></div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box"><strong>5. Построение документа и ресурсов</strong><span>HTML, CSS, JavaScript, изображения, шрифты</span></div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box"><strong>6. Рендеринг и интерактивность</strong><span>Стили, layout, paint, compositing и события</span></div>
+          </div>
+          <figcaption>Схема не означает строго последовательную загрузку каждого ресурса: сеть и разбор документа часто работают параллельно.</figcaption>
+        </figure>
+        <h3>5.1. Разбор адреса</h3>
+        <p>URL содержит схему (например, <code>https</code>), имя хоста, необязательный порт, путь, query-параметры и фрагмент. Фрагмент после <code>#</code> обычно обрабатывается на стороне документа и сам по себе не отправляется серверу в HTTP-запросе.</p>
+        <h3>5.2. Проверка кэша и Service Worker</h3>
+        <p>Браузер может использовать свежий HTTP-кэш и не обращаться к сети за некоторыми ресурсами. Если у сайта зарегистрирован Service Worker и он управляет текущим запросом, его обработчик может вернуть заранее сохранённый ответ, выполнить сетевой запрос или собрать ответ из нескольких источников.</p>
+        <h3>5.3. Получение ответа</h3>
+        <p>Браузер получает HTTP-ответ: статус, заголовки и тело. Ответ может быть HTML-документом, JSON, изображением, CSS, JavaScript или другим типом ресурса. Заголовки влияют на кэширование, тип содержимого, безопасность, cookies и дальнейшую обработку.</p>
+        <p>После поступления первых частей HTML браузер обычно может начать разбор, не дожидаясь скачивания всего документа. Поэтому загрузка, парсинг и получение зависимых ресурсов частично перекрываются.</p>
       </section>
 
       <section class="content-section" id="network">
-        <h2>8. Сеть и ресурсы</h2>
-        <p>Браузер управляет сетевыми запросами через HTTP/HTTPS-стек. Он обрабатывает DNS-разрешение, TLS-рукопожатие, кэширование, загрузку ресурсов и обработку ответов.</p>
-        <h3>8.1. HTTP-запросы</h3>
-        <pre><code>GET /index.html HTTP/1.1
-Host: example.com
-User-Agent: Mozilla/5.0
-Accept: text/html
-Cookie: session=abc123</code></pre>
-        <h3>8.2. Кэширование</h3>
-        <p>Браузер кэширует ресурсы для ускорения повторных загрузок. Управление кэшем происходит через HTTP-заголовки: <code>Cache-Control</code>, <code>ETag</code>, <code>Last-Modified</code>.</p>
-        <h3>8.3. Resource Hints</h3>
-        <pre><code>&lt;link rel="preload" href="font.woff2" as="font"&gt;
-&lt;link rel="prefetch" href="next-page.html"&gt;
-&lt;link rel="preconnect" href="https://api.example.com"&gt;
-&lt;link rel="dns-prefetch" href="https://cdn.example.com"&gt;</code></pre>
+        <h2>6. Сетевой стек: DNS, соединения, TLS и HTTP</h2>
+        <p>Веб-страницы редко состоят из одного файла. HTML может ссылаться на таблицы стилей, скрипты, изображения, шрифты, видео и API. Браузер организует получение этих ресурсов через сетевые механизмы.</p>
+        <h3>6.1. DNS</h3>
+        <p>DNS (Domain Name System) помогает сопоставить доменное имя, например <code>example.com</code>, с сетевыми адресами. Результат может быть взят из кэша браузера, ОС, локальной сети или получен через DNS-резолвер. Поэтому DNS-запрос не обязательно выполняется при каждом обращении к сайту.</p>
+        <h3>6.2. Транспорт и защищённое соединение</h3>
+        <ul>
+          <li><strong>TCP</strong> — транспортный протокол с установлением соединения, который используется, например, HTTP/1.1 и HTTP/2.</li>
+          <li><strong>TLS</strong> — протокол защиты соединения: шифрование, проверка подлинности сервера и целостности данных.</li>
+          <li><strong>QUIC</strong> — транспортный протокол поверх UDP, используемый HTTP/3; защита интегрирована через TLS 1.3.</li>
+        </ul>
+        <p>Не следует представлять все современные соединения как одну схему «TCP, затем TLS». Выбор зависит от версии HTTP, доступности протокола, сетевых условий и возможностей сервера и клиента.</p>
+        <h3>6.3. HTTP</h3>
+        <p>HTTP задаёт формат запросов и ответов между клиентом и сервером. В запросе есть метод, целевой ресурс, заголовки и, при необходимости, тело. В ответе — статус, заголовки и тело.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Метод</th><th>Типичное назначение</th></tr></thead>
+          <tbody>
+            <tr><td><code>GET</code></td><td>Получить представление ресурса.</td></tr>
+            <tr><td><code>POST</code></td><td>Передать данные для обработки или создания ресурса.</td></tr>
+            <tr><td><code>PUT</code></td><td>Создать или заменить представление ресурса по заданному адресу.</td></tr>
+            <tr><td><code>PATCH</code></td><td>Частично изменить ресурс.</td></tr>
+            <tr><td><code>DELETE</code></td><td>Удалить ресурс.</td></tr>
+            <tr><td><code>HEAD</code></td><td>Получить заголовки без тела ответа.</td></tr>
+          </tbody>
+        </table></div>
+        <p>Браузер использует HTTP не только для HTML. Запросы к API, картинки, стили, скрипты и шрифты также могут загружаться по HTTP(S).</p>
+        <h3>6.4. Кэширование HTTP</h3>
+        <p>Заголовки <code>Cache-Control</code>, <code>ETag</code>, <code>Last-Modified</code> и другие позволяют браузеру сохранять ответы и определять, можно ли использовать их повторно или нужно проверить актуальность на сервере.</p>
+        <div class="callout"><strong>Практический навык:</strong> вкладка Network в DevTools показывает URL, метод, статус, тип ресурса, время, объём передачи, инициатор и заголовки запроса/ответа. Это первый инструмент для разбора «почему файл не загрузился».</div>
+      </section>
+
+      <section class="content-section" id="parsing">
+        <h2>7. Разбор HTML и построение DOM</h2>
+        <p>HTML-парсер превращает полученные байты в структуру документа. В учебной модели можно выделить декодирование символов, токенизацию и построение дерева узлов. Реальная реализация устроена сложнее и должна обрабатывать ошибочную разметку по правилам HTML.</p>
+        <pre><code>&lt;main&gt;
+  &lt;h1&gt;Каталог&lt;/h1&gt;
+  &lt;article&gt;
+    &lt;p&gt;Описание товара&lt;/p&gt;
+  &lt;/article&gt;
+&lt;/main&gt;</code></pre>
+        <pre><code>Document
+└── html
+    └── body
+        └── main
+            ├── h1
+            │   └── "Каталог"
+            └── article
+                └── p
+                    └── "Описание товара"</code></pre>
+        <h3>7.1. Почему DOM — не просто исходный текст</h3>
+        <p>DOM — дерево объектов. Оно может содержать узлы, созданные браузером при обработке документа, и позднее изменяться скриптами. Изменение DOM через JavaScript не переписывает HTML-файл на сервере.</p>
+        <h3>7.2. Парсер и скрипты</h3>
+        <p>Классический внешний скрипт без <code>async</code> или <code>defer</code> может приостановить разбор HTML, чтобы быть загруженным и выполненным в нужном порядке. Скрипты с <code>defer</code> выполняются после разбора документа, а <code>async</code> — когда загрузка завершена, без гарантии порядка относительно других async-скриптов. Модульные скрипты имеют собственные правила загрузки и обычно откладываются до завершения разбора документа.</p>
+        <h3>7.3. Preload scanner</h3>
+        <p>Современные браузеры могут использовать вспомогательное предварительное сканирование разметки, чтобы заранее обнаруживать ресурсы вроде изображений, стилей и скриптов, пока основной парсер занят. Это помогает эффективнее использовать сеть, но не отменяет правил блокировки и зависимостей.</p>
+        <div class="callout"><strong>Вывод:</strong> порядок скриптов и их атрибуты могут влиять на скорость появления содержимого. Не добавляй <code>async</code> или <code>defer</code> механически: сначала определи зависимости и требуемый порядок выполнения.</div>
+      </section>
+
+      <section class="content-section" id="cssom">
+        <h2>8. CSSOM, каскад и вычисление стилей</h2>
+        <p>Параллельно с DOM браузер получает CSS: из внешних файлов, элемента <code>&lt;style&gt;</code>, атрибута <code>style</code> и пользовательских стилей. CSS-парсер разбирает правила и строит внутреннее представление таблиц стилей — CSSOM.</p>
+        <p>Для каждого элемента браузер определяет подходящие CSS-правила, применяет каскад и наследование и вычисляет итоговые значения свойств. В этот процесс входят происхождение правил, важность, слои каскада, специфичность и порядок объявления.</p>
+        <pre><code>/* style.css */
+.card {
+  padding: 1rem;
+  color: #172033;
+}
+
+.card.is-active {
+  border-color: royalblue;
+}</code></pre>
+        <p>DOM сообщает, какие элементы существуют и как они вложены. CSSOM сообщает, какие правила могут применяться. На их основе браузер определяет визуальное представление элементов.</p>
+        <div class="callout"><strong>Важная оговорка:</strong> популярная модель «сначала полностью DOM, потом полностью CSSOM, и только потом экран» слишком линейна. Загрузка, парсинг и рендеринг могут частично перекрываться. При этом таблицы стилей способны задерживать первый рендер и выполнение некоторых скриптов, поэтому порядок ресурсов имеет значение.</div>
+      </section>
+
+      <section class="content-section" id="rendering">
+        <h2>9. Критический путь рендеринга: от DOM до пикселей</h2>
+        <p class="lead">Рендеринг — преобразование структуры документа, стилей и геометрии в изображение, которое браузер выводит на экран.</p>
+        <figure>
+          <div class="diagram" role="group" aria-label="Этапы рендеринга веб-страницы">
+            <div class="diagram-box"><strong>DOM + CSSOM</strong><span>Структура документа и правила оформления</span></div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box"><strong>Style calculation</strong><span>Подбор правил и вычисление стилей</span></div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box"><strong>Layout</strong><span>Размеры и координаты элементов</span></div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box"><strong>Paint</strong><span>Формирование команд рисования</span></div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box"><strong>Rasterization</strong><span>Преобразование графических команд в пиксели</span></div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box"><strong>Compositing</strong><span>Сборка визуальных слоёв и вывод кадра</span></div>
+          </div>
+          <figcaption>Учебная модель основных этапов. Некоторые браузеры объединяют или иначе организуют внутренние стадии; не каждое изменение запускает всю цепочку.</figcaption>
+        </figure>
+        <h3>9.1. Render tree</h3>
+        <p>В классическом объяснении браузер объединяет DOM с вычисленными стилями и формирует структуру визуально отображаемого содержимого. Узлы, которые не участвуют в отображении, могут быть исключены из этой структуры. Например, элемент с <code>display: none</code> не создаёт обычного отображаемого блока; при <code>visibility: hidden</code> место в компоновке, как правило, сохраняется.</p>
+        <h3 id="layout">9.2. Layout (reflow)</h3>
+        <p>Layout — расчёт геометрии: размеров и положения блоков, текста, изображений и других отображаемых объектов. На результат влияют размер viewport, шрифты, содержимое, CSS, прокрутка и правила компоновки.</p>
+        <p>Изменение ширины элемента, текста, структуры DOM или других факторов, влияющих на геометрию, может вызвать повторный layout. В DevTools такой перерасчёт часто называют reflow.</p>
+        <h3 id="paint">9.3. Paint, rasterization и compositing</h3>
+        <p><strong>Paint</strong> — подготовка операций рисования: текст, границы, фоны, тени, изображения и другие визуальные эффекты. <strong>Rasterization</strong> превращает графические команды в пиксели. <strong>Compositing</strong> объединяет подготовленные поверхности или слои в итоговый кадр.</p>
+        <p>Часть операций может использовать GPU, но не следует считать, что «весь CSS рисуется видеокартой». Решение о слоях и ускорении зависит от движка, свойств элементов, оборудования и текущего состояния страницы.</p>
+        <h3>9.4. Какие изменения дороже</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Тип изменения</th><th>Что может потребоваться</th><th>Пример</th></tr></thead>
+          <tbody>
+            <tr><td>Геометрическое</td><td>Style → Layout → Paint → Composite</td><td>Изменить <code>width</code>, <code>height</code>, <code>margin</code>.</td></tr>
+            <tr><td>Только визуальное</td><td>Style → Paint → Composite, иногда дополнительные стадии</td><td>Изменить цвет фона или цвет текста.</td></tr>
+            <tr><td>Композиционное</td><td>Иногда достаточно Composite</td><td>Изменить некоторые значения <code>transform</code> или <code>opacity</code> на подходящем слое.</td></tr>
+          </tbody>
+        </table></div>
+        <p>Это ориентир, а не безусловная гарантия. Например, тень может быть дорогой для отрисовки, а изменение свойства, которое кажется простым, может повлечь перерасчёт стилей или геометрии.</p>
+        <div class="callout"><strong>Оптимизируй по измерениям.</strong> Избегай лишних чтений геометрии между DOM-записями, которые вынуждают браузер синхронно пересчитывать layout. Группируй изменения и проверяй профиль в Performance.</div>
+      </section>
+
+      <section class="content-section" id="resources">
+        <h2>10. Изображения, шрифты, видео и другие ресурсы</h2>
+        <p>Для отображения страницы браузеру могут понадобиться ресурсы разных типов. У каждого типа есть этапы загрузки, декодирования, обработки и вывода.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Ресурс</th><th>Что делает браузер</th><th>Что важно разработчику</th></tr></thead>
+          <tbody>
+            <tr><td>Изображения</td><td>Загружает файл, декодирует изображение, подготавливает его для отображения.</td><td>Размеры, современные форматы, <code>srcset</code>, <code>sizes</code>, lazy loading.</td></tr>
+            <tr><td>Шрифты</td><td>Загружает и обрабатывает файлы шрифтов, применяет их к тексту.</td><td>Форматы, подмножества, <code>font-display</code>, preload только действительно критичных шрифтов.</td></tr>
+            <tr><td>Аудио и видео</td><td>Работает с контейнерами и кодеками, буферизацией, декодированием и синхронизацией.</td><td>Совместимые кодеки, размеры, постер, субтитры, потоковая передача.</td></tr>
+            <tr><td>SVG</td><td>Обрабатывает векторную графику как отдельный документ или встроенные элементы.</td><td>Доступность, сложность графики, повторное использование.</td></tr>
+            <tr><td>Canvas / WebGL / WebGPU</td><td>Предоставляет графические контексты и взаимодействует с графической подсистемой.</td><td>Производительность, память, потеря контекста и совместимость.</td></tr>
+          </tbody>
+        </table></div>
+        <p>Браузер может начать показывать часть страницы до загрузки всех второстепенных ресурсов. Но поздняя загрузка изображения или шрифта способна изменить геометрию контента и повлиять на визуальную стабильность.</p>
+      </section>
+
+      <section class="content-section" id="runtime">
+        <h2>11. JavaScript runtime внутри браузера</h2>
+        <p>JavaScript-движок выполняет код, но браузерная среда предоставляет дополнительные механизмы: таймеры, события интерфейса, сетевые операции и очередь задач. Вместе они формируют модель выполнения JavaScript в браузере.</p>
+        <h3>11.1. JavaScript-движок</h3>
+        <p>Движок разбирает исходный код, может компилировать его в промежуточное или машинное представление, исполняет функции, управляет объектами в памяти и освобождает недостижимые объекты с помощью сборки мусора. Разные движки используют разные архитектурные решения и оптимизации.</p>
+        <h3>11.2. Стек вызовов</h3>
+        <p>При вызове функции создаётся контекст её выполнения, который добавляется в стек вызовов. Когда функция завершается, контекст снимается. Долгая синхронная функция удерживает поток выполнения и может задерживать обработку событий, обновление интерфейса и реакцию на ввод.</p>
+        <pre><code>function first() {
+  second();
+}
+
+function second() {
+  console.log("Вызов завершён");
+}
+
+first();</code></pre>
+        <h3>11.3. Event Loop</h3>
+        <p>Event Loop связывает выполнение JavaScript с очередями задач и возможностями браузера. Упрощённо: когда текущий синхронный код завершается, среда выбирает задачу из очереди; после выполнения задачи обрабатывает очередь микрозадач, а затем браузер при подходящей возможности может обновить отображение.</p>
+        <figure>
+          <div class="diagram" role="group" aria-label="Упрощённая модель event loop">
+            <div class="diagram-box"><strong>Call Stack</strong><span>Текущий синхронный код</span></div>
+            <div class="diagram-arrow">↓ стек освободился</div>
+            <div class="diagram-box"><strong>Task Queue</strong><span>События, таймеры и другие задачи</span></div>
+            <div class="diagram-arrow">↓ после задачи</div>
+            <div class="diagram-box"><strong>Microtask Queue</strong><span>Promise callbacks, queueMicrotask и др.</span></div>
+            <div class="diagram-arrow">↓ когда есть возможность</div>
+            <div class="diagram-box"><strong>Rendering opportunity</strong><span>Обновление стилей, layout и кадра</span></div>
+          </div>
+          <figcaption>Модель намеренно упрощена: браузерные event loops, источники задач и моменты обновления рендеринга описаны стандартами подробнее.</figcaption>
+        </figure>
+        <h3>11.4. Задачи и микрозадачи</h3>
+        <p>Обработчик таймера <code>setTimeout</code> обычно запускается как задача. Обработчики <code>Promise.then()</code> и функция, переданная в <code>queueMicrotask()</code>, попадают в очередь микрозадач. Микрозадачи обрабатываются после завершения текущего стека и до перехода к следующей задаче; длинная цепочка микрозадач способна отложить отрисовку.</p>
+        <pre><code>console.log("A");
+
+setTimeout(() =&gt; console.log("B — task"), 0);
+Promise.resolve().then(() =&gt; console.log("C — microtask"));
+
+console.log("D");
+
+// Типичный порядок: A, D, C, B</code></pre>
+        <h3>11.5. requestAnimationFrame</h3>
+        <p><code>requestAnimationFrame()</code> просит браузер вызвать функцию перед следующей возможностью обновить кадр. Его удобно использовать для визуальных анимаций, синхронизированных с обновлением экрана. Он не является таймером точной длительности и не гарантирует фиксированную частоту кадров.</p>
+        <div class="callout"><strong>Главное:</strong> «JavaScript однопоточный» — упрощение, которое относится к обычному выполнению скриптов в конкретном контексте. Браузер сам многопоточен, а Web Workers позволяют выполнять JavaScript в отдельных потоках с отдельными глобальными контекстами.</div>
+      </section>
+
+      <section class="content-section" id="loading">
+        <h2>12. Загрузка скриптов и события документа</h2>
+        <p>Положение и атрибуты тега <code>&lt;script&gt;</code> влияют на порядок загрузки, парсинга и выполнения кода.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Подключение</th><th>Как работает</th><th>Когда применять</th></tr></thead>
+          <tbody>
+            <tr><td><code>&lt;script src="app.js"&gt;</code></td><td>Классический скрипт может остановить HTML-парсер до загрузки и выполнения.</td><td>Когда требуется синхронное выполнение в месте подключения и порядок действительно нужен.</td></tr>
+            <tr><td><code>defer</code></td><td>Загружается параллельно разбору HTML; выполняется после разбора, сохраняя порядок deferred-скриптов.</td><td>Обычные внешние скрипты, которым нужен готовый DOM и важен порядок.</td></tr>
+            <tr><td><code>async</code></td><td>Загружается параллельно; выполняется по готовности, порядок между async-скриптами не гарантируется.</td><td>Независимые скрипты, например некоторые счётчики или внешние виджеты.</td></tr>
+            <tr><td><code>type="module"</code></td><td>Использует модульную систему, строгий режим и граф зависимостей; по умолчанию откладывается до завершения разбора.</td><td>Современный модульный код приложения.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>12.1. События жизненного цикла документа</h3>
+        <ul>
+          <li><code>DOMContentLoaded</code> — HTML полностью разобран, а отложенные и модульные скрипты завершили выполнение. Это не означает, что загружены все изображения и другие ресурсы.</li>
+          <li><code>load</code> — событие после загрузки документа и зависимых ресурсов, которые входят в условие этого события.</li>
+          <li><code>pageshow</code> — документ показан; в том числе может использоваться при восстановлении из back-forward cache.</li>
+          <li><code>visibilitychange</code> — изменилась видимость документа, например пользователь переключился на другую вкладку.</li>
+        </ul>
+        <pre><code>document.addEventListener("DOMContentLoaded", () =&gt; {
+  console.log("DOM готов к работе");
+});
+
+window.addEventListener("load", () =&gt; {
+  console.log("Событие полной загрузки");
+});</code></pre>
+        <p>Не используй <code>load</code> везде по привычке. Если нужно просто безопасно обратиться к элементам разметки, обычно достаточно отложенного скрипта или <code>DOMContentLoaded</code>.</p>
+      </section>
+
+      <section class="content-section" id="apis">
+        <h2>13. Браузерные API: что браузер даёт веб-приложению</h2>
+        <p>JavaScript становится особенно мощным в браузере благодаря API — программным интерфейсам, через которые сайт взаимодействует с документом, сетью, устройствами и браузерной средой.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>API / группа</th><th>Возможности</th><th>Типичные интерфейсы</th></tr></thead>
+          <tbody>
+            <tr><td>DOM</td><td>Чтение и изменение документа.</td><td><code>document</code>, <code>Element</code>, <code>MutationObserver</code>.</td></tr>
+            <tr><td>Fetch</td><td>HTTP-запросы и получение ответов.</td><td><code>fetch()</code>, <code>Request</code>, <code>Response</code>.</td></tr>
+            <tr><td>WebSocket</td><td>Двунаправленная связь по длительно открытому соединению.</td><td><code>WebSocket</code>.</td></tr>
+            <tr><td>WebRTC</td><td>Передача аудио, видео и данных между браузерами и устройствами.</td><td><code>RTCPeerConnection</code>, <code>MediaStream</code>.</td></tr>
+            <tr><td>Web Storage</td><td>Простое локальное хранение строк.</td><td><code>localStorage</code>, <code>sessionStorage</code>.</td></tr>
+            <tr><td>IndexedDB</td><td>Асинхронная клиентская база данных с индексами и транзакциями.</td><td><code>indexedDB</code>, <code>IDBDatabase</code>.</td></tr>
+            <tr><td>Service Worker</td><td>Перехват управляемых сетевых запросов, кэширование и офлайн-сценарии.</td><td><code>navigator.serviceWorker</code>.</td></tr>
+            <tr><td>Geolocation</td><td>Получение координат после разрешения пользователя и при соблюдении условий.</td><td><code>navigator.geolocation</code>.</td></tr>
+            <tr><td>MediaDevices</td><td>Доступ к камере и микрофону при наличии разрешения.</td><td><code>navigator.mediaDevices</code>.</td></tr>
+            <tr><td>Web Audio</td><td>Создание и обработка аудиосигналов.</td><td><code>AudioContext</code>.</td></tr>
+            <tr><td>Canvas / WebGL / WebGPU</td><td>2D- и 3D-графика, вычисления на графическом оборудовании.</td><td><code>CanvasRenderingContext2D</code>, <code>GPUDevice</code>.</td></tr>
+            <tr><td>Clipboard</td><td>Чтение и запись буфера обмена в рамках политики доступа.</td><td><code>navigator.clipboard</code>.</td></tr>
+            <tr><td>Notifications</td><td>Показ уведомлений при поддержке и наличии разрешения.</td><td><code>Notification</code>.</td></tr>
+            <tr><td>Fullscreen / Pointer Lock</td><td>Полноэкранный режим и захват указателя для специальных интерфейсов.</td><td><code>requestFullscreen()</code>, <code>requestPointerLock()</code>.</td></tr>
+            <tr><td>Workers</td><td>Выполнение скриптов вне основного потока документа.</td><td><code>Worker</code>, <code>SharedWorker</code>.</td></tr>
+            <tr><td>Performance</td><td>Измерение производительности и получение метрик.</td><td><code>performance</code>, Performance Observer.</td></tr>
+          </tbody>
+        </table></div>
+        <div class="callout warning"><strong>Разрешение не гарантирует доступ.</strong> API может требовать HTTPS, пользовательского жеста, разрешения пользователя, определённого контекста или поддержки конкретным браузером. Например, камера, микрофон и геолокация не должны рассматриваться как безусловно доступные.</div>
       </section>
 
       <section class="content-section" id="storage">
-        <h2>9. Хранилища браузера</h2>
-        <p>Браузер предоставляет несколько механизмов хранения данных на клиенте.</p>
+        <h2>14. Cookies, HTTP Cache и браузерные хранилища</h2>
+        <p>В браузере есть несколько механизмов хранения, которые решают разные задачи. Не следует считать их взаимозаменяемыми.</p>
         <div class="table-wrap"><table>
-          <thead><tr><th>Механизм</th><th>Особенности</th></tr></thead>
+          <thead><tr><th>Механизм</th><th>Что хранит</th><th>Особенности</th></tr></thead>
           <tbody>
-            <tr><td>Cookies</td><td>Небольшие пары имя/значение, могут отправляться с HTTP-запросами.</td></tr>
-            <tr><td>localStorage</td><td>Строковые пары ключ/значение, сохраняются между сеансами.</td></tr>
-            <tr><td>sessionStorage</td><td>Строковые пары ключ/значение, ограничены вкладкой/сеансом.</td></tr>
-            <tr><td>IndexedDB</td><td>Асинхронная объектная база данных для больших объёмов.</td></tr>
-            <tr><td>Cache Storage</td><td>Хранилище для Request/Response, используется Service Worker.</td></tr>
+            <tr><td>Cookies</td><td>Небольшие пары имя/значение и атрибуты.</td><td>Могут автоматически отправляться в HTTP-запросах в соответствии с областью действия и правилами браузера. Используются для сессий и других задач.</td></tr>
+            <tr><td><code>localStorage</code></td><td>Строковые пары ключ/значение.</td><td>Сохраняется между сеансами браузера в рамках origin; синхронный API.</td></tr>
+            <tr><td><code>sessionStorage</code></td><td>Строковые пары ключ/значение.</td><td>Привязано к origin и контексту вкладки/сеанса страницы.</td></tr>
+            <tr><td>IndexedDB</td><td>Структурированные данные и записи объектов.</td><td>Асинхронное хранилище для больших объёмов и сложных данных.</td></tr>
+            <tr><td>Cache Storage</td><td>Пары Request/Response.</td><td>Управляемые кэши, часто используемые Service Worker.</td></tr>
+            <tr><td>HTTP Cache</td><td>Копии сетевых ресурсов.</td><td>Управляется HTTP-заголовками и внутренней политикой браузера.</td></tr>
+            <tr><td>OPFS</td><td>Файлоподобные данные в рамках origin.</td><td>Origin Private File System; полезна для некоторых приложений и локальных рабочих данных.</td></tr>
           </tbody>
         </table></div>
+        <h3>14.1. Cookies и безопасность</h3>
+        <p>Cookie может содержать идентификатор сессии. Важные атрибуты:</p>
+        <ul>
+          <li><code>Secure</code> — передавать cookie только по защищённому соединению (HTTPS).</li>
+          <li><code>HttpOnly</code> — не предоставлять cookie через обычный JavaScript API <code>document.cookie</code>.</li>
+          <li><code>SameSite</code> — ограничивать отправку cookie в некоторых cross-site сценариях и снижать риск CSRF.</li>
+          <li><code>Domain</code>, <code>Path</code>, <code>Expires</code> и <code>Max-Age</code> — задавать область действия и срок хранения.</li>
+        </ul>
+        <h3>14.2. Квоты и очистка</h3>
+        <p>Хранилища ограничены квотами, зависящими от браузера, платформы, свободного места и политики хранения. Пользователь может очистить данные сайта, браузер может удалять часть данных при нехватке места, а режим приватного просмотра меняет поведение хранения. Не проектируй приложение так, будто локальные данные никогда не исчезают.</p>
       </section>
 
       <section class="content-section" id="security">
-        <h2>10. Безопасность браузера</h2>
-        <p>Браузер применяет множество механизмов для защиты пользователей от вредоносного кода и атак.</p>
-        <h3>10.1. Same-Origin Policy (SOP)</h3>
-        <p>SOP ограничивает взаимодействие между документами из разных источников (origin). Origin определяется схемой, хостом и портом.</p>
-        <h3>10.2. CORS</h3>
-        <p>CORS (Cross-Origin Resource Sharing) — механизм, с помощью которого сервер через HTTP-заголовки сообщает браузеру, каким другим источникам разрешено читать определённые ответы.</p>
-        <h3>10.3. Content Security Policy (CSP)</h3>
-        <p>CSP ограничивает источники, из которых можно загружать скрипты, стили, изображения и другие ресурсы. Это снижает риск XSS-атак.</p>
-        <h3>10.4. Subresource Integrity (SRI)</h3>
-        <p>SRI проверяет, что загруженный ресурс соответствует ожидаемому хэшу. Если файл был изменён, браузер не выполнит его.</p>
-        <h3>10.5. Sandbox и Permissions</h3>
-        <p>Атрибут <code>sandbox</code> ограничивает возможности iframe. Permissions API управляет доступом к камере, микрофону, геолокации и другим чувствительным API.</p>
+        <h2>15. Безопасность браузера и веб-приложений</h2>
+        <p>Веб-страницы часто исполняют код из внешних источников и обрабатывают конфиденциальные данные. Браузер поэтому применяет модель происхождения, ограничения доступа, песочницы, разрешения и другие защитные механизмы.</p>
+        <h3 id="origin">15.1. Origin и Same-Origin Policy</h3>
+        <p>Origin (источник) в типичном случае определяется тройкой:</p>
+        <pre><code>scheme + host + port
+
+https://shop.example:443
+  └ схема: https
+  └ хост: shop.example
+  └ порт: 443</code></pre>
+        <p>Same-Origin Policy (SOP) ограничивает взаимодействие документов и скриптов из разных источников. Например, страница на одном сайте не должна произвольно читать содержимое личного кабинета, открытого на другом сайте.</p>
+        <p>Сравнение источников:</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>URL</th><th>Совпадает с <code>https://example.com</code>?</th><th>Причина</th></tr></thead>
+          <tbody>
+            <tr><td><code>https://example.com/page</code></td><td>Да</td><td>Схема, хост и порт совпадают.</td></tr>
+            <tr><td><code>http://example.com</code></td><td>Нет</td><td>Другая схема.</td></tr>
+            <tr><td><code>https://api.example.com</code></td><td>Нет</td><td>Другой хост.</td></tr>
+            <tr><td><code>https://example.com:8443</code></td><td>Нет</td><td>Другой порт.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>15.2. CORS</h3>
+        <p>CORS (Cross-Origin Resource Sharing) — механизм, с помощью которого сервер через HTTP-заголовки сообщает браузеру, каким другим источникам разрешено читать определённые ответы. Это не способ отключить SOP в целом и не механизм аутентификации.</p>
+        <p>При некоторых запросах браузер сначала отправляет preflight-запрос методом <code>OPTIONS</code>, чтобы проверить, разрешает ли сервер фактический запрос с выбранными методом и заголовками. Preflight нужен не для каждого cross-origin запроса.</p>
+        <div class="callout warning"><strong>Типичная ошибка:</strong> CORS — не проблема, которую правильно решать отключением защиты браузера. Обычно нужно настроить серверные заголовки и убедиться, что приложение действительно должно обращаться к этому origin.</div>
+        <h3 id="protections">15.3. CSP</h3>
+        <p>Content Security Policy (CSP) — политика безопасности, которую сервер может передавать через HTTP-заголовок. Она ограничивает источники скриптов, стилей, изображений, подключений и других ресурсов. CSP помогает снизить последствия ряда атак, в том числе внедрения вредоносного кода, но требует корректной настройки.</p>
+        <pre><code>Content-Security-Policy:
+  default-src 'self';
+  img-src 'self' https: data:;
+  object-src 'none';
+  base-uri 'self';</code></pre>
+        <p>Это только иллюстрация синтаксиса, а не готовая политика для любого проекта. Реальный набор директив зависит от архитектуры сайта.</p>
+        <h3>15.4. Sandbox</h3>
+        <p>Песочница ограничивает действия содержимого. Например, атрибут <code>sandbox</code> у <code>iframe</code> позволяет включать ограничения на скрипты, формы, навигацию, всплывающие окна и другие действия. Разрешения можно добавлять точечно, но комбинации флагов требуют осторожности.</p>
+        <h3>15.5. Permissions и защищённые контексты</h3>
+        <p>Камера, микрофон, геолокация, уведомления и другие чувствительные возможности регулируются разрешениями и правилами браузера. Многие API доступны только в secure context — обычно это HTTPS, а также некоторые локальные контексты разработки.</p>
+        <h3>15.6. Site Isolation и sandbox процессов</h3>
+        <p>Процессная изоляция старается разделить контент разных сайтов так, чтобы компрометация одной страницы не давала свободного доступа к памяти другой. Это не заменяет проверку данных и защиту самого сайта, но уменьшает последствия ошибок и атак.</p>
+        <h3>15.7. Что должен делать разработчик</h3>
+        <ul>
+          <li>Передавать конфиденциальные данные только по HTTPS.</li>
+          <li>Не вставлять непроверенный пользовательский ввод в HTML как доверенную разметку.</li>
+          <li>Настраивать cookies для сессий с учётом <code>Secure</code>, <code>HttpOnly</code> и <code>SameSite</code>.</li>
+          <li>Использовать CSP и другие подходящие HTTP-заголовки.</li>
+          <li>Проверять данные и права доступа на сервере; браузерные ограничения не заменяют серверную защиту.</li>
+          <li>Запрашивать чувствительные разрешения только в понятном пользователю контексте.</li>
+        </ul>
+      </section>
+
+      <section class="content-section" id="a11y">
+        <h2>16. Доступность и дерево доступности</h2>
+        <p>Браузер формирует не только DOM для работы страницы, но и дополнительное представление интерфейса для вспомогательных технологий — дерево доступности (Accessibility Tree). Оно содержит сведения о роли, имени, состоянии и связях элементов.</p>
+        <p>Например, элемент <code>&lt;button&gt;Сохранить&lt;/button&gt;</code> уже имеет нативную роль кнопки и доступное имя из текста. У обычного <code>&lt;div&gt;</code> такой семантики нет, даже если его визуально оформить как кнопку.</p>
+        <ul>
+          <li>Семантический HTML помогает браузеру построить правильное дерево доступности.</li>
+          <li>Подписи форм связываются с полями через <code>label</code> и соответствующие атрибуты.</li>
+          <li>Клавиатурная навигация и видимый фокус важны для пользователей, не использующих мышь.</li>
+          <li>ARIA уточняет семантику, но не должна без необходимости заменять встроенные HTML-элементы.</li>
+          <li>Контраст, масштабирование, порядок фокуса и текстовые альтернативы нужно проверять отдельно.</li>
+        </ul>
+        <p>В DevTools многих браузеров есть вкладка или панель Accessibility, где можно исследовать роли, доступные имена, состояния и структуру доступности.</p>
       </section>
 
       <section class="content-section" id="devtools">
-        <h2>11. DevTools — инструменты разработчика</h2>
-        <p>DevTools — встроенный набор инструментов для исследования страницы и диагностики проблем.</p>
+        <h2>17. DevTools — инструменты разработчика</h2>
+        <p>DevTools (Developer Tools) — встроенный набор инструментов для исследования страницы и диагностики проблем. В Chromium-браузерах его обычно открывают через <span class="kbd">F12</span> или <span class="kbd">Ctrl</span> + <span class="kbd">Shift</span> + <span class="kbd">I</span>. Комбинации могут отличаться на macOS и в других браузерах.</p>
         <div class="table-wrap"><table>
-          <thead><tr><th>Панель</th><th>Назначение</th></tr></thead>
+          <thead><tr><th>Панель</th><th>Что показывает</th><th>Когда полезна</th></tr></thead>
           <tbody>
-            <tr><td>Elements</td><td>DOM, вычисленные стили, box model.</td></tr>
-            <tr><td>Console</td><td>Ошибки, предупреждения, выполнение выражений.</td></tr>
-            <tr><td>Sources</td><td>Исходники, breakpoint, отладка.</td></tr>
-            <tr><td>Network</td><td>Запросы, ответы, заголовки, timing.</td></tr>
-            <tr><td>Performance</td><td>Профилирование задач, кадры, узкие места.</td></tr>
-            <tr><td>Memory</td><td>Снимки памяти, поиск утечек.</td></tr>
-            <tr><td>Application</td><td>Cookies, localStorage, IndexedDB, Service Workers.</td></tr>
-            <tr><td>Accessibility</td><td>Доступная роль, имя, состояние элементов.</td></tr>
+            <tr><td>Elements / Inspector</td><td>DOM, свойства и вычисленные стили, дерево элементов.</td><td>Найти элемент, проверить CSS, посмотреть box model.</td></tr>
+            <tr><td>Console</td><td>Ошибки, предупреждения и интерактивное выполнение выражений.</td><td>Проверить переменную, вызвать метод, прочитать stack trace.</td></tr>
+            <tr><td>Sources / Debugger</td><td>Исходники скриптов, breakpoint, call stack и scope.</td><td>Пошагово найти причину неправильной логики.</td></tr>
+            <tr><td>Network</td><td>Запросы, ответы, заголовки, время и объём ресурсов.</td><td>Разобрать 404, 500, CORS, кэш, медленную загрузку.</td></tr>
+            <tr><td>Performance</td><td>Профиль выполнения, рендеринг, кадры и временная шкала.</td><td>Найти длинные задачи, лишний layout и задержки интерфейса.</td></tr>
+            <tr><td>Memory</td><td>Снимки памяти и сведения о выделениях.</td><td>Искать утечки памяти и удерживаемые объекты.</td></tr>
+            <tr><td>Application / Storage</td><td>Cookies, localStorage, IndexedDB, Cache Storage, Service Workers.</td><td>Проверить сохранённые данные и офлайн-логику.</td></tr>
+            <tr><td>Accessibility</td><td>Доступная роль, имя и состояние элементов.</td><td>Проверить доступность интерфейса.</td></tr>
+            <tr><td>Rendering</td><td>Визуальные диагностические режимы, например области перерисовки и FPS.</td><td>Исследовать проблемы прокрутки и анимаций.</td></tr>
           </tbody>
         </table></div>
+        <h3>17.1. Минимальный сценарий диагностики</h3>
+        <ol>
+          <li>Открой страницу и проверь Console на ошибки.</li>
+          <li>В Network перезагрузи страницу и найди запросы с ошибочными статусами.</li>
+          <li>В Elements выбери проблемный элемент и проверь computed styles.</li>
+          <li>В Sources поставь breakpoint и повтори действие пользователя.</li>
+          <li>В Performance запиши профиль взаимодействия, если страница тормозит.</li>
+          <li>В Application проверь кэш и хранилища, если приложение показывает устаревшие данные.</li>
+        </ol>
+        <p>У Firefox есть собственные Developer Tools, а Safari предоставляет Web Inspector. Названия панелей и детали интерфейса могут отличаться, но основные задачи отладки похожи.</p>
       </section>
 
       <section class="content-section" id="performance">
-        <h2>12. Производительность</h2>
+        <h2>18. Производительность: что измерять</h2>
         <p>Быстродействие — не только скорость загрузки HTML. Пользователь оценивает, когда появляется основной контент, как быстро интерфейс реагирует на действия и насколько стабильно располагаются элементы страницы.</p>
-        <h3>12.1. Core Web Vitals</h3>
+        <h3>18.1. Core Web Vitals</h3>
         <div class="table-wrap"><table>
-          <thead><tr><th>Метрика</th><th>Что измеряет</th></tr></thead>
+          <thead><tr><th>Метрика</th><th>Что измеряет</th><th>Что может ухудшить результат</th></tr></thead>
           <tbody>
-            <tr><td>LCP</td><td>Время отображения самого крупного контентного элемента.</td></tr>
-            <tr><td>INP</td><td>Задержку визуального отклика на взаимодействия.</td></tr>
-            <tr><td>CLS</td><td>Накопленную неожиданную нестабильность расположения элементов.</td></tr>
+            <tr><td><strong>LCP</strong><br>Largest Contentful Paint</td><td>Время отображения самого крупного подходящего контентного элемента в видимой области.</td><td>Медленный сервер, поздний запрос главного изображения, блокирующие ресурсы, тяжёлые стили.</td></tr>
+            <tr><td><strong>INP</strong><br>Interaction to Next Paint</td><td>Задержку визуального отклика на взаимодействия пользователя.</td><td>Длинные JavaScript-задачи, тяжёлые обработчики, сложный рендеринг.</td></tr>
+            <tr><td><strong>CLS</strong><br>Cumulative Layout Shift</td><td>Накопленную неожиданную нестабильность расположения элементов.</td><td>Изображения без зарезервированных размеров, поздние вставки блоков, смена шрифтов.</td></tr>
           </tbody>
         </table></div>
-        <h3>12.2. Практические приёмы</h3>
+        <h3>18.2. Практические приёмы</h3>
         <ul>
-          <li>Уменьшать объём критических ресурсов.</li>
-          <li>Использовать подходящие форматы и размеры изображений.</li>
-          <li>Отложенно загружать изображения ниже первого экрана.</li>
-          <li>Избегать длинных синхронных задач.</li>
-          <li>Не вызывать синхронный layout многократно.</li>
-          <li>Не анимировать свойства, которые постоянно меняют геометрию.</li>
+          <li>Уменьшать объём критических ресурсов и не загружать ненужный JavaScript.</li>
+          <li>Использовать подходящие форматы и размеры изображений, задавать их геометрию.</li>
+          <li>Отложенно загружать изображения ниже первого экрана, когда это уместно.</li>
+          <li>Избегать длинных синхронных задач; делить тяжёлую работу на части или переносить подходящие вычисления в Worker.</li>
+          <li>Не вызывать синхронный layout многократно между чтением геометрии и записью стилей.</li>
+          <li>Не анимировать без необходимости свойства, которые постоянно меняют геометрию.</li>
+          <li>Проверять реальную производительность на медленных устройствах и сетях.</li>
         </ul>
+        <div class="callout"><strong>Не оптимизируй на глаз.</strong> Сначала зафиксируй профиль и найди узкое место. Иногда проблема в сети или сервере, иногда — в JavaScript, изображениях, layout или шрифтах.</div>
       </section>
 
       <section class="content-section" id="compatibility">
-        <h2>13. Совместимость браузеров</h2>
+        <h2>19. Совместимость браузеров и веб-стандарты</h2>
         <p>Стандарты описывают ожидаемое поведение веб-платформы, а браузерные движки реализуют эти требования. Реализации развиваются не одновременно, а отдельные функции могут иметь ограничения или особенности.</p>
-        <h3>13.1. Как проверять поддержку</h3>
+        <h3>19.1. Как проверять поддержку</h3>
         <ul>
-          <li><strong>MDN Browser Compatibility Data</strong> — таблицы совместимости.</li>
-          <li><strong>Can I Use</strong> — быстрый просмотр поддержки функций.</li>
-          <li><strong>Web Platform Tests</strong> — тесты соответствия стандартам.</li>
-          <li><strong>Реальные тесты</strong> — проверка целевых браузеров.</li>
+          <li><strong>MDN Browser Compatibility Data</strong> — таблицы совместимости конкретных HTML, CSS и JavaScript возможностей.</li>
+          <li><strong>Can I Use</strong> — быстрый просмотр поддержки функций в разных браузерах и версиях.</li>
+          <li><strong>Web Platform Tests</strong> — набор тестов, помогающий проверять соответствие реализаций веб-стандартам.</li>
+          <li><strong>Реальные тесты</strong> — проверка целевых браузеров и устройств приложения.</li>
         </ul>
-        <h3>13.2. Progressive Enhancement</h3>
-        <p>Прогрессивное улучшение — подход, при котором базовое содержание и основные действия работают на надёжном фундаменте, а дополнительные возможности подключаются там, где они поддерживаются.</p>
+        <h3>19.2. Progressive Enhancement</h3>
+        <p>Прогрессивное улучшение — подход, при котором базовое содержание и основные действия работают на надёжном фундаменте, а дополнительные возможности подключаются там, где они поддерживаются. Например, обычная HTML-форма может оставаться доступной, а JavaScript улучшает её валидацию и интерфейс.</p>
+        <h3>19.3. Feature detection</h3>
+        <p>Проверяй наличие конкретной функции, а не только название браузера.</p>
+        <pre><code>if ("IntersectionObserver" in window) {
+  // Использовать IntersectionObserver
+} else {
+  // Предусмотреть альтернативный сценарий
+}
+
+if (CSS.supports("display", "grid")) {
+  // Браузер понимает указанное CSS-значение
+}</code></pre>
+        <p>Проверка наличия API не всегда означает, что все его детали реализованы одинаково. Для сложных функций нужны тесты и анализ совместимости.</p>
       </section>
 
       <section class="content-section" id="pwa">
-        <h2>14. Progressive Web Apps и офлайн-режим</h2>
-        <p>Progressive Web App (PWA) — веб-приложение, которое использует ряд браузерных возможностей, чтобы приблизить пользовательский опыт к приложению: устанавливаемость, работа с кэшем, офлайн-сценарии, интеграция с ОС.</p>
-        <h3>14.1. Основные составляющие</h3>
+        <h2>20. Progressive Web Apps и офлайн-режим</h2>
+        <p>Progressive Web App (PWA) — веб-приложение, которое использует ряд браузерных возможностей, чтобы приблизить пользовательский опыт к приложению: устанавливаемость на поддерживаемых платформах, работа с кэшем, офлайн-сценарии, интеграция с ОС и другие функции.</p>
+        <h3>20.1. Основные составляющие</h3>
         <ul>
-          <li><strong>Web App Manifest</strong> — описание названия, иконок, стартового URL.</li>
-          <li><strong>Service Worker</strong> — фоновый скрипт, который может перехватывать fetch-запросы.</li>
+          <li><strong>Web App Manifest</strong> — описание названия, иконок, стартового URL, режима отображения и других параметров приложения.</li>
+          <li><strong>Service Worker</strong> — фоновый скрипт с отдельным жизненным циклом, который может обрабатывать события и перехватывать управляемые fetch-запросы.</li>
           <li><strong>Cache Storage</strong> — хранение ответов, которыми может управлять Service Worker.</li>
-          <li><strong>HTTPS</strong> — защищённый контекст для многих функций PWA.</li>
+          <li><strong>HTTPS</strong> — обязательный или фактически необходимый защищённый контекст для многих функций PWA.</li>
         </ul>
+        <h3>20.2. Пример идеи кэширования</h3>
+        <pre><code>// sw.js — упрощённый пример
+self.addEventListener("install", event =&gt; {
+  event.waitUntil(
+    caches.open("app-v1").then(cache =&gt;
+      cache.addAll(["/", "/index.html", "/app.css"])
+    )
+  );
+});
+
+self.addEventListener("fetch", event =&gt; {
+  event.respondWith(
+    caches.match(event.request).then(cached =&gt;
+      cached || fetch(event.request)
+    )
+  );
+});</code></pre>
+        <p>Это демонстрация принципа, а не универсальная production-стратегия. В реальном проекте нужно управлять версиями кэша, обновлением файлов, ошибками сети, запросами API и удалением устаревших записей.</p>
       </section>
 
       <section class="content-section" id="workflow">
-        <h2>15. Практический рабочий процесс</h2>
+        <h2>21. Практический рабочий процесс веб-разработчика</h2>
         <p>Браузер — не только место, где проверяют готовый сайт. Это ежедневная рабочая среда для разработки.</p>
         <ol>
-          <li><strong>Создать страницу.</strong> Подготовить HTML, CSS и JavaScript.</li>
-          <li><strong>Открыть в браузере.</strong> Проверить реальное поведение.</li>
-          <li><strong>Изучить DOM и стили.</strong> В Elements проверить структуру и стили.</li>
-          <li><strong>Проверить ошибки.</strong> В Console найти исключения.</li>
-          <li><strong>Проверить сеть.</strong> В Network найти неудачные запросы.</li>
-          <li><strong>Поставить breakpoint.</strong> В Debugger остановить выполнение.</li>
-          <li><strong>Измерить производительность.</strong> Записать Performance profile.</li>
-          <li><strong>Проверить совместимость.</strong> Пройти сценарии в целевых браузерах.</li>
+          <li><strong>Создать страницу.</strong> Подготовить HTML, CSS и JavaScript с понятной структурой.</li>
+          <li><strong>Открыть в браузере.</strong> Проверить реальное поведение, масштабирование и адаптивность.</li>
+          <li><strong>Изучить DOM и стили.</strong> В Elements/Inspector проверить структуру, вычисленные стили и box model.</li>
+          <li><strong>Проверить ошибки.</strong> В Console найти исключения, предупреждения и ошибки API.</li>
+          <li><strong>Проверить сеть.</strong> В Network найти неудачные запросы, CORS, неправильные MIME-типы и медленные ресурсы.</li>
+          <li><strong>Поставить breakpoint.</strong> В Debugger остановить выполнение и исследовать переменные и стек вызовов.</li>
+          <li><strong>Измерить производительность.</strong> Записать Performance profile и найти длинные задачи, лишний layout или paint.</li>
+          <li><strong>Проверить совместимость.</strong> Пройти ключевые сценарии в целевых браузерах и на мобильном устройстве.</li>
         </ol>
+        <div class="callout success"><strong>Полезная привычка:</strong> формулируй проблему как наблюдаемый факт: «запрос /api/products вернул 403», «элемент получил computed width 0», «обработчик занимает 180 мс». Это гораздо эффективнее, чем «сайт сломан».</div>
       </section>
 
       <section class="content-section" id="practice">
-        <h2>16. Практические задания</h2>
-        <details><summary>Задание 1. Проследи загрузку страницы</summary><ol><li>Открой любой сайт и DevTools → Network.</li><li>Включи Preserve log и перезагрузи страницу.</li><li>Найди основной запрос типа Document.</li><li>Посмотри status code, response headers, initiator и timing.</li><li>Выбери CSS, JS, image и сравни типы запросов.</li></ol></details>
-        <details><summary>Задание 2. Исследуй DOM и CSSOM</summary><ol><li>Создай страницу с заголовком, абзацем и кнопкой.</li><li>Открой Elements и найди соответствующие узлы DOM.</li><li>Измени текст элемента через панель.</li><li>Посмотри computed styles.</li></ol></details>
-        <details><summary>Задание 3. Найди причину медленного интерфейса</summary><ol><li>Открой Performance и запиши взаимодействие.</li><li>Найди длинные задачи на Main thread.</li><li>Изучи вызванные ими функции.</li><li>Сформулируй гипотезу об узком месте.</li></ol></details>
+        <h2>22. Практические задания</h2>
+        <p>Задания идут от простых наблюдений к пониманию взаимодействия браузерных подсистем.</p>
+        <details><summary>Задание 1. Проследи загрузку страницы</summary><ol><li>Открой любой сайт и DevTools → Network.</li><li>Включи Preserve log и перезагрузи страницу.</li><li>Найди основной запрос типа Document.</li><li>Посмотри status code, response headers, initiator и timing.</li><li>Выбери CSS, JS, image и сравни типы запросов.</li></ol><p><strong>Цель:</strong> научиться понимать, какие файлы браузер получает и в каком порядке инициирует запросы.</p></details>
+        <details><summary>Задание 2. Исследуй DOM и CSSOM</summary><ol><li>Создай страницу с заголовком, абзацем и кнопкой.</li><li>Открой Elements и найди соответствующие узлы DOM.</li><li>Измени текст элемента через панель.</li><li>Посмотри computed styles и измени одно CSS-свойство.</li><li>Обнови страницу и проверь, какие изменения сохранились.</li></ol><p><strong>Цель:</strong> увидеть разницу между исходным документом, текущим DOM и применёнными стилями.</p></details>
+        <details><summary>Задание 3. Исследуй Event Loop</summary><pre><code>console.log("1");
+
+setTimeout(() =&gt; console.log("2"), 0);
+
+Promise.resolve().then(() =&gt; {
+  console.log("3");
+});
+
+queueMicrotask(() =&gt; console.log("4"));
+
+console.log("5");</code></pre><p>Предскажи порядок вывода, затем выполни код в Console. Объясни, почему синхронные команды, микрозадачи и timer task идут именно в таком порядке.</p></details>
+        <details><summary>Задание 4. Найди причину медленного интерфейса</summary><ol><li>Открой Performance и запиши взаимодействие со страницей.</li><li>Найди длинные задачи на Main thread.</li><li>Изучи вызванные ими функции и события Layout / Recalculate Style / Paint.</li><li>Сформулируй гипотезу об узком месте.</li><li>Измени код и сними профиль повторно.</li></ol><p><strong>Цель:</strong> отличать предположение от измеренного результата.</p></details>
+        <details><summary>Задание 5. Проверь безопасность origin</summary><ol><li>Открой страницу своего сайта и попробуй выполнить fetch к другому origin.</li><li>Изучи сообщение об ошибке в Console.</li><li>В Network посмотри preflight OPTIONS, если он был отправлен.</li><li>Изучи заголовки CORS в ответе.</li></ol><p><strong>Цель:</strong> понять, что браузер ограничивает чтение cross-origin ответов, а разрешение задаётся сервером.</p></details>
+        <details><summary>Задание 6. Проверь разные движки</summary><ol><li>Открой один и тот же учебный проект в Chromium-браузере, Firefox и Safari (если доступен).</li><li>Проверь сетку, шрифты, формы, фокус клавиатуры и прокрутку.</li><li>Запиши отличия и проверь поддержку спорной функции.</li><li>Исправь проблему стандартным способом, не привязываясь к user-agent без необходимости.</li></ol><p><strong>Цель:</strong> выработать привычку тестировать поведение, а не полагаться на один браузер.</p></details>
       </section>
 
       <section class="content-section" id="glossary">
-        <h2>17. Краткий словарь</h2>
+        <h2>23. Краткий словарь</h2>
         <div class="table-wrap"><table>
           <thead><tr><th>Термин</th><th>Значение</th></tr></thead>
           <tbody>
@@ -344,28 +660,42 @@ Cookie: session=abc123</code></pre>
             <tr><td>Engine</td><td>Движок, реализующий обработку веб-документа или выполнение JavaScript.</td></tr>
             <tr><td>Renderer</td><td>Компонент или процесс, отвечающий за обработку и отображение страницы.</td></tr>
             <tr><td>DOM</td><td>Объектная модель документа.</td></tr>
-            <tr><td>CSSOM</td><td>Объектное представление CSS-таблиц стилей.</td></tr>
+            <tr><td>CSSOM</td><td>Объектное представление CSS-таблиц стилей и правил.</td></tr>
             <tr><td>Layout / Reflow</td><td>Расчёт геометрии отображаемых элементов.</td></tr>
-            <tr><td>Paint</td><td>Подготовка операций рисования.</td></tr>
-            <tr><td>Compositing</td><td>Сборка слоёв в итоговый кадр.</td></tr>
-            <tr><td>Event Loop</td><td>Механизм координации задач и выполнения JavaScript.</td></tr>
-            <tr><td>Origin</td><td>Источник документа: схема, хост и порт.</td></tr>
+            <tr><td>Paint</td><td>Подготовка операций рисования визуального содержимого.</td></tr>
+            <tr><td>Rasterization</td><td>Преобразование графического содержимого в пиксели.</td></tr>
+            <tr><td>Compositing</td><td>Сборка слоёв или поверхностей в итоговый кадр.</td></tr>
+            <tr><td>Event Loop</td><td>Механизм координации задач, микрозадач и выполнения JavaScript.</td></tr>
+            <tr><td>IPC</td><td>Межпроцессное взаимодействие.</td></tr>
+            <tr><td>Origin</td><td>Источник документа: обычно схема, хост и порт.</td></tr>
             <tr><td>SOP</td><td>Политика одного источника.</td></tr>
-            <tr><td>CORS</td><td>Механизм разрешения cross-origin запросов.</td></tr>
+            <tr><td>CORS</td><td>Механизм разрешения определённых cross-origin запросов и доступа к ответам.</td></tr>
             <tr><td>CSP</td><td>Политика безопасности содержимого.</td></tr>
-            <tr><td>PWA</td><td>Веб-приложение с устанавливаемым и/или офлайн-опытом.</td></tr>
+            <tr><td>DevTools</td><td>Инструменты разработчика, встроенные в браузер.</td></tr>
+            <tr><td>PWA</td><td>Веб-приложение, использующее возможности платформы для устанавливаемого и/или офлайн-опыта.</td></tr>
           </tbody>
         </table></div>
       </section>
 
-      <section class="content-section" id="resources">
-        <h2>18. Официальная документация</h2>
+      <section class="content-section" id="resources-list">
+        <h2>24. Официальная документация и материалы</h2>
+        <p>Внутреннее устройство браузеров меняется, поэтому для углублённого изучения полезно опираться на документацию самих проектов и стандарты веб-платформы.</p>
         <div class="resource-list">
-          <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/Performance/Guides/How_browsers_work" target="_blank" rel="noopener"><strong>MDN · How browsers work</strong><span>Общее описание обработки страницы ↗</span></a>
+          <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/Performance/Guides/How_browsers_work" target="_blank" rel="noopener"><strong>MDN · How browsers work</strong><span>Общее описание получения, разбора и отображения страницы ↗</span></a>
+          <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/Performance/Guides/Critical_rendering_path" target="_blank" rel="noopener"><strong>MDN · Critical rendering path</strong><span>DOM, CSSOM, layout и paint ↗</span></a>
           <a class="resource" href="https://www.chromium.org/developers/design-documents/multi-process-architecture/" target="_blank" rel="noopener"><strong>Chromium · Multi-process architecture</strong><span>Архитектура процессов Chromium ↗</span></a>
-          <a class="resource" href="https://developer.chrome.com/docs/devtools/performance/overview" target="_blank" rel="noopener"><strong>Chrome DevTools · Performance</strong><span>Запись и анализ профиля ↗</span></a>
+          <a class="resource" href="https://www.chromium.org/blink/" target="_blank" rel="noopener"><strong>Chromium · Blink</strong><span>Движок отображения Chromium ↗</span></a>
+          <a class="resource" href="https://firefox-source-docs.mozilla.org/overview/gecko.html" target="_blank" rel="noopener"><strong>Firefox Source Docs · Gecko</strong><span>Архитектура Firefox и изоляция процессов ↗</span></a>
+          <a class="resource" href="https://docs.webkit.org/Getting%20Started/Introduction.html" target="_blank" rel="noopener"><strong>WebKit · Introduction</strong><span>Введение в движок WebKit ↗</span></a>
+          <a class="resource" href="https://v8.dev/docs" target="_blank" rel="noopener"><strong>V8 · Documentation</strong><span>Архитектура JavaScript-движка V8 ↗</span></a>
+          <a class="resource" href="https://developer.chrome.com/docs/devtools/performance/overview" target="_blank" rel="noopener"><strong>Chrome DevTools · Performance</strong><span>Запись и анализ профиля производительности ↗</span></a>
+          <a class="resource" href="https://webkit.org/web-inspector/" target="_blank" rel="noopener"><strong>WebKit · Web Inspector</strong><span>Инструменты разработчика Safari ↗</span></a>
+          <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Same-origin_policy" target="_blank" rel="noopener"><strong>MDN · Same-Origin Policy</strong><span>Модель источников и ограничения доступа ↗</span></a>
+          <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/API/Document/DOMContentLoaded_event" target="_blank" rel="noopener"><strong>MDN · DOMContentLoaded</strong><span>События готовности документа ↗</span></a>
           <a class="resource" href="https://caniuse.com/" target="_blank" rel="noopener"><strong>Can I Use</strong><span>Совместимость браузеров ↗</span></a>
+          <a class="resource" href="https://web-platform-tests.org/" target="_blank" rel="noopener"><strong>Web Platform Tests</strong><span>Тесты соответствия веб-стандартам ↗</span></a>
         </div>
+        <div class="callout"><strong>Как читать этот раздел:</strong> сначала усвой общую схему «запрос → обработка → рендеринг». Затем разберись с DOM/CSSOM и Event Loop. После этого изучай безопасность, хранилища, DevTools и производительность: эти темы будут опираться на уже понятную архитектуру.</div>
       </section>
 
       <div class="next-card">
@@ -376,7 +706,5 @@ Cookie: session=abc123</code></pre>
   </div>
 
   <footer class="site-footer">Учебный справочник по веб-платформе · HTML · CSS · JavaScript · Браузеры</footer>
-  
-  <script src="assets/demo.js" defer></script>
 </body>
 </html>
