@@ -312,3 +312,41 @@ html::view-transition-old(root), html::view-transition-new(root) { animation: no
   .mo-anc-tip { position: absolute; position-anchor: --mo-anchor; position-area: top; margin-bottom: 6px; padding: 4px 8px; border-radius: 6px; background: #172033; color: #fff; font-size: 12px; }
 }
 .mo-anc-tip[hidden] { display: none; }
+
+/* ======================================================================
+   Примеры JavaScript-раздела (assets/demos-js.js)
+   ====================================================================== */
+.js-code { margin: 8px 0; padding: 10px 12px; border-radius: 10px; background: var(--code); color: var(--code-text); font: 13px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre; overflow: auto; }
+.js-code .cl-line { display: block; padding: 0 6px; border-radius: 4px; }
+.js-code .cl-line[data-on="1"] { background: #5b4310; outline: 2px solid #f59e0b; }
+.el-kind { display: inline-block; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); font-size: 12px; font-weight: 700; }
+.el-kind[data-k="стек"] { background: #eef1f7; color: #344054; }
+.el-kind[data-k="microtask"] { background: #edfaf3; color: var(--green); border-color: #b9e3cf; }
+.el-kind[data-k="task"] { background: #fff8e8; color: var(--amber); border-color: #ecd6a0; }
+.el-verdict { margin: 8px 0; padding: 8px 12px; border-left: 4px solid var(--green); border-radius: 0 8px 8px 0; background: #edfaf3; font-size: 14px; }
+.el-verdict[data-ok="no"] { border-color: #c0392b; background: #fff1f1; }
+.cx-grid td, .cx-grid th { text-align: center; padding: 4px 8px; font: 13px ui-monospace, SFMono-Regular, Consolas, monospace; }
+.cx-grid td.cx-yes { background: #edfaf3; color: var(--green); font-weight: 700; }
+.cx-grid td.cx-no { background: #fff1f1; color: #a12626; }
+.cl-env { display: inline-block; margin: 4px 8px 4px 0; padding: 6px 12px; border: 1px solid #16794b; border-radius: 8px; background: #edfaf3; font: 13px ui-monospace, SFMono-Regular, Consolas, monospace; }
+.pc-chain { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
+.pc-box { padding: 6px 10px; border: 1px solid #b7c3e6; border-radius: 8px; background: #fff; font: 13px ui-monospace, SFMono-Regular, Consolas, monospace; }
+.pc-box[data-found="1"] { border-color: #16794b; background: #edfaf3; }
+.pc-arrow { align-self: center; color: var(--muted); }
+.ev-box { position: relative; margin: 8px 0; padding: 12px; border: 2px solid #3157c8; border-radius: 10px; background: #f4f6fb; }
+.ev-box .ev-box { background: #e8eefc; }
+.ev-box .ev-box .ev-box { background: #dbe4ff; }
+.ev-box > .ev-name { display: block; margin-bottom: 4px; font: 700 12px ui-monospace, SFMono-Regular, Consolas, monospace; color: #23429c; }
+.ev-box [data-hit]::after, .ev-box[data-hit]::after { content: attr(data-hit); position: absolute; top: -10px; right: 8px; padding: 0 8px; border-radius: 999px; background: #d97706; color: #fff; font-size: 12px; font-weight: 700; }
+.mut-hit { outline: 3px solid #d97706; background-color: #fff3d6; }
+.dom-tree { margin: 8px 0; padding: 8px 8px 8px 26px; border: 1px dashed #b7c3e6; border-radius: 8px; background: #fff; }
+.dom-tree li { margin: 3px 0; }
+.demo-log { margin-top: 8px; padding: 8px 10px; max-height: 160px; overflow: auto; border-radius: 8px; background: var(--code); color: var(--code-text); font: 12.5px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; }
+.fp-lane { display: flex; gap: 8px; align-items: baseline; margin: 4px 0; font-size: 13px; }
+.fp-lane b { flex: 0 0 92px; }
+.fp-area { display: grid; place-items: center; height: 90px; margin: 8px 0; border: 2px dashed #b7c3e6; border-radius: 10px; background: #fff; color: var(--muted); touch-action: none; user-select: none; }
+.wk-mover { position: relative; height: 22px; margin: 6px 0; border-radius: 11px; background: #eef1f7; }
+.wk-dot { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #3157c8; }
+.mj-row { margin: 0 0 12px; padding: 0 0 10px; border-bottom: 1px solid var(--line); }
+.mj-row:last-child { border-bottom: 0; }
+.dom-tree li.done { text-decoration: line-through; color: var(--muted); }

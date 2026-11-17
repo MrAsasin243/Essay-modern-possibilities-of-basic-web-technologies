@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/demo.css">
   <script src="assets/demo.js" defer></script>
+  <script src="assets/demos-js.js" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -251,6 +252,7 @@ Boolean("hello")  // true
 
 Number("текст")   // NaN</code></pre>
         <p>Ложными (falsy) являются <code>false</code>, <code>0</code>, <code>-0</code>, <code>0n</code>, <code>""</code>, <code>null</code>, <code>undefined</code> и <code>NaN</code>. Практически все остальные значения истинны, в том числе пустой массив <code>[]</code> и пустой объект <code>{}</code>.</p>
+        <div data-demo="js-coercion"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
       </section>
 
       <section class="content-section" id="operators">
@@ -361,6 +363,7 @@ function average(...numbers) {
 const counter = createCounter();
 console.log(counter()); // 1
 console.log(counter()); // 2</code></pre>
+        <div data-demo="js-closure"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
         <h3>Контекст <code>this</code></h3>
         <p>В обычной функции значение <code>this</code> в основном определяется способом вызова. В стрелочной функции собственного <code>this</code> нет: она использует значение из окружающего лексического контекста.</p>
         <pre><code>const user = {
@@ -403,6 +406,7 @@ const copy = [...numbers];          // поверхностная копия</co
             <tr><td><code>splice()</code></td><td>Удаляет, заменяет или вставляет элементы.</td><td>Массив удалённых элементов.</td></tr>
           </tbody>
         </table></div>
+        <div data-demo="js-arrays"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
         <div class="callout warning"><strong>Внимание:</strong> не все методы создают копию. Например, <code>sort()</code>, <code>reverse()</code> и <code>splice()</code> изменяют исходный массив. Для предсказуемой логики отслеживай, меняется ли исходная структура.</div>
         <h3>Map, Set, WeakMap и WeakSet</h3>
         <pre><code>const scores = new Map();
@@ -456,6 +460,7 @@ const combined = [...[1, 2], 3, 4];</code></pre>
 const dog = Object.create(animal);
 dog.bark = () => console.log("Гав");
 dog.speak(); // метод найден в прототипе</code></pre>
+        <div data-demo="js-proto"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
         <h3>Классы</h3>
         <pre><code>class User {
   constructor(name) {
@@ -558,6 +563,7 @@ box.style.backgroundColor = "gold";
 const styles = getComputedStyle(box);
 console.log(styles.width);</code></pre>
         <p>Для изменения оформления обычно предпочтительнее переключать CSS-классы, а не записывать множество отдельных inline-стилей. DOM позволяет также работать с теневым DOM (Shadow DOM), диапазонами, наблюдателями изменений и другими интерфейсами.</p>
+        <div data-demo="js-dom"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
       </section>
 
       <section class="content-section" id="events">
@@ -599,6 +605,8 @@ button.addEventListener("click", (event) => {
           <li><code>stopPropagation()</code> — останавливает дальнейшее распространение события.</li>
           <li><code>once</code>, <code>capture</code>, <code>passive</code>, <code>signal</code> — опции обработчика.</li>
         </ul>
+        <div data-demo="js-events"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
+        <div data-demo="js-delegation"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
       </section>
 
       <section class="content-section" id="forms">
@@ -626,6 +634,7 @@ emailInput.addEventListener("input", () => {
   }
 });</code></pre>
         <p>Проверка на клиенте нужна для удобства, но не заменяет серверную валидацию. Любой запрос можно сформировать вне интерфейса сайта.</p>
+        <div data-demo="js-forms"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
       </section>
 
       <section class="content-section" id="async">
@@ -694,6 +703,7 @@ Promise.resolve().then(() => console.log("C: microtask"));
 
 console.log("D");
 // Порядок: A, D, C: microtask, B: task</code></pre>
+        <div data-demo="js-eventloop"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
         <div class="callout warning"><strong>Производительность:</strong> длинный синхронный цикл на главном потоке мешает обработке ввода и обновлению интерфейса. Асинхронное ожидание помогает с I/O, но само по себе не делает тяжёлые вычисления параллельными. Для таких вычислений могут использоваться Web Workers.</div>
       </section>
 
@@ -713,6 +723,7 @@ console.log("D");
   return users;
 }</code></pre>
         <p>Fetch API работает с объектами <code>Request</code> и <code>Response</code>. Ответ можно читать как JSON, текст, Blob, ArrayBuffer, FormData и другими способами.</p>
+        <div data-demo="js-fetch"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
         <h3>Отправка JSON</h3>
         <pre><code>async function createTask(task) {
   const response = await fetch("/api/tasks", {
@@ -738,6 +749,7 @@ fetch("/api/report", { signal: controller.signal });
 
 // При необходимости отменить операцию:
 controller.abort();</code></pre>
+        <div data-demo="js-fetch-race"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
         <h3>CORS и Same-Origin Policy</h3>
         <p>Политика одного источника (Same-Origin Policy) ограничивает доступ страницы к данным другого источника. CORS — механизм, с помощью которого сервер может явно разрешить браузеру предоставить странице доступ к определённому междоменному ответу.</p>
         <div class="callout warning"><strong>Важно:</strong> CORS настраивается ответами сервера. Добавление произвольного заголовка в браузерный JavaScript не позволяет обойти эту защиту. Режим <code>no-cors</code> не превращает ответ в доступный для чтения: он, как правило, даёт непрозрачный Response.</div>
@@ -785,6 +797,7 @@ const restored = JSON.parse(localStorage.getItem("settings"));</code></pre>
         <p>IndexedDB подходит для офлайн-данных, больших каталогов, пользовательских документов и других структур. Работа ведётся через транзакции и object stores; API асинхронный и событийный (в современных приложениях часто используют обёртки-библиотеки).</p>
         <h3>Что нельзя хранить бездумно</h3>
         <p>Не сохраняй секреты, пароли или долговременные токены в доступных JavaScript хранилищах без понимания модели угроз. При XSS вредоносный код может прочитать данные, доступные странице. Для сессионных cookie часто используют <code>HttpOnly</code>, <code>Secure</code> и подходящий <code>SameSite</code>, а сервер должен правильно проверять авторизацию и защищаться от CSRF.</p>
+        <div data-demo="js-storage"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
       </section>
 
       <section class="content-section" id="apis">
@@ -817,6 +830,7 @@ const restored = JSON.parse(localStorage.getItem("settings"));</code></pre>
   );
 }</code></pre>
         <p>Такие API часто требуют защищённого контекста (обычно HTTPS), явного разрешения пользователя, соблюдения политик документа и поддержки конкретным браузером. Наличие API не означает, что браузер обязан предоставить доступ в каждой ситуации.</p>
+        <div data-demo="js-webapi"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
       </section>
 
       <section class="content-section" id="workers">
@@ -846,6 +860,7 @@ self.addEventListener("message", event => {
           <li><strong>Atomics и SharedArrayBuffer</strong> — механизмы совместной памяти и синхронизации между агентами при выполнении требований безопасности, включая cross-origin isolation.</li>
         </ul>
         <div class="callout">Worker не превращает любой код в параллельный автоматически. Нужно отдельно спроектировать передачу данных, синхронизацию, обработку ошибок и завершение фоновой задачи.</div>
+        <div data-demo="js-worker"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
       </section>
 
       <section class="content-section" id="security">
@@ -897,6 +912,7 @@ element.textContent = userInput;</code></pre>
             <tr><td><code>Performance API</code></td><td>Измерение времени и пользовательских метрик.</td></tr>
           </tbody>
         </table></div>
+        <div data-demo="js-perf"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
       </section>
 
       <section class="content-section" id="debug">
@@ -910,6 +926,7 @@ console.table([{ name: "A", score: 10 }, { name: "B", score: 20 }]);
 console.time("calculation");
 // вычисления
 console.timeEnd("calculation");</code></pre>
+        <div data-demo="js-console"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
         <h3>DevTools</h3>
         <p>Инструменты разработчика браузера обычно включают:</p>
         <ul>
@@ -964,6 +981,7 @@ console.timeEnd("calculation");</code></pre>
   // Упрощённый запасной вариант
 }</code></pre>
         <p>Не следует проверять браузер по строке user-agent, если можно проверить конкретную возможность. Feature detection обычно надёжнее определения названия браузера.</p>
+        <div data-demo="js-modern"><p>Для живого примера нужен включённый JavaScript. Код и пояснения показаны в блоках рядом.</p></div>
         <div class="callout"><strong>Контекст на ноябрь 2026 года:</strong> опубликован ECMAScript 2026; работа над будущими редакциями продолжается. Для реального проекта следует сверять поддержку каждой нужной функции с целевой матрицей браузеров и актуальными данными совместимости.</div>
       </section>
 

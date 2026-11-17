@@ -110,6 +110,8 @@
                         test: function () { return 'customElements' in window && typeof Element !== 'undefined' && 'attachShadow' in Element.prototype; } },
     'api:clipboard':  { label: 'Clipboard API', how: "navigator.clipboard.writeText", url: MDN + 'API/Clipboard_API',
                         test: function () { return !!(navigator.clipboard && typeof navigator.clipboard.writeText === 'function'); } },
+    'api:geolocation': { label: 'Geolocation', how: "'geolocation' in navigator", url: MDN + 'API/Geolocation_API',
+                        test: function () { return 'geolocation' in navigator; } },
     'api:camera':     { label: 'getUserMedia', how: "navigator.mediaDevices.getUserMedia", url: MDN + 'API/MediaDevices/getUserMedia',
                         test: function () { return !!(navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function'); } },
     'api:screen-capture': { label: 'Screen Capture', how: "navigator.mediaDevices.getDisplayMedia", url: MDN + 'API/Screen_Capture_API',
@@ -307,14 +309,23 @@
   var CSP_BASE = "default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:; media-src data:; form-action 'none'";
 
   // Перехват console и ошибок внутри iframe. Это код автора; он шлёт сообщения родителю.
+  // Покрыты основные методы Console API; table, group, time и count показываются упрощённым текстом.
   function bootstrapSource(token) {
-    return '(function(){var T=' + JSON.stringify(token) + ';' +
+    return '(function(){var T=' + JSON.stringify(token) + ';var depth=0,counts={},timers={};' +
       'function send(t,x){parent.postMessage({demo:T,type:t,text:String(x)},"*");}' +
-      'function fmt(a){return Array.prototype.map.call(a,function(v){try{' +
-      'return typeof v==="string"?v:(typeof v==="object"&&v!==null?JSON.stringify(v):String(v));' +
-      '}catch(e){return String(v);}}).join(" ");}' +
-      '["log","info","warn","error"].forEach(function(k){var o=console[k];' +
-      'console[k]=function(){send(k,fmt(arguments));o.apply(console,arguments);};});' +
+      'function one(v){try{return typeof v==="string"?v:(typeof v==="object"&&v!==null?JSON.stringify(v):String(v));}catch(e){return String(v);}}' +
+      'function fmt(a){return Array.prototype.map.call(a,one).join(" ");}' +
+      'function pad(){return new Array(depth+1).join("  ");}' +
+      'var orig={};' +
+      '["log","info","warn","error","debug","dir"].forEach(function(k){orig[k]=console[k];var kind=(k==="warn"||k==="error")?k:(k==="info"?"info":"log");' +
+      'console[k]=function(){send(kind,pad()+fmt(arguments));if(orig[k])orig[k].apply(console,arguments);};});' +
+      'console.table=function(d){send("log",pad()+"table: "+one(d));};' +
+      'console.group=function(){send("log",pad()+(arguments.length?fmt(arguments):"group")+" {");depth++;};' +
+      'console.groupEnd=function(){if(depth>0)depth--;send("log",pad()+"}");};' +
+      'console.assert=function(c){if(!c){send("error",pad()+"Assertion failed: "+fmt(Array.prototype.slice.call(arguments,1)));}};' +
+      'console.count=function(l){l=l===undefined?"default":String(l);counts[l]=(counts[l]||0)+1;send("log",pad()+l+": "+counts[l]);};' +
+      'console.time=function(l){timers[l===undefined?"default":String(l)]=performance.now();};' +
+      'console.timeEnd=function(l){l=l===undefined?"default":String(l);if(timers[l]!==undefined){send("log",pad()+l+": "+(performance.now()-timers[l]).toFixed(2)+" ms");delete timers[l];}};' +
       'window.addEventListener("error",function(e){send("error",(e.message||"Ошибка")+(e.lineno?" (строка "+e.lineno+")":""));});' +
       'window.addEventListener("unhandledrejection",function(e){send("error","Необработанный reject: "+(e.reason&&e.reason.message||e.reason));});' +
       '})();';
