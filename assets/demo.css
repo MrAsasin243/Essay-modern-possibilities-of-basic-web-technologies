@@ -350,3 +350,44 @@ html::view-transition-old(root), html::view-transition-new(root) { animation: no
 .mj-row { margin: 0 0 12px; padding: 0 0 10px; border-bottom: 1px solid var(--line); }
 .mj-row:last-child { border-bottom: 0; }
 .dom-tree li.done { text-decoration: line-through; color: var(--muted); }
+
+/* ======================================================================
+   Примеры раздела «Браузеры» (assets/demos-browsers.js)
+   ====================================================================== */
+
+/* Стоимость изменений: width против transform. Анимируют ТОЛЬКО эти два свойства. */
+@keyframes cw-grow { from { width: 40px; } to { width: 220px; } }
+@keyframes cw-move { from { transform: translateX(0); } to { transform: translateX(180px); } }
+.cw-lanes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 10px 0; }
+.cw-lane { padding: 8px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.cw-lane h5 { margin: 0 0 6px; font-size: 13px; }
+.cw-row { display: flex; flex-wrap: wrap; align-items: flex-start; max-height: 96px; overflow: hidden; }
+.cw-box { flex: 0 0 auto; width: 40px; height: 22px; margin: 1px; border-radius: 4px; background: #d97706; }
+.cw-lane[data-kind="transform"] .cw-box { background: #16794b; }
+.cw-dot { flex: 0 0 8px; height: 8px; margin: 1px; background: #dbe4ff; }
+.cw-fps { font: 700 20px ui-monospace, SFMono-Regular, Consolas, monospace; color: #23429c; }
+@media (max-width: 800px) { .cw-lanes { grid-template-columns: 1fr; } }
+
+/* Конвейер рендеринга */
+.pl-stages { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0; }
+.pl-stage { padding: 8px 14px; border: 2px solid #cbd5ee; border-radius: 10px; background: #f4f6fb; color: var(--muted); font-weight: 700; font-size: 14px; }
+.pl-stage[data-on="1"] { border-color: #d97706; background: #fff3d6; color: #7c4a03; }
+.pl-stage[data-on="2"] { border-color: #16794b; background: #edfaf3; color: #14532d; }
+.pl-arrow { color: var(--muted); }
+.pl-cost { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; border: 1px solid var(--line); }
+.pl-cost[data-c="low"] { background: #edfaf3; color: var(--green); border-color: #b9e3cf; }
+.pl-cost[data-c="mid"] { background: #fff8e8; color: var(--amber); border-color: #ecd6a0; }
+.pl-cost[data-c="high"] { background: #fff1f1; color: #a12626; border-color: #f0c4c4; }
+
+/* Вкладки DevTools */
+.dt-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0 0; padding: 0; border-bottom: 2px solid var(--line); }
+.dt-tabs button { margin: 0; padding: 7px 12px; border: 1px solid #cbd5ee; border-bottom: 0; border-radius: 8px 8px 0 0; background: #f4f6fb; color: #263c7b; font: 600 13px/1.4 inherit; font-family: inherit; cursor: pointer; }
+.dt-tabs button[aria-selected="true"] { background: #fff; color: var(--text); border-color: var(--accent); }
+.dt-panel { padding: 10px 14px; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 10px 10px; background: #fff; font-size: 14px; }
+.dt-panel h5 { margin: 0 0 6px; font-size: 15px; }
+.dt-panel ul { margin: 6px 0; padding-left: 20px; }
+.dt-try { margin: 8px 0 0; padding: 8px 12px; border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; background: var(--accent-soft); }
+.org-grid td, .org-grid th { padding: 5px 8px; font-size: 13px; }
+.org-verdict { margin: 8px 0; padding: 8px 12px; border-left: 4px solid var(--green); border-radius: 0 8px 8px 0; background: #edfaf3; font-size: 14px; }
+.org-verdict[data-ok="no"] { border-color: #c0392b; background: #fff1f1; }
+.csp-frame { display: block; width: 100%; height: 80px; border: 1px solid #b7c3e6; border-radius: 8px; background: #fff; }
