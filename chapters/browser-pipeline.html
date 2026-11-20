@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Инженерное объяснение пути от URL до пикселей: навигация, сеть, HTML, CSS, JavaScript, layout, paint и compositing.">
+  <meta name="theme-color" content="#111827">
+  <title>От URL до пикселей — как работает браузер</title>
+  <link rel="stylesheet" href="../assets/browser-pipeline.css">
+  <script src="../assets/browser-pipeline.js" defer></script>
+</head>
+<body class="bp-page">
+  <a class="bp-skip-link" href="#main">Перейти к содержанию</a>
+  <header class="bp-topbar">
+    <a class="bp-brand" href="../index.html" aria-label="На главную проекта">
+      <span class="bp-brand-mark">W</span>
+      <span>Modern Web Technologies</span>
+    </a>
+    <nav class="bp-nav" aria-label="Навигация по проекту">
+      <a href="../index.html">Главная</a>
+      <a href="../html.html">HTML</a>
+      <a href="../css.html">CSS</a>
+      <a href="../javascript.html">JavaScript</a>
+      <a href="../browsers.html" aria-current="page">Браузеры</a>
+    </nav>
+    <div class="bp-toolbar" aria-label="Инструменты страницы">
+      <button class="bp-tool-button" id="bp-open-search" type="button" aria-haspopup="dialog" aria-controls="bp-search-dialog" title="Поиск (Ctrl+K)"><span aria-hidden="true">⌕</span><span>Поиск</span><kbd>Ctrl K</kbd></button>
+      <button class="bp-tool-button bp-tool-icon" id="bp-open-settings" type="button" aria-haspopup="dialog" aria-controls="bp-settings-dialog" title="Настройки отображения"><span aria-hidden="true">⚙</span><span class="bp-tool-label">Настройки</span></button>
+    </div>
+  </header>
+
+
+  <div class="bp-dialog-backdrop" id="bp-search-dialog" hidden>
+    <section class="bp-dialog bp-search-dialog" role="dialog" aria-modal="true" aria-labelledby="bp-search-title">
+      <div class="bp-dialog-head"><div><p class="bp-dialog-kicker">ПОИСК ПО ТЕКУЩЕЙ ГЛАВЕ</p><h2 id="bp-search-title">Найти в материале</h2></div><button class="bp-dialog-close" type="button" data-close-dialog aria-label="Закрыть поиск">×</button></div>
+      <label class="bp-search-field"><span aria-hidden="true">⌕</span><input id="bp-search-input" type="search" placeholder="Термин, механизм, технология…" autocomplete="off"><kbd>Esc</kbd></label>
+      <p class="bp-search-hint">Ищет в заголовках и тексте главы. Нажмите Enter для первого результата.</p>
+      <div id="bp-search-results" class="bp-search-results" role="listbox" aria-label="Результаты поиска"><div class="bp-search-empty">Начните вводить запрос.</div></div>
+    </section>
+  </div>
+  <div class="bp-dialog-backdrop" id="bp-settings-dialog" hidden>
+    <section class="bp-dialog bp-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="bp-settings-title">
+      <div class="bp-dialog-head"><div><p class="bp-dialog-kicker">ПЕРСОНАЛИЗАЦИЯ</p><h2 id="bp-settings-title">Настройки страницы</h2></div><button class="bp-dialog-close" type="button" data-close-dialog aria-label="Закрыть настройки">×</button></div>
+      <div class="bp-settings-body">
+        <label class="bp-setting-row"><span><b>Тема</b><small>Цветовая схема интерфейса</small></span><select id="bp-setting-theme"><option value="system">Системная</option><option value="light">Светлая</option><option value="dark">Тёмная</option></select></label>
+        <label class="bp-setting-row"><span><b>Размер текста</b><small>Для основного материала</small></span><select id="bp-setting-font"><option value="normal">Обычный</option><option value="large">Крупнее</option><option value="larger">Максимальный</option></select></label>
+        <label class="bp-setting-row"><span><b>Ширина чтения</b><small>Длина строки и ширина страницы</small></span><select id="bp-setting-width"><option value="standard">Стандартная</option><option value="wide">Широкая</option><option value="narrow">Узкая</option></select></label>
+        <label class="bp-setting-row"><span><b>Интервал строк</b><small>Вертикальный ритм текста</small></span><select id="bp-setting-spacing"><option value="standard">Стандартный</option><option value="relaxed">Свободный</option><option value="compact">Компактный</option></select></label>
+        <label class="bp-setting-row bp-setting-toggle"><span><b>Уменьшить анимацию</b><small>Отключить эффекты движения</small></span><input type="checkbox" id="bp-setting-motion"></label>
+      </div>
+      <div class="bp-dialog-footer"><button id="bp-settings-reset" type="button" class="bp-secondary-button">Сбросить</button><button id="bp-settings-done" type="button" class="bp-primary-button">Готово</button></div>
+    </section>
+  </div>
+
+  <main id="main" class="bp-shell">
+    <div class="bp-breadcrumb"><a href="../browsers.html">Браузеры</a><span aria-hidden="true">/</span><span>Архитектура отображения</span></div>
+
+    <section class="bp-hero">
+      <p class="bp-eyebrow">АРХИТЕКТУРА БРАУЗЕРА · СЕТЬ · RENDERING</p>
+      <h1>От URL до пикселей</h1>
+      <p class="bp-lead">Как браузер получает документ, разбирает HTML и CSS, исполняет JavaScript и превращает состояние страницы в кадр на экране.</p>
+      <div class="bp-hero-meta">
+        <span>Инженерная модель, а не универсальная схема реализации</span>
+        <span>Время чтения: 25–35 минут</span>
+        <span>Уровень: от базового до продвинутого</span>
+      </div>
+    </section>
+
+    <section class="bp-thesis-grid" aria-label="Ключевые идеи">
+      <article class="bp-thesis"><span class="bp-number">01</span><h2>Это не один поток</h2><p>Навигация, загрузка ресурсов, разбор документа и подготовка изображения частично перекрываются по времени.</p></article>
+      <article class="bp-thesis"><span class="bp-number">02</span><h2>DOM — не изображение</h2><p>DOM описывает документ. Чтобы показать его, браузеру нужны стили, геометрия, команды рисования и композиция.</p></article>
+      <article class="bp-thesis"><span class="bp-number">03</span><h2>Оптимизация — выбор узкого места</h2><p>Сеть, JavaScript, layout и rasterization требуют разных методов диагностики. Универсального ускорителя нет.</p></article>
+    </section>
+
+    <aside class="bp-callout bp-callout-key">
+      <strong>Главная модель</strong>
+      <p>Браузер — это среда исполнения и отображения веб-документа. Он координирует несколько подсистем: навигацию и сеть, парсинг, выполнение кода, вычисление стилей, геометрию, растеризацию и вывод кадра. Границы процессов и потоков зависят от конкретного браузера.</p>
+    </aside>
+
+    <nav class="bp-toc" aria-label="Содержание главы">
+      <div class="bp-toc-title">Содержание</div>
+      <div class="bp-toc-grid">
+        <a href="#architecture">1. Архитектура</a>
+        <a href="#navigation">2. Навигация и сеть</a>
+        <a href="#html">3. HTML и DOM</a>
+        <a href="#css">4. CSS и вычисление стилей</a>
+        <a href="#javascript">5. JavaScript и блокировки</a>
+        <a href="#rendering">6. От DOM до кадра</a>
+        <a href="#frames">7. Кадры и главный поток</a>
+        <a href="#bottlenecks">8. Узкие места и диагностика</a>
+        <a href="#decisions">9. Инженерные выводы</a>
+        <a href="#sources">Источники</a>
+      </div>
+    </nav>
+
+    <section id="architecture" class="bp-section">
+      <p class="bp-section-kicker">01 · ГРАНИЦЫ ОТВЕТСТВЕННОСТИ</p>
+      <h2>Браузер — не монолитная программа</h2>
+      <p>В простейшей мысленной модели можно представить браузер как программу, которая получает HTML и рисует его. Для инженерного анализа эта модель слишком груба: загрузкой документа, исполнением скриптов и подготовкой изображения занимаются разные подсистемы, которые должны обмениваться данными и синхронизировать работу.</p>
+      <p>В Chromium, например, используется многопроцессная архитектура. Browser process координирует интерфейс браузера, навигацию и дочерние процессы; renderer process обрабатывает содержимое страницы; GPU process участвует в графической обработке. Сетевой стек вынесен в Network Service: на большинстве платформ он обычно работает в отдельном utility process, хотя конфигурация зависит от платформы и режима запуска. Это описание конкретного семейства браузеров, а не требование веб-стандартов ко всем браузерам.</p>
+
+      <div class="bp-diagram-card">
+        <div class="bp-diagram-heading"><h3>Упрощённая схема ролей в Chromium</h3><span class="bp-tag">Реализация браузера</span></div>
+        <div class="bp-process-diagram" role="img" aria-label="Схема: Browser process координирует UI, навигацию, сеть и хранилище; Renderer process разбирает HTML, выполняет JavaScript и рассчитывает отображение; GPU process участвует в графической обработке.">
+          <div class="bp-process-row bp-process-row-top">
+            <div class="bp-process bp-process-browser"><b>Browser process</b><div class="bp-process-items"><span>UI / адресная строка</span><span>Навигация</span><span>Управление процессами</span></div></div>
+            <div class="bp-process-connector bp-process-connector-side"><span>IPC / Mojo</span><i aria-hidden="true">↔</i></div>
+            <div class="bp-process bp-process-network"><b>Network Service</b><div class="bp-process-items"><span>DNS / соединения</span><span>HTTP / Fetch</span><span>Network cache</span></div></div>
+          </div>
+          <div class="bp-process-connector"><span>IPC / Mojo</span><i aria-hidden="true">↕</i></div>
+          <div class="bp-process-row">
+            <div class="bp-process bp-process-renderer"><b>Renderer process</b><div class="bp-process-items"><span>HTML parser</span><span>DOM / CSSOM</span><span>JavaScript</span><span>Style / Layout / Paint</span></div></div>
+            <div class="bp-process-connector bp-process-connector-side"><span>Графические поверхности</span><i aria-hidden="true">↔</i></div>
+            <div class="bp-process bp-process-gpu"><b>Viz / GPU process</b><div class="bp-process-items"><span>Display compositor</span><span>Raster / GPU work</span></div></div>
+          </div>
+          <p class="bp-diagram-footnote">Схема концептуальная. Network Service в Chromium обычно работает отдельно на большинстве настольных платформ, но может быть запущен внутри Browser process в некоторых конфигурациях. Реальные процессы и потоки различаются между версиями и платформами.</p>
+        </div>
+      </div>
+
+      <h3>Зачем делить работу?</h3>
+      <div class="bp-table-wrap"><table><thead><tr><th>Причина</th><th>Что даёт разделение</th><th>Цена решения</th></tr></thead><tbody>
+        <tr><td>Надёжность</td><td>Сбой одного renderer не обязательно завершает весь браузер.</td><td>Межпроцессное взаимодействие и управление жизненным циклом усложняются.</td></tr>
+        <tr><td>Безопасность</td><td>Ограничение полномочий и изоляция сайтов уменьшают последствия компрометации renderer.</td><td>Изоляция потребляет память и требует дополнительных проверок и IPC.</td></tr>
+        <tr><td>Параллелизм</td><td>Сеть, UI, рендеринг и графические операции могут выполняться с частичным перекрытием.</td><td>Появляются синхронизация, очереди и гонки за ресурсы CPU/GPU.</td></tr>
+      </tbody></table></div>
+      <aside class="bp-callout"><strong>Важное ограничение</strong><p>Не следует переносить названия внутренних процессов Chromium на все браузеры. Стандарты описывают внешне наблюдаемое поведение платформы; конкретная многопроцессная архитектура — решение реализации.</p></aside>
+    </section>
+
+    <section id="navigation" class="bp-section">
+      <p class="bp-section-kicker">02 · НАВИГАЦИЯ И ДОСТАВКА ДАННЫХ</p>
+      <h2>Что происходит после ввода URL</h2>
+      <p>Навигация начинается не обязательно с DNS-запроса и не всегда заканчивается новым TCP-соединением. Браузер может использовать кэш, уже открытое соединение, service worker, предварительно разрешённое имя или другие механизмы оптимизации. Поэтому корректнее рассматривать набор возможных шагов, а не обязательную линейную последовательность.</p>
+
+      <div class="bp-flow" aria-label="Этапы навигации">
+        <div class="bp-flow-node"><b>URL</b><small>разбор адреса и схемы</small></div><span class="bp-flow-arrow">→</span>
+        <div class="bp-flow-node"><b>Navigation</b><small>проверки, политика, кэш</small></div><span class="bp-flow-arrow">→</span>
+        <div class="bp-flow-node"><b>Connection</b><small>reuse или создание</small></div><span class="bp-flow-arrow">→</span>
+        <div class="bp-flow-node"><b>HTTP</b><small>запрос и ответ</small></div><span class="bp-flow-arrow">→</span>
+        <div class="bp-flow-node"><b>Document</b><small>поток байтов</small></div>
+      </div>
+
+      <h3>2.1. Адрес, origin и ресурс — разные понятия</h3>
+      <p>URL идентифицирует ресурс и содержит схему, authority (в том числе host и при необходимости port), путь, query и fragment. <em>Origin</em> обычно определяется тройкой scheme + host + port. Origin важен для модели безопасности: он участвует в правилах same-origin, CORS и доступе к многим веб-API. Путь ресурса не входит в origin.</p>
+      <pre class="bp-code"><code>https://shop.example:8443/catalog/item?id=42#details
+└─ scheme: https
+        └─ origin: https://shop.example:8443
+             └─ path: /catalog/item
+                  └─ query: ?id=42
+                                  └─ fragment: #details</code></pre>
+      <p>Fragment обычно обрабатывается на стороне клиента и не отправляется в HTTP-запросе как часть request target. Не путай URL, origin, сайт (site) и домен: это близкие, но не взаимозаменяемые сущности.</p>
+
+      <h3>2.2. Кэш и service worker могут изменить маршрут</h3>
+      <p>Прежде чем обращаться к удалённому серверу, браузер может проверить применимые локальные механизмы. HTTP-кэш способен вернуть свежий ответ или потребовать revalidation. Service worker может перехватить запрос и ответить из Cache Storage, сформировать ответ самостоятельно либо передать запрос в сеть. Следовательно, «открытие сайта» не тождественно «каждый раз отправить полный запрос на origin».</p>
+      <div class="bp-two-col">
+        <article class="bp-mini-card"><h4>HTTP cache</h4><p>Управляется HTTP-семантикой кэширования: Cache-Control, validators, freshness и revalidation.</p></article>
+        <article class="bp-mini-card"><h4>Service worker</h4><p>Программируемая точка перехвата запросов в пределах scope. Стратегия — например cache-first или network-first — задаётся приложением.</p></article>
+      </div>
+
+      <h3>2.3. DNS, транспорт и защищённое соединение</h3>
+      <p>Если подходящего соединения нет, браузеру может потребоваться определить IP-адрес сервера и установить соединение. Конкретный маршрут зависит от поддержки протоколов, кэшей, сетевых условий, политики браузера и сервера.</p>
+      <div class="bp-protocol-grid">
+        <article class="bp-protocol"><span class="bp-tag">HTTP/1.1</span><h4>HTTP поверх TCP</h4><p>Текстовый формат сообщений. Параллельная загрузка часто использовала несколько соединений; на одном соединении запросы обычно ограничены последовательностью обмена.</p><div class="bp-stack"><span>HTTP/1.1</span><span>TLS (для HTTPS)</span><span>TCP</span><span>IP</span></div></article>
+        <article class="bp-protocol"><span class="bp-tag">HTTP/2</span><h4>Мультиплексирование потоков</h4><p>Несколько HTTP-потоков могут передаваться по одному TCP-соединению. Но потеря TCP-пакета задерживает доставку последующих байтов этого соединения.</p><div class="bp-stack"><span>HTTP/2 frames</span><span>TLS (обычно)</span><span>TCP</span><span>IP</span></div></article>
+        <article class="bp-protocol"><span class="bp-tag">HTTP/3</span><h4>HTTP поверх QUIC</h4><p>QUIC работает поверх UDP, предоставляет независимые потоки, управление потоком и интегрирует TLS 1.3 в установление соединения.</p><div class="bp-stack"><span>HTTP/3 frames</span><span>QUIC + TLS 1.3</span><span>UDP</span><span>IP</span></div></article>
+      </div>
+      <p>HTTP/3 не означает «HTTP без потерь» или «всегда быстрее». Его устройство устраняет межпоточное блокирование на уровне потока QUIC, но скорость по-прежнему зависит от RTT, потерь, congestion control, сервера, устройства и характера приложения. При невозможности установить QUIC браузер может использовать TCP-основанный вариант HTTP.</p>
+
+      <h3>2.4. Ответ приходит как поток</h3>
+      <p>Ответ — это не только тело документа. Браузер получает статус и заголовки (например, Content-Type, Content-Encoding, Cache-Control, Content-Security-Policy), а затем тело. Данные могут поступать порциями. Поэтому HTML-парсер способен начать работу до того, как весь документ загружен.</p>
+      <aside class="bp-callout"><strong>Инженерное следствие</strong><p>Уменьшение размера HTML полезно, но иногда сильнее влияет время до первого байта (TTFB), повторное использование соединения или раннее обнаружение критического ресурса. Чтобы выбрать действие, сначала нужно определить, какая часть загрузки занимает время.</p></aside>
+    </section>
+
+    <section id="html" class="bp-section">
+      <p class="bp-section-kicker">03 · HTML PARSING</p>
+      <h2>HTML — поток символов, а DOM — результат алгоритма разбора</h2>
+      <p>HTML не разбирается простым поиском открывающих и закрывающих тегов. Спецификация определяет tokenizer и tree construction. Первый преобразует входной поток в токены, второй, учитывая состояние и контекст, строит и изменяет DOM-дерево.</p>
+      <div class="bp-flow bp-flow-three">
+        <div class="bp-flow-node"><b>Bytes</b><small>полученный поток</small></div><span class="bp-flow-arrow">→</span>
+        <div class="bp-flow-node"><b>Characters</b><small>декодирование</small></div><span class="bp-flow-arrow">→</span>
+        <div class="bp-flow-node"><b>Tokens</b><small>tokenizer</small></div><span class="bp-flow-arrow">→</span>
+        <div class="bp-flow-node"><b>DOM</b><small>tree construction</small></div>
+      </div>
+      <h3>Почему браузер исправляет неправильную разметку?</h3>
+      <p>HTML-парсер рассчитан на обработку реального веба, где документы могут содержать ошибки, неполные фрагменты и исторически закрепившиеся конструкции. Алгоритм tree construction включает правила восстановления и не сводится к XML-парсеру, который просто отклоняет некорректный документ. Это повышает совместимость старого контента, но не делает произвольную разметку хорошей практикой.</p>
+      <h3>DOM — живая модель документа</h3>
+      <p>DOM не является снимком исходного HTML. Это объектная модель, которую могут менять parser, JavaScript, пользовательские действия и браузерные API. В DOM могут появляться узлы, которых не было в исходном тексте, а некоторые исходные конструкции не представлены отдельными узлами.</p>
+      <div class="bp-code-compare">
+        <div><span class="bp-tag">HTML source</span><pre class="bp-code"><code>&lt;ul id="items"&gt;
+  &lt;li&gt;One
+  &lt;li&gt;Two
+&lt;/ul&gt;</code></pre></div>
+        <div><span class="bp-tag">DOM concept</span><pre class="bp-code"><code>ul#items
+├─ li
+│  └─ "One"
+└─ li
+   └─ "Two"</code></pre></div>
+      </div>
+      <h3>Спекулятивная загрузка ресурсов</h3>
+      <p>Когда основной HTML-парсер приостанавливается, браузер может использовать отдельный механизм предварительного обнаружения ресурсов из ещё не обработанного HTML. Например, он может раньше начать загружать stylesheet, script или изображение. WHATWG описывает speculative parsing как допустимую оптимизацию, но детали реализации не фиксирует. Не следует считать её одинаковой во всех браузерах или полагаться на неё как на гарантию.</p>
+      <aside class="bp-callout bp-callout-warning"><strong>Практический нюанс</strong><p>CSS-файл, обнаруженный поздно через JavaScript или вложенный CSS @import, может стартовать позже, чем ресурс, прямо указанный в HTML. Для критических ресурсов важны место объявления, цепочка зависимостей и приоритет загрузки.</p></aside>
+    </section>
+
+    <section id="css" class="bp-section">
+      <p class="bp-section-kicker">04 · CSS PARSING AND CASCADE</p>
+      <h2>CSS — не слой краски поверх готового DOM</h2>
+      <p>CSS влияет на то, какие элементы участвуют в отображении, какие у них вычисленные свойства, размеры, позиции и как они должны быть нарисованы. Браузер разбирает таблицы стилей в структуры правил, сопоставляет селекторы с элементами, разрешает каскад и получает computed values.</p>
+      <div class="bp-flow bp-flow-three">
+        <div class="bp-flow-node"><b>CSS bytes</b><small>загрузка и декодирование</small></div><span class="bp-flow-arrow">→</span>
+        <div class="bp-flow-node"><b>CSS rules</b><small>парсинг</small></div><span class="bp-flow-arrow">→</span>
+        <div class="bp-flow-node"><b>Cascade</b><small>origin, importance, layers, specificity, order</small></div><span class="bp-flow-arrow">→</span>
+        <div class="bp-flow-node"><b>Computed style</b><small>значения для элементов</small></div>
+      </div>
+      <h3>DOM и CSSOM решают разные задачи</h3>
+      <p>DOM отвечает за структуру и смысл документа. CSSOM представляет разобранные правила стилей. Для отображения браузеру нужно совместить элементы документа с применимыми стилями и информацией о layout. Элементы с display: none, например, не создают обычные визуальные боксы, хотя остаются в DOM.</p>
+      <h3>Почему CSS может задерживать первый рендер?</h3>
+      <p>Если браузер покажет документ до того, как применит необходимые стили, пользователь может увидеть кратковременную неоформленную или неправильно расположенную страницу. Поэтому stylesheet, влияющий на первый экран, обычно относится к render-blocking ресурсам. CSS также может задерживать выполнение некоторых parser-inserted скриптов, поскольку такие скрипты могут читать стили и геометрию.</p>
+      <p>Из этого не следует, что любой CSS всегда останавливает HTML-парсер. HTML может продолжать разбираться, а поведение зависит от вида скрипта, связи таблицы стилей и текущего состояния документа.</p>
+      <div class="bp-callout"><strong>Узкое место</strong><p>Большая таблица стилей сама по себе не гарантирует плохую производительность. Значение имеют объём CSS, сложность сопоставления селекторов, частота изменений DOM и стилей, invalidation и количество элементов, затрагиваемых пересчётом. Ищите измеряемую проблему, а не оптимизируйте CSS «на глаз».</p></div>
+    </section>
+
+    <section id="javascript" class="bp-section">
+      <p class="bp-section-kicker">05 · JAVASCRIPT EXECUTION</p>
+      <h2>JavaScript меняет ход разбора и состояние отображения</h2>
+      <p>JavaScript — не просто следующий этап после HTML и CSS. Скрипты могут выполняться во время разбора документа, менять DOM и стили, создавать сетевые запросы и планировать будущую работу. Выполнение скрипта может повлиять на то, когда парсер продолжит чтение и когда станет возможен рендеринг.</p>
+      <h3>Порядок выполнения скриптов</h3>
+      <div class="bp-table-wrap"><table><thead><tr><th>Вариант</th><th>Поведение</th><th>Типичный компромисс</th></tr></thead><tbody>
+        <tr><td>Обычный classic script</td><td>Parser-inserted скрипт без async/defer обычно останавливает HTML-парсер для загрузки (если нужно) и выполнения.</td><td>Простой порядок, но риск задержать parsing и первый рендер.</td></tr>
+        <tr><td><code>defer</code></td><td>Внешний classic script загружается параллельно разбору и выполняется после завершения парсинга, сохраняя порядок defer-скриптов.</td><td>Удобен для кода, которому нужен готовый DOM; нужно учитывать ожидание перед DOMContentLoaded.</td></tr>
+        <tr><td><code>async</code></td><td>Внешний скрипт выполняется, когда загрузился; порядок между async-скриптами не гарантирован.</td><td>Подходит для независимых скриптов; не подходит, если критичен порядок зависимостей.</td></tr>
+        <tr><td><code>type="module"</code></td><td>Модульные скрипты по умолчанию ведут себя как defer; поддерживают import/export и собственную модель загрузки модулей.</td><td>Удобная модульность, но дерево зависимостей может влиять на готовность кода.</td></tr>
+      </tbody></table></div>
+      <p>Это обзор наиболее распространённых случаев. Динамически созданные скрипты, inline-код, async modules, document.write и детали алгоритма HTML parser имеют дополнительные правила. Для точного ответа нужно учитывать, как именно элемент script был создан и какие атрибуты у него установлены.</p>
+
+      <h3>Главный поток и очереди задач</h3>
+      <p>В renderer существует работа, для которой требуется последовательное выполнение JavaScript на конкретном agent/thread, связанного с документом. В браузерной модели есть tasks, microtasks и механизмы обновления rendering. Упрощённо: после выполнения task браузер проводит microtask checkpoint, а обновление отображения может быть выполнено в подходящей точке цикла событий. Нельзя считать, что каждый вызов setTimeout или каждый microtask создаёт отдельный кадр.</p>
+      <pre class="bp-code"><code>Одна из упрощённых последовательностей:
+
+Task
+  └─ JavaScript callback
+       ├─ изменение DOM
+       ├─ изменение CSS
+       └─ Promise.then(...) → microtask
+
+Microtask checkpoint
+  └─ очередь microtasks опустошается
+
+Rendering opportunity (если настало время)
+  ├─ requestAnimationFrame callbacks
+  ├─ style / layout / paint work
+  └─ отправка подготовленного кадра</code></pre>
+      <p>Точная модель event loop сложнее этой схемы: существуют разные task sources, вложенные browsing contexts, workers, rendering opportunities и правила спецификаций. Схема нужна для понимания порядка, а не для вычисления точных миллисекунд.</p>
+      <h3>Forced synchronous layout</h3>
+      <p>Скрипт может изменить стили, а затем немедленно запросить геометрию элемента. Чтобы вернуть актуальное значение, браузеру иногда приходится синхронно завершить необходимый пересчёт стилей и layout. Если код многократно чередует записи и чтение геометрии, он способен вызвать layout thrashing.</p>
+      <div class="bp-code-compare">
+        <div><span class="bp-tag bp-tag-good">Предпочтительно группировать</span><pre class="bp-code"><code>// Сначала записи
+items.forEach((item) =&gt; {
+  item.classList.add("expanded");
+});
+
+// Затем чтения
+const widths = items.map(
+  (item) =&gt; item.getBoundingClientRect().width
+);</code></pre></div>
+        <div><span class="bp-tag bp-tag-bad">Риск чередования read/write</span><pre class="bp-code"><code>items.forEach((item) =&gt; {
+  item.classList.add("expanded");
+
+  // Может потребовать актуальный layout
+  const width =
+    item.getBoundingClientRect().width;
+});</code></pre></div>
+      </div>
+      <p>Пример иллюстрирует принцип, но не гарантирует одинаковую стоимость во всех случаях. Реальная цена зависит от dirty state, размера документа, зависимостей layout и того, удаётся ли браузеру объединить операции.</p>
+    </section>
+
+    <section id="rendering" class="bp-section">
+      <p class="bp-section-kicker">06 · RENDERING PIPELINE</p>
+      <h2>Как состояние страницы становится кадром</h2>
+      <p>После того как браузер располагает нужными данными документа и стилями, он должен определить геометрию элементов, подготовить команды рисования, преобразовать их в пиксели и собрать итоговое изображение. Часто это описывают как pipeline: style → layout → paint → rasterize → composite.</p>
+      <div class="bp-render-diagram" role="img" aria-label="DOM и CSSOM переходят к вычислению стилей, затем layout, paint, rasterization, compositing и выводу на экран.">
+        <div class="bp-render-inputs"><div>DOM</div><span>+</span><div>CSSOM</div><span>+</span><div>JS state</div></div>
+        <div class="bp-render-arrow">↓</div>
+        <div class="bp-render-stage bp-stage-style"><b>1. Style</b><small>какие правила применяются?</small></div>
+        <div class="bp-render-arrow">↓</div>
+        <div class="bp-render-stage bp-stage-layout"><b>2. Layout</b><small>где находятся боксы и какого они размера?</small></div>
+        <div class="bp-render-arrow">↓</div>
+        <div class="bp-render-stage bp-stage-paint"><b>3. Paint</b><small>что и в каком порядке нужно нарисовать?</small></div>
+        <div class="bp-render-arrow">↓</div>
+        <div class="bp-render-stage bp-stage-raster"><b>4. Rasterization</b><small>преобразование команд в пиксели / тайлы</small></div>
+        <div class="bp-render-arrow">↓</div>
+        <div class="bp-render-stage bp-stage-composite"><b>5. Composite</b><small>сборка видимых слоёв в кадр</small></div>
+        <div class="bp-render-arrow">↓</div>
+        <div class="bp-render-screen"><span aria-hidden="true">▦</span> Кадр для отображения</div>
+      </div>
+      <p class="bp-caption">Схема концептуальная. Браузер может пропускать этапы, повторно использовать результаты, выполнять части работы на разных потоках и пересобирать только затронутые области.</p>
+
+      <details class="bp-deep-dive">
+        <summary>Углубление: как Chromium RenderingNG дробит этот pipeline</summary>
+        <p>В актуальной архитектуре RenderingNG общий цикл детализирован сильнее. Среди явно выделенных стадий Chromium — Animate, Style, Layout, Pre-paint, Scroll, Paint, Commit, Layerize и Raster. Это важное уточнение: «rendering pipeline» — не один универсальный пятишаговый стандарт, а полезная абстракция поверх конкретных движков и их внутренних стадий.</p>
+        <div class="bp-table-wrap"><table><thead><tr><th>Стадия RenderingNG</th><th>Назначение</th><th>Артефакт / результат</th></tr></thead><tbody>
+          <tr><td>Animate</td><td>Обновление анимационных значений и связанных property trees.</td><td>Новое состояние анимации.</td></tr>
+          <tr><td>Style</td><td>Применение CSS к DOM и вычисление стилей.</td><td>Computed styles.</td></tr>
+          <tr><td>Layout</td><td>Расчёт размеров и положения фрагментов документа.</td><td>Fragment tree.</td></tr>
+          <tr><td>Pre-paint</td><td>Обновление property trees и определение invalidation для display lists и GPU tiles.</td><td>Property trees и invalidation state.</td></tr>
+          <tr><td>Scroll</td><td>Обновление scroll offsets документов и scroll containers.</td><td>Обновлённые scroll properties.</td></tr>
+          <tr><td>Paint</td><td>Создание display list — описания того, как рисовать содержимое.</td><td>Paint / display list.</td></tr>
+          <tr><td>Commit / Layerize</td><td>Передача результатов compositor thread и разбиение на composited layers.</td><td>Compositor state и layer list.</td></tr>
+          <tr><td>Raster</td><td>Преобразование display lists, изображений и других данных в GPU texture tiles.</td><td>Растрированные тайлы.</td></tr>
+        </tbody></table></div>
+        <p>Внутренние стадии и их детали могут эволюционировать. Используй эту таблицу как карту для чтения документации Chromium, а не как обязательный алгоритм Firefox или WebKit.</p>
+      </details>
+
+      <div class="bp-detail-grid">
+        <article><span class="bp-stage-index">1</span><h3>Style calculation</h3><p>Браузер определяет, какие CSS-правила применимы к элементам, разрешает каскад, наследование и вычисляет значения свойств. При изменении DOM, class или stylesheet может понадобиться пересчитать стили для затронутых узлов.</p><p><b>Риск:</b> частые широкие изменения DOM и стилей, сложные зависимости и избыточная область invalidation.</p></article>
+        <article><span class="bp-stage-index">2</span><h3>Layout</h3><p>Рассчитывается геометрия: размеры, позиции и взаимное расположение боксов. Влияние одного элемента может распространиться на соседей и потомков — например, изменение ширины контейнера меняет перенос текста и высоту блоков.</p><p><b>Риск:</b> дорогой пересчёт большой части дерева, повторные forced layouts, сложные геометрические зависимости.</p></article>
+        <article><span class="bp-stage-index">3</span><h3>Paint</h3><p>Формируются операции рисования: фон, текст, границы, тени и другие визуальные детали. Paint — не то же самое, что окончательная запись каждого пикселя в framebuffer; это подготовка описания того, что нужно нарисовать.</p><p><b>Риск:</b> большие области перерисовки, дорогие эффекты и частые визуальные invalidations.</p></article>
+        <article><span class="bp-stage-index">4</span><h3>Rasterization</h3><p>Операции рисования преобразуются в пиксельное представление, часто по тайлам. В зависимости от реализации и условий в работе могут участвовать CPU и GPU.</p><p><b>Риск:</b> большие изображения, сложные эффекты, высокое разрешение и ограниченные ресурсы GPU/памяти.</p></article>
+        <article><span class="bp-stage-index">5</span><h3>Compositing</h3><p>Подготовленные поверхности и слои совмещаются с учётом трансформаций, клиппинга, прозрачности и порядка наложения. Итоговая композиция подготавливается к выводу на экран.</p><p><b>Риск:</b> чрезмерное число/размер слоёв, расход видеопамяти и дорогая композиция.</p></article>
+        <article><span class="bp-stage-index">↻</span><h3>Повторная работа</h3><p>После первого кадра pipeline не заканчивается. Новые данные, прокрутка, resize, animation, взаимодействия и JS-изменения могут инициировать пересчёт отдельных частей.</p><p><b>Следствие:</b> производительность важна не только при первой загрузке, но и во время взаимодействия.</p></article>
+      </div>
+      <h3>Почему свойства CSS имеют разную стоимость</h3>
+      <div class="bp-table-wrap"><table><thead><tr><th>Изменение</th><th>Что может потребоваться</th><th>Пример</th></tr></thead><tbody>
+        <tr><td>Геометрия</td><td>Часто style + layout + paint + дальнейшие стадии</td><td><code>width</code>, <code>height</code>, некоторые изменения позиционирования</td></tr>
+        <tr><td>Визуальное оформление</td><td>Часто style + paint; layout может не понадобиться</td><td><code>background-color</code>, <code>box-shadow</code></td></tr>
+        <tr><td>Трансформация или прозрачность</td><td>Иногда достаточно обновить compositor state</td><td><code>transform</code>, <code>opacity</code></td></tr>
+      </tbody></table></div>
+      <aside class="bp-callout bp-callout-warning"><strong>Не превращай таблицу в закон</strong><p>Нельзя гарантировать, что transform и opacity всегда идут только через compositor, а любое изменение width всегда перерисовывает всю страницу. Результат зависит от браузера, контекста, наличия compositor layer, clipping, filters, blending, containment и других условий. Проверяй конкретный сценарий в DevTools.</p></aside>
+    </section>
+
+    <section id="frames" class="bp-section">
+      <p class="bp-section-kicker">07 · FRAME SCHEDULING</p>
+      <h2>Кадр — это дедлайн, а не просто вызов функции</h2>
+      <p>Экран обновляется с определённой частотой, которая может меняться в зависимости от дисплея и режима работы. При 60 Гц новый цикл отображения примерно каждые 16,67 мс, но это не означает, что JavaScript получает все эти миллисекунды: браузер должен обработать ввод, выполнить нужную работу и подготовить кадр, а часть времени может быть занята другими задачами.</p>
+      <p>Длинная задача на главном потоке способна задержать обработку пользовательского ввода и следующий визуальный отклик. При этом «60 FPS» само по себе не описывает задержку ввода, стабильность кадров или скорость появления самого важного контента.</p>
+      <div class="bp-timeline" aria-label="Условная временная линия кадра">
+        <div class="bp-timeline-labels"><span>Начало интервала</span><span>Дедлайн следующего обновления</span></div>
+        <div class="bp-timeline-track"><div class="bp-time-task">JS task</div><div class="bp-time-micro">Microtasks</div><div class="bp-time-render">Rendering work</div><div class="bp-time-gap">Запас / другие задачи</div></div>
+        <div class="bp-timeline-note">Условная иллюстрация для 60 Гц, не реальный профайл и не нормативное распределение времени.</div>
+      </div>
+      <h3>requestAnimationFrame — синхронизация с возможностью обновления</h3>
+      <p><code>requestAnimationFrame</code> просит браузер вызвать callback перед следующим repaint, если документ и контекст позволяют выполнять rendering. Это подходящее место для подготовки анимационных изменений, но не способ гарантировать точное время исполнения. Если callback выполняет тяжёлую работу, он сам может сорвать кадр.</p>
+      <pre class="bp-code"><code>let previousTime = 0;
+
+function animate(now) {
+  const delta = now - previousTime;
+  previousTime = now;
+
+  // Обновить состояние анимации с учётом delta.
+  // Не выполнять здесь тяжёлую синхронную работу.
+
+  requestAnimationFrame(animate);
+}
+
+requestAnimationFrame(animate);</code></pre>
+      <p>Для корректной анимации используй временную метку callback, учитывай разные частоты обновления и возможность пропущенных кадров. Для длительных вычислений рассмотри worker, разбиение работы на части или предварительные вычисления.</p>
+    </section>
+
+    <section id="bottlenecks" class="bp-section">
+      <p class="bp-section-kicker">08 · PERFORMANCE ENGINEERING</p>
+      <h2>Как найти узкое место, а не угадать его</h2>
+      <p>Одинаковый симптом — «страница медленно появляется» — может иметь разные причины. Если HTML долго не приходит, бессмысленно начинать с оптимизации теней. Если изображение LCP поздно обнаруживается в CSS, уменьшение JavaScript может не решить проблему. Диагностика начинается с разложения задержки на составляющие.</p>
+      <h3>Интерактивная модель LCP</h3>
+      <p>Для LCP можно разделить время на четыре неперекрывающиеся части: TTFB, задержку до начала загрузки LCP-ресурса, длительность самой загрузки и задержку отображения элемента после окончания загрузки ресурса. Поля ниже — учебная модель: числа задаются вручную и не измеряются на реальном сайте.</p>
+      <div class="bp-lcp-tool" id="lcp-tool">
+        <div class="bp-lcp-fields">
+          <label>TTFB, мс<input type="number" inputmode="numeric" min="0" max="10000" step="50" value="350" data-lcp="ttfb"></label>
+          <label>Resource load delay, мс<input type="number" inputmode="numeric" min="0" max="10000" step="50" value="250" data-lcp="delay"></label>
+          <label>Resource load duration, мс<input type="number" inputmode="numeric" min="0" max="10000" step="50" value="650" data-lcp="duration"></label>
+          <label>Element render delay, мс<input type="number" inputmode="numeric" min="0" max="10000" step="50" value="200" data-lcp="render"></label>
+        </div>
+        <div class="bp-lcp-result" aria-live="polite">
+          <div><span>Расчётное время LCP</span><strong id="lcp-total">1 450 мс</strong></div>
+          <div class="bp-lcp-bar" id="lcp-bar" role="img" aria-label="Составные части расчётного времени LCP">
+            <span data-segment="ttfb" title="TTFB"></span><span data-segment="delay" title="Resource load delay"></span><span data-segment="duration" title="Resource load duration"></span><span data-segment="render" title="Element render delay"></span>
+          </div>
+          <div class="bp-legend"><span><i class="bp-dot bp-dot-one"></i>TTFB</span><span><i class="bp-dot bp-dot-two"></i>Задержка загрузки</span><span><i class="bp-dot bp-dot-three"></i>Загрузка ресурса</span><span><i class="bp-dot bp-dot-four"></i>Задержка рендера</span></div>
+          <p id="lcp-advice" class="bp-lcp-advice">Сегменты рассчитаны по введённым значениям.</p>
+        </div>
+      </div>
+      <h3>Сопоставляй симптом и инструмент</h3>
+      <div class="bp-table-wrap"><table><thead><tr><th>Наблюдение</th><th>Вероятная область исследования</th><th>Что смотреть</th></tr></thead><tbody>
+        <tr><td>Долгий TTFB</td><td>Сервер, CDN, сетевой RTT, очередь обработки, cache miss</td><td>Network waterfall, серверные метрики, cache status</td></tr>
+        <tr><td>Поздно начинается загрузка главного изображения</td><td>Обнаружение ресурса, CSS/JS-зависимости, приоритет</td><td>Initiator, Priority, preload, LCP breakdown</td></tr>
+        <tr><td>Долгое выполнение скриптов</td><td>CPU, long tasks, hydration/bootstrapping, обработчики</td><td>Performance panel, Bottom-up, Call tree, Coverage</td></tr>
+        <tr><td>Дорогой layout или повторные layout</td><td>Геометрические изменения и read/write patterns</td><td>Forced reflow, Layout events, Performance trace</td></tr>
+        <tr><td>Большие/частые repaint</td><td>Paint invalidation, эффекты и размеры областей</td><td>Paint flashing, Layers, paint profiler</td></tr>
+        <tr><td>Проблемы во время прокрутки/анимации</td><td>Главный поток, compositor, большие изображения, input handlers</td><td>Frames track, Rendering panel, Long Animation Frames</td></tr>
+      </tbody></table></div>
+      <p>Инструменты Chrome DevTools — пример конкретной реализации. Другие браузеры предоставляют сходные средства, но названия панелей и полнота трассировки могут отличаться.</p>
+    </section>
+
+    <section id="decisions" class="bp-section">
+      <p class="bp-section-kicker">09 · ИНЖЕНЕРНЫЕ ВЫВОДЫ</p>
+      <h2>Как использовать эту модель при проектировании</h2>
+      <p>Ценность понимания browser pipeline не в запоминании названий стадий. Она в способности предсказать побочные эффекты архитектурного решения, сформулировать гипотезу и проверить её измерением.</p>
+      <div class="bp-decision-list">
+        <article><b>Если важен быстрый первый экран</b><p>Уменьши критическую цепочку зависимостей, сделай главный контент обнаружимым из HTML, не откладывай критическое изображение и не блокируй рендер ненужным кодом.</p></article>
+        <article><b>Если важна отзывчивость интерфейса</b><p>Сокращай длинные задачи на главном потоке, переноси подходящие вычисления в workers, группируй DOM writes/reads и не делай тяжёлую работу в rAF callback.</p></article>
+        <article><b>Если интерфейс часто меняет геометрию</b><p>Проверь, можно ли выразить движение через transform, ограничить область layout через подходящие механизмы и сократить количество затрагиваемых элементов. Не применяй will-change без измерений.</p></article>
+        <article><b>Если много ресурсов и внешних origin</b><p>Проверь reuse соединений, cache policy, приоритеты, DNS/TLS handshakes и реальную необходимость каждого внешнего ресурса.</p></article>
+        <article><b>Если нужна точная совместимость</b><p>Опирайся на стандарты и тестируй в целевых браузерах. Архитектурные детали одного движка не являются контрактом всей веб-платформы.</p></article>
+      </div>
+      <aside class="bp-callout bp-callout-key"><strong>Рабочий принцип</strong><p>Сначала назови измеряемый симптом. Затем найди участок pipeline, который способен его объяснить. После этого сформулируй гипотезу, измени один фактор и повтори измерение на сопоставимых условиях.</p></aside>
+    </section>
+
+    <section class="bp-section bp-next-section">
+      <p class="bp-section-kicker">СЛЕДУЮЩИЙ УРОВЕНЬ</p>
+      <h2>Что изучать после общей картины</h2>
+      <div class="bp-next-grid">
+        <article><span>01</span><h3>HTML parser</h3><p>Tokenizer states, insertion modes, parser-blocking scripts, speculative parsing, document.write.</p></article>
+        <article><span>02</span><h3>CSS rendering</h3><p>Cascade, style invalidation, formatting contexts, intrinsic sizing, fragmentation и containment.</p></article>
+        <article><span>03</span><h3>Rendering engine</h3><p>Layout trees, paint property trees, display lists, tiling, raster threads и compositor scheduling.</p></article>
+        <article><span>04</span><h3>Navigation & security</h3><p>Origin, site isolation, process swaps, Fetch, service workers, HTTP cache и security policies.</p></article>
+      </div>
+    </section>
+
+    <section id="sources" class="bp-section bp-sources">
+      <p class="bp-section-kicker">ПЕРВОИСТОЧНИКИ И ДОКУМЕНТАЦИЯ</p>
+      <h2>Источники для углублённого чтения</h2>
+      <p>Стандарты описывают контракт платформы; статьи разработчиков браузеров помогают понять конкретную реализацию; руководства DevTools показывают методы наблюдения. Эти уровни нельзя смешивать.</p>
+      <ol>
+        <li><a href="https://html.spec.whatwg.org/multipage/parsing.html" target="_blank" rel="noopener">WHATWG HTML — Parsing</a><span>Нормативное описание tokenizer, tree construction, parser-blocking scripts и speculative parsing.</span></li>
+        <li><a href="https://web.dev/learn/performance/understanding-the-critical-path" target="_blank" rel="noopener">web.dev — Understanding the critical path</a><span>Модель критического пути рендеринга и зависимостей DOM/CSSOM/JavaScript.</span></li>
+        <li><a href="https://developer.chrome.com/blog/inside-browser-part1" target="_blank" rel="noopener">Chrome for Developers — Inside look at modern browser, part 1</a><span>Многопроцессная архитектура Chromium и роли browser/renderer/GPU processes.</span></li>
+        <li><a href="https://chromium.googlesource.com/chromium/src/+/show/main/services/network/README.md" target="_blank" rel="noopener">Chromium source — Network Service</a><span>Где работает Network Service, как выбирается in-process или out-of-process режим.</span></li>
+        <li><a href="https://developer.chrome.com/blog/inside-browser-part2" target="_blank" rel="noopener">Chrome for Developers — Inside look at modern browser, part 2</a><span>Навигация, сетевой процесс, commit navigation и service worker в Chromium.</span></li>
+        <li><a href="https://developer.chrome.com/blog/inside-browser-part3" target="_blank" rel="noopener">Chrome for Developers — Inside look at modern browser, part 3</a><span>Внутренние шаги renderer pipeline в Chromium.</span></li>
+        <li><a href="https://developer.chrome.com/docs/chromium/renderingng-architecture" target="_blank" rel="noopener">Chromium — RenderingNG architecture</a><span>Современная декомпозиция стадий Style, Layout, Pre-paint, Paint, Commit, Layerize и Raster, а также роли потоков.</span></li>
+        <li><a href="https://www.rfc-editor.org/rfc/rfc9114.html" target="_blank" rel="noopener">RFC 9114 — HTTP/3</a><span>Нормативное описание HTTP/3 поверх QUIC.</span></li>
+        <li><a href="https://www.rfc-editor.org/rfc/rfc9000.html" target="_blank" rel="noopener">RFC 9000 — QUIC: A UDP-Based Multiplexed and Secure Transport</a><span>Транспортные механизмы QUIC.</span></li>
+        <li><a href="https://web.dev/articles/optimize-lcp" target="_blank" rel="noopener">web.dev — Optimize Largest Contentful Paint</a><span>Разложение LCP на TTFB, resource load delay, resource load duration и element render delay.</span></li>
+        <li><a href="https://developer.chrome.com/docs/devtools/rendering/performance" target="_blank" rel="noopener">Chrome DevTools — Discover issues with rendering performance</a><span>Paint flashing, layout shift regions и визуальная диагностика.</span></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/Performance/Guides/How_browsers_work" target="_blank" rel="noopener">MDN — How browsers work</a><span>Общая модель обработки документа и отображения.</span></li>
+      </ol>
+      <p class="bp-updated">Проверено по указанным первоисточникам: 20 ноября 2026 года. Детали движков меняются; при использовании конкретной внутренней особенности сверяй её с актуальной документацией целевого браузера.</p>
+    </section>
+
+    <footer class="bp-footer"><a href="../browsers.html">← Вернуться к разделу «Браузеры»</a><span>Modern Possibilities of Basic Web Technologies</span></footer>
+  </main>
+</body>
+</html>
