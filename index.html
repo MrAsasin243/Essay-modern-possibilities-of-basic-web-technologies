@@ -5,10 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Учебный справочник по HTML, CSS, JavaScript и устройству браузеров.">
   <title>Веб-платформа — учебный справочник</title>
+  <script src="assets/theme-init.js"></script>
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/demo.css">
+  <link rel="stylesheet" href="assets/site.css">
   <script src="assets/demo.js" defer></script>
   <script src="assets/demos-showcase.js" defer></script>
+  <script src="assets/site-data.js" defer></script>
+  <script src="assets/site.js" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -80,6 +84,16 @@
       <p>Сайт старается сам быть примером того, что объясняет. Каждый блок кода получил кнопку «Копировать» (это Clipboard API, он описан в разделе <a href="javascript.html#apis">JavaScript → Web API</a>). Живые примеры запускаются, когда появляются на экране, и останавливаются, когда уходят: слушатели, таймеры и потоки освобождаются. Если браузер или способ открытия страницы не позволяет запустить пример, он говорит об этом прямо, а не молчит.</p>
       <p>Поддержка возможностей проверяется в вашем браузере. Например, <code>:has()</code>: <span data-support="css:has"></span> и Popover API: <span data-support="html:popover"></span>.</p>
       <div class="callout warning"><strong>Открыто по file://?</strong> Всё, что можно запустить без веб-сервера, работает. Примеры, которым нужен настоящий сервер, помечены состоянием «нужен сервер» и объясняют, что именно нужно сделать.</div>
+
+      <h3>Возможности самого сайта</h3>
+      <p>Всё, что сайт умеет сам, использует приёмы из этого учебника, и у каждого есть ссылка на объясняющий раздел.</p>
+      <ul>
+        <li><strong>Поиск</strong>: <kbd>Ctrl</kbd>+<kbd>K</kbd> или <kbd>/</kbd>. Индекс собран заранее скриптом <code>tools/build-search-index.py</code>, потому что по <code>file://</code> страницы не могут читать друг друга. Сам поиск написан на обычном JavaScript без библиотек: диалог (<a href="html.html#interaction">HTML → Встроенная интерактивность</a>), работа с <a href="javascript.html#dom">DOM</a>.</li>
+        <li><strong>Прогресс</strong>: отмечается, когда конец раздела появился на экране. Используются <code>IntersectionObserver</code> и <code>localStorage</code> (<a href="javascript.html#apis">Web API</a>, <a href="javascript.html#storage">хранилища</a>).</li>
+        <li><strong>Тема</strong>: настройка системы (<code>prefers-color-scheme</code>) плюс ручной выбор (<a href="css.html#responsive">CSS → Адаптивность и пользовательские настройки</a>).</li>
+        <li><strong>Печать</strong>: отдельные правила <code>@media print</code> без навигации и интерактивных примеров (<a href="css.html#modern">CSS → Печатные стили</a>).</li>
+        <li><strong>Копирование кода</strong>: Clipboard API (<a href="javascript.html#apis">Web API</a>).</li>
+      </ul>
 
       <h3>Попробуйте</h3>
       <div data-demo="showcase-html"><p>Для живого примера нужен включённый JavaScript. Код примера: обычная разметка с <code>&lt;style&gt;</code> и кнопкой.</p></div>

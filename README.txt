@@ -18,6 +18,9 @@
 - assets/demos-css.js — примеры раздела CSS (16 примеров с блоками «Подводные камни и ограничения»).
 - assets/demos-js.js — примеры раздела JavaScript (17 примеров, включая Event Loop с реальными отметками времени).
 - assets/demos-browsers.js — примеры раздела «Браузеры» (7 примеров: стоимость изменений, конвейер рендеринга, origin, CORS, CSP, хранилища, DevTools).
+- assets/site.js, assets/site.css, assets/theme-init.js — возможности самого сайта: поиск (Ctrl+K), прогресс, тема, печать, пропуск навигации;
+- assets/site-data.js, assets/search-index.js — ГЕНЕРИРУЮТСЯ скриптом tools/build-search-index.py (python3 tools/build-search-index.py; с ключом --check проверяет актуальность). Нужно запускать после правки текста страниц;
+- tools/make-dark.py — генератор тёмных переопределений в assets/site.css (запускать после появления новых светлых цветов в style.css или demo.css).
 
 Ограничения инструментов (file://, GitHub Pages, песочница, измерения, что не проверялось) собраны на главной странице в разделе «Ограничения учебника и его инструментов».
 
