@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="ru" data-layout-engine-version="5">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Глубокое устройство Layout Engine: box tree, formatting contexts, intrinsic sizing, Flexbox, Grid, fragment tree, layout invalidation и измерение геометрии.">
+  <meta name="theme-color" content="#111827">
+  <title>Layout Engine — как браузер рассчитывает геометрию</title>
+  <link rel="stylesheet" href="../assets/browser-pipeline.css">
+  <link rel="stylesheet" href="../assets/layout-engine.css">
+  <script src="../assets/browser-pipeline.js" defer></script>
+  <script src="../assets/layout-engine.js" defer></script>
+</head>
+<body class="bp-page bp-layout-page">
+  <a class="bp-skip-link" href="#main">Перейти к содержанию</a>
+  <header class="bp-topbar">
+    <a class="bp-brand" href="../index.html" aria-label="На главную проекта">
+      <span class="bp-brand-mark">W</span>
+      <span>Modern Web Technologies</span>
+    </a>
+    <nav class="bp-nav" aria-label="Навигация по проекту">
+      <a href="../index.html">Главная</a>
+      <a href="../html.html">HTML</a>
+      <a href="../css.html">CSS</a>
+      <a href="../browsers.html">Браузеры</a>
+      <a href="browser-pipeline.html">Rendering Pipeline</a>
+      <a href="layout-engine.html" aria-current="page">Layout Engine</a>
+    </nav>
+    <div class="bp-toolbar" aria-label="Инструменты страницы">
+      <button class="bp-tool-button" id="bp-open-search" type="button" aria-haspopup="dialog" aria-controls="bp-search-dialog" title="Поиск (Ctrl+K)"><span aria-hidden="true">⌕</span><span>Поиск</span><kbd>Ctrl K</kbd></button>
+      <button class="bp-tool-button bp-tool-icon" id="bp-open-settings" type="button" aria-haspopup="dialog" aria-controls="bp-settings-dialog" title="Настройки отображения"><span aria-hidden="true">⚙</span><span class="bp-tool-label">Настройки</span></button>
+    </div>
+  </header>
+
+  <div class="bp-dialog-backdrop" id="bp-search-dialog" hidden>
+    <section class="bp-dialog bp-search-dialog" role="dialog" aria-modal="true" aria-labelledby="bp-search-title">
+      <div class="bp-dialog-head"><div><p class="bp-dialog-kicker">ПОИСК ПО ТЕКУЩЕЙ ГЛАВЕ</p><h2 id="bp-search-title">Найти в материале</h2></div><button class="bp-dialog-close" type="button" data-close-dialog aria-label="Закрыть поиск">×</button></div>
+      <label class="bp-search-field"><span aria-hidden="true">⌕</span><input id="bp-search-input" type="search" placeholder="Термин, механизм, технология…" autocomplete="off"><kbd>Esc</kbd></label>
+      <p class="bp-search-hint">Ищет в заголовках и тексте главы. Нажмите Enter для первого результата.</p>
+      <div id="bp-search-results" class="bp-search-results" role="listbox" aria-label="Результаты поиска"><div class="bp-search-empty">Начните вводить запрос.</div></div>
+    </section>
+  </div>
+  <div class="bp-dialog-backdrop" id="bp-settings-dialog" hidden>
+    <section class="bp-dialog bp-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="bp-settings-title">
+      <div class="bp-dialog-head"><div><p class="bp-dialog-kicker">ПЕРСОНАЛИЗАЦИЯ</p><h2 id="bp-settings-title">Настройки страницы</h2></div><button class="bp-dialog-close" type="button" data-close-dialog aria-label="Закрыть настройки">×</button></div>
+      <div class="bp-settings-body">
+        <label class="bp-setting-row"><span><b>Тема</b><small>Цветовая схема интерфейса</small></span><select id="bp-setting-theme"><option value="system">Системная</option><option value="light">Светлая</option><option value="dark">Тёмная</option></select></label>
+        <label class="bp-setting-row"><span><b>Размер текста</b><small>Для основного материала</small></span><select id="bp-setting-font"><option value="normal">Обычный</option><option value="large">Крупнее</option><option value="larger">Максимальный</option></select></label>
+        <label class="bp-setting-row"><span><b>Ширина чтения</b><small>Длина строки и ширина страницы</small></span><select id="bp-setting-width"><option value="standard">Стандартная</option><option value="wide">Широкая</option><option value="narrow">Узкая</option></select></label>
+        <label class="bp-setting-row"><span><b>Интервал строк</b><small>Вертикальный ритм текста</small></span><select id="bp-setting-spacing"><option value="standard">Стандартный</option><option value="relaxed">Свободный</option><option value="compact">Компактный</option></select></label>
+        <label class="bp-setting-row bp-setting-toggle"><span><b>Уменьшить анимацию</b><small>Отключить эффекты движения</small></span><input type="checkbox" id="bp-setting-motion"></label>
+      </div>
+      <div class="bp-dialog-footer"><button id="bp-settings-reset" type="button" class="bp-secondary-button">Сбросить</button><button id="bp-settings-done" type="button" class="bp-primary-button">Готово</button></div>
+    </section>
+  </div>
+
+  <main id="main" class="bp-shell">
+    <div class="bp-breadcrumb"><a href="../browsers.html">Браузеры</a><span aria-hidden="true">/</span><a href="browser-pipeline.html">Rendering Pipeline</a><span aria-hidden="true">/</span><span>Layout Engine</span></div>
+
+    <section class="bp-hero">
+      <p class="bp-eyebrow">BROWSER INTERNALS · LAYOUT · GEOMETRY</p>
+      <h1>Layout Engine: как браузер рассчитывает геометрию</h1>
+      <p class="bp-lead">Layout — не команда «расставить HTML-элементы». Это семейство алгоритмов, которые получают структуру боксов, вычисленные стили и ограничения родительского контекста, а затем рассчитывают размеры и пространственные отношения. Результат должен работать для текста, разных письменностей, гибких контейнеров, сеток, прокрутки, печати и динамических изменений.</p>
+      <div class="bp-hero-meta"><span class="bp-tag">Box tree</span><span class="bp-tag">Formatting contexts</span><span class="bp-tag">Intrinsic sizing</span><span class="bp-tag">Flexbox / Grid</span><span class="bp-tag">Fragment tree</span></div>
+    </section>
+
+    <section class="bp-section bp-toc">
+      <p class="bp-toc-title">Карта главы</p>
+      <div class="bp-toc-grid">
+        <a href="#le-model">01. Модель Layout</a>
+        <a href="#le-box-tree">02. DOM и box tree</a>
+        <a href="#le-formatting">03. Formatting contexts</a>
+        <a href="#le-containing">04. Containing block и координаты</a>
+        <a href="#le-sizing">05. Алгоритмы размеров</a>
+        <a href="#le-algorithms">06. Block, Inline, Flex и Grid</a>
+        <a href="#le-fragments">07. Фрагментация и fragment tree</a>
+        <a href="#le-invalidation">08. Повторная компоновка</a>
+        <a href="#le-geometry-api">09. Геометрические API</a>
+        <a href="#le-performance">10. Производительность и диагностика</a>
+        <a href="#le-labs">11. Интерактивные лаборатории</a>
+        <a href="#le-sources">12. Спецификации и реализация</a>
+      </div>
+    </section>
+
+    <section id="le-model" class="bp-section">
+      <p class="bp-section-kicker">01 · INPUTS → CONSTRAINTS → GEOMETRY</p>
+      <h2>Что именно делает Layout Engine</h2>
+      <p>На входе layout-алгоритм получает не просто DOM. Ему нужны как минимум структура, вычисленные CSS-значения, правила конкретного formatting context, доступное пространство и данные о содержимом. На выходе появляются геометрические результаты, которые позднее используются для painting, hit-testing, прокрутки и некоторых DOM API.</p>
+      <div class="le-flow" role="img" aria-label="Поток от DOM и computed styles через генерацию боксов и layout algorithms к fragment tree">
+        <div class="le-flow-node"><b>DOM + generated content</b><small>Элементы, текст, псевдоэлементы</small></div><span>+</span>
+        <div class="le-flow-node"><b>Computed styles</b><small>display, размер, шрифты, writing-mode</small></div><span>↓</span>
+        <div class="le-flow-node"><b>Box generation</b><small>Principal, anonymous и дочерние боксы</small></div><span>↓</span>
+        <div class="le-flow-node"><b>Formatting context</b><small>Block, inline, flex, grid, table…</small></div><span>↓</span>
+        <div class="le-flow-node"><b>Constraint solving</b><small>Доступное место, min/max, intrinsic sizes</small></div><span>↓</span>
+        <div class="le-flow-node le-flow-result"><b>Geometry / fragments</b><small>Позиции, размеры, строки и фрагменты</small></div>
+      </div>
+      <p class="bp-caption">Это концептуальная модель, а не обязательный список классов или отдельных проходов для всех браузеров. Реальные движки могут объединять стадии, кэшировать результаты и выполнять частичную компоновку.</p>
+
+      <h3>Важные различия</h3>
+      <div class="bp-detail-grid">
+        <article><span class="bp-stage-index">A</span><h3>Computed style</h3><p>Это вычисленные значения CSS-свойств после каскада и наследования. Они задают параметры компоновки, но сами по себе ещё не являются окончательной геометрией. Например, <code>width: auto</code> не означает заранее известную числовую ширину.</p></article>
+        <article><span class="bp-stage-index">B</span><h3>Box tree / layout objects</h3><p>Движок организует боксы и структуры, необходимые выбранным моделям компоновки. Эта структура не обязана повторять DOM один к одному: возможны anonymous boxes, отсутствие бокса и дополнительные боксы.</p></article>
+        <article><span class="bp-stage-index">C</span><h3>Fragment tree</h3><p>Один логический бокс может дать несколько фрагментов: например, текстовый блок распадается на строки, а содержимое — на колонки или страницы. Геометрия результата может быть богаче, чем одна пара x/y и width/height.</p></article>
+      </div>
+      <aside class="bp-callout bp-callout-key"><strong>Главная идея</strong><p>Алгоритм компоновки не «угадывает пиксели из CSS». Он разрешает систему взаимозависимых ограничений: что доступно, что обязательно должно поместиться, что может растягиваться, что переносится и какие правила имеет текущий контекст.</p></aside>
+    </section>
+
+    <section id="le-box-tree" class="bp-section">
+      <p class="bp-section-kicker">02 · BOX GENERATION</p>
+      <h2>DOM tree не равен box tree</h2>
+      <p>DOM описывает документную структуру, с которой работают селекторы, события, accessibility и DOM API. CSS Display определяет, какие боксы создаются и как они участвуют в форматировании. Поэтому «элемент существует в DOM» и «элемент имеет собственный layout box» — разные утверждения.</p>
+      <h3>Какие преобразования происходят</h3>
+      <ul>
+        <li><code>display: none</code> исключает элемент и его поддерево из box tree для визуальной компоновки. DOM-узлы остаются в документе.</li>
+        <li><code>display: contents</code> убирает principal box самого элемента, но сохраняет участие его потомков и псевдоэлементов в формировании боксов. Это не то же самое, что удаление узла из DOM.</li>
+        <li><code>display: inline</code>, <code>block</code>, <code>list-item</code>, таблицы, flex и grid задают разные виды боксов и правила их участия в formatting contexts.</li>
+        <li>Anonymous boxes возникают, когда для корректной структуры форматирования нужен контейнер, которому не соответствует явный HTML-элемент. Такой бокс нельзя выбрать CSS-селектором как обычный DOM-элемент.</li>
+        <li>Псевдоэлементы <code>::before</code> и <code>::after</code> могут генерировать содержимое и боксы, хотя не являются обычными узлами DOM.</li>
+      </ul>
+      <div class="le-concept-grid">
+        <article><h3>Пример anonymous box</h3><pre><code>&lt;div class="flex"&gt;
+  свободный текст
+  &lt;button&gt;Кнопка&lt;/button&gt;
+&lt;/div&gt;</code></pre><p>При <code>display: flex</code> непосредственные flex items должны быть представлены как элементы flex-контейнера. Прямая текстовая последовательность оборачивается в anonymous flex item. Стилизовать саму эту анонимную обёртку отдельным селектором нельзя.</p></article>
+        <article><h3>Почему это важно</h3><p>Нельзя выводить структуру layout только из дерева Elements в DevTools. DOM-представление — не полная визуальная модель. Для отладки надо смотреть computed styles, box model, layout overlays и фактические фрагменты/позиции.</p></article>
+      </div>
+      <aside class="bp-callout bp-callout-warning"><strong>Нюанс доступности</strong><p><code>display: contents</code> в прошлом имел межбраузерные проблемы с сохранением семантики некоторых элементов в accessibility tree. Не применяй его как универсальный способ «развернуть обёртку» без проверки целевых браузеров и дерева доступности.</p></aside>
+      <div class="le-lab-card">
+        <div class="le-lab-heading"><div><span class="le-lab-number">LAB 01</span><h3>Как display меняет структуру боксов</h3></div><label class="le-control">display родителя<select id="le-box-display"><option value="block">block</option><option value="flex">flex</option><option value="grid">grid</option><option value="contents">contents</option><option value="none">none</option></select></label></div>
+        <div class="le-box-stage" id="le-box-stage"><div class="le-demo-parent" id="le-demo-parent"><span class="le-demo-child">Элемент A</span><span class="le-demo-child">Элемент B</span><span class="le-demo-child">Элемент C</span></div><span class="le-stage-note">Внешняя область компоновки</span></div>
+        <p class="le-lab-output" id="le-box-output" aria-live="polite">Родитель создаёт block box. Его дети компонуются внутри него в нормальном потоке.</p>
+        <p class="bp-caption">Демо упрощает box tree до видимой структуры. Для grid-контейнера <code>display: contents</code> потомки становятся участниками внешнего grid-контекста, а граница удалённого родительского бокса исчезает.</p>
+      </div>
+    </section>
+
+    <section id="le-formatting" class="bp-section">
+      <p class="bp-section-kicker">03 · FORMATTING CONTEXTS</p>
+      <h2>Formatting context — локальная система правил</h2>
+      <p>Formatting context определяет, как группа боксов размещается и взаимодействует с соседями. Это не обязательно отдельный процесс или поток. Это набор правил геометрии. Один документ одновременно содержит вложенные и взаимодействующие контексты.</p>
+      <div class="bp-table-wrap"><table><thead><tr><th>Контекст / модель</th><th>Что управляет компоновкой</th><th>Что важно не перепутать</th></tr></thead><tbody>
+        <tr><td>Block formatting context (BFC)</td><td>Блочные боксы располагаются последовательно в block direction; учитываются margin collapsing, floats и ширина доступного пространства.</td><td>Block formatting context — не просто любой элемент с <code>display: block</code>. Он может быть создан, например, flow-root, float, absolute positioning, overflow-контекстами и некоторыми другими механизмами.</td></tr>
+        <tr><td>Inline formatting context (IFC)</td><td>Inline-level содержимое формирует строки; учитываются метрики шрифта, line-height, переносы, bidi и вертикальное выравнивание.</td><td>Строка не является DOM-элементом. Она собирается алгоритмом line layout и может содержать фрагменты нескольких элементов.</td></tr>
+        <tr><td>Flex formatting context</td><td>Одномерное распределение свободного пространства между flex items, включая grow/shrink и ограничения размеров.</td><td>Flex не означает «просто поставить рядом». У каждого item есть base size, hypothetical size и min/max constraints.</td></tr>
+        <tr><td>Grid formatting context</td><td>Двумерная система tracks, grid lines и размещения items; размеры дорожек зависят от intrinsic contributions и свободного пространства.</td><td><code>1fr</code> не всегда равен доле оставшейся ширины без оглядки на minimums и intrinsic sizing.</td></tr>
+        <tr><td>Table formatting</td><td>Строки, колонки, ячейки, согласование размеров и специфические правила таблиц.</td><td>Табличная модель не сводится к block flow: некоторые размеры ячеек зависят друг от друга.</td></tr>
+        <tr><td>Ruby / MathML / специализированные модели</td><td>Специализированные структуры текста и содержимого.</td><td>Веб-платформа содержит больше layout-моделей, чем block, flex и grid.</td></tr>
+      </tbody></table></div>
+
+      <h3>Block flow и схлопывание margin</h3>
+      <p>В обычном block flow вертикальные соседние margins некоторых блочных боксов могут схлопываться (margin collapsing). Итоговое расстояние не обязательно равно сумме двух заданных значений. Схлопывание зависит от контекста, положения margins, содержимого, borders/padding и того, образует ли элемент новый BFC.</p>
+      <p>Создание нового BFC меняет правила взаимодействия с floats и margin collapsing. Например, <code>display: flow-root</code> создаёт BFC без побочного эффекта прокрутки, который исторически использовали у <code>overflow: hidden</code>. Это один из примеров, когда CSS-свойство выбирают не ради внешнего вида, а ради границы форматирования.</p>
+
+      <h3>Inline layout и текст</h3>
+      <p>Для текста движок должен определить доступную ширину строки, сегменты переносов, метрики шрифтов, правила shaping и bidi. После этого последовательность inline items разбивается на line boxes. Внутренние фрагменты текста могут отличаться от границ HTML-узлов: строка способна включать часть одного текстового узла и части соседних inline-элементов.</p>
+      <p>Поэтому ширина текста не всегда вычисляется как сумма простых ширин символов. На неё влияют shaping (лигатуры и контекстные формы), кернинг, языковые правила переносов, Unicode bidirectional algorithm, letter/word spacing, font fallback и variable font axes.</p>
+
+      <h3>Почему создают новый контекст</h3>
+      <p>Граница formatting context изолирует часть правил взаимодействия. Например, BFC не даёт внешним floats проникать внутрь контекста и участвовать в его внутренней геометрии как обычным соседям. Flex и Grid заменяют обычный block/inline алгоритм для непосредственных items, но сами могут содержать обычный поток внутри своих items.</p>
+      <aside class="bp-callout"><strong>Не смешивай термины</strong><p><code>display: block</code> описывает тип principal box и его внешнее поведение. BFC описывает контекст компоновки. Блочный элемент не обязательно создаёт новый BFC, а некоторые элементы со значениями display, не похожими на block, способны создавать отдельные formatting contexts.</p></aside>
+    </section>
+
+    <section id="le-containing" class="bp-section">
+      <p class="bp-section-kicker">04 · CONTAINING BLOCKS & COORDINATE SYSTEMS</p>
+      <h2>Containing block — откуда берутся проценты и координаты</h2>
+      <p>Containing block — геометрическая система отсчёта, относительно которой разрешаются некоторые размеры и позиции. Это не обязательно ближайший DOM-parent. Правило зависит от типа бокса, позиционирования и свойств предков.</p>
+      <ul>
+        <li>Для обычного статически позиционированного блочного бокса содержащий блок обычно образован content box ближайшего block container ancestor.</li>
+        <li>Для absolute-positioned элемента containing block обычно формируется padding box ближайшего подходящего positioned ancestor; дополнительные свойства вроде <code>transform</code> и некоторых containment-механизмов также могут создавать containing block для positioned descendants.</li>
+        <li>Для fixed-positioned элемента типичный containing block — viewport, но трансформации и ряд других свойств предка способны изменить это поведение.</li>
+        <li>Для процентов по вертикальному размеру важно, определён ли соответствующий размер containing block. Если он зависит от содержимого, процент иногда разрешается как <code>auto</code> или по специальным правилам конкретного свойства.</li>
+      </ul>
+      <h3>Позиционирование не меняет одну и ту же вещь</h3>
+      <div class="bp-detail-grid">
+        <article><h3>Static / normal flow</h3><p>Бокс участвует в обычном потоке. Его положение зависит от предыдущих элементов, родительского formatting context и размеров соседей.</p></article>
+        <article><h3>Relative</h3><p>Сначала бокс занимает место так, как будто остаётся в потоке; затем его визуальное положение смещается. Исходное место сохраняется.</p></article>
+        <article><h3>Absolute</h3><p>Бокс исключается из normal flow и позиционируется относительно containing block. Он не резервирует место для себя в обычном потоке.</p></article>
+        <article><h3>Fixed</h3><p>Обычно привязан к viewport и не движется при обычной прокрутке документа. Но containing block может быть создан предком.</p></article>
+        <article><h3>Sticky</h3><p>Сочетает нормальный поток и ограничения прокрутки: положение становится «прилипшим» в пределах подходящего scroll container и containing block.</p></article>
+        <article><h3>Float</h3><p>Бокс выходит из обычного последовательного размещения, а inline content обтекает его. Это не аналог flex alignment и не способ задать произвольное позиционирование.</p></article>
+      </div>
+      <h3>Физические и логические оси</h3>
+      <p>Многие привычные объяснения оперируют left/right и width/height. Но CSS-компоновка должна поддерживать горизонтальное и вертикальное письмо, направления inline и block, RTL и смешанные writing modes. Логические свойства <code>inline-size</code>, <code>block-size</code>, <code>margin-inline</code> и <code>inset-block-start</code> описывают оси относительно writing mode, а физические свойства — относительно экрана.</p>
+      <p>Внутри движка физическая и логическая геометрия могут преобразовываться друг в друга. Не предполагай, что inline всегда означает горизонталь, а block — вертикаль.</p>
+    </section>
+
+    <section id="le-sizing" class="bp-section">
+      <p class="bp-section-kicker">05 · SIZING CONSTRAINTS</p>
+      <h2>Как алгоритм получает итоговый размер</h2>
+      <p>Размер бокса не всегда получается из одного свойства <code>width</code>. Алгоритм учитывает доступное пространство, preferred size, min/max constraints, intrinsic contributions содержимого, box sizing, aspect ratio и модель компоновки родителя.</p>
+      <h3>Content box и border box</h3>
+      <p>В стандартной модели <code>box-sizing: content-box</code> заданная ширина относится к content box. Padding и border добавляются снаружи. При <code>border-box</code> указанная ширина включает content, padding и border (но не margin). Это влияет на разрешение ограничений, но не меняет само понятие containing block или форматирование текста.</p>
+      <div class="le-formula"><code>border-box inline size = content size + padding-inline + border-inline</code><small>Для горизонтальной физической модели; в логической записи рассматривается соответствующая inline axis.</small></div>
+
+      <h3>Intrinsic sizes: min-content и max-content</h3>
+      <p>Intrinsic sizing отвечает на вопрос: насколько содержимое хочет быть широким, если не учитывать обычный фиксированный размер родителя?</p>
+      <div class="bp-table-wrap"><table><thead><tr><th>Размер</th><th>Смысл</th><th>Интуитивная проверка</th></tr></thead><tbody>
+        <tr><td><code>min-content</code></td><td>Наименьший размер, который допускает содержимое при наиболее интенсивном разрешённом переносе.</td><td>Для обычного текста часто близок к ширине самого длинного непереносимого фрагмента.</td></tr>
+        <tr><td><code>max-content</code></td><td>Размер без soft wrapping в рассматриваемой оси, если нет иных ограничений.</td><td>Длина содержимого в одну строку (с учётом реальной типографики).</td></tr>
+        <tr><td><code>fit-content</code></td><td>Ограничивает размер доступным пространством, не опускаясь ниже min-content и не превышая max-content.</td><td>Содержимое растёт, пока есть место, но не становится меньше своей минимальной intrinsic ширины.</td></tr>
+      </tbody></table></div>
+      <div class="le-formula"><code>fit-content(available) = min(max-content, max(min-content, available))</code><small>Схематическая формула для понимания fit-content sizing; точное применение определяется конкретным свойством и алгоритмом.</small></div>
+      <p>Intrinsic contributions используются не только при явном <code>width: min-content</code>. Они участвуют в sizing flex/grid tracks, shrink-to-fit-подобных вычислениях, автоматических minimum sizes и других алгоритмах.</p>
+
+      <h3>Почему percentage иногда «не работает как ожидалось»</h3>
+      <p>Процент требует базы, относительно которой его можно вычислить. Если размер containing block по этой оси определён явно или может быть разрешён, процент обычно становится конкретным размером. Если размер зависит от потомков, возникает циклическая зависимость: размер родителя зависит от дочернего, а размер дочернего задан процентом от родителя. CSS определяет специальные правила для таких случаев; универсального правила «процент всегда от родителя» недостаточно.</p>
+
+      <h3>min/max и автоматические минимумы</h3>
+      <p>Окончательный размер ограничивается <code>min-width</code>/<code>max-width</code> (или логическими аналогами). В flex и grid автоматический минимум некоторых items может опираться на min-content contribution. Из-за этого item иногда не сжимается, хотя свободного места недостаточно. <code>min-width: 0</code> в соответствующей горизонтальной модели разрешает ему стать уже intrinsic minimum; однако содержимое ещё может переполнять item, поэтому иногда дополнительно нужен перенос текста, clipping или scrolling.</p>
+
+      <h3>Aspect ratio и replaced elements</h3>
+      <p>Предпочтительное соотношение сторон (<code>aspect-ratio</code>) связывает размеры двух осей. Если одна ось определена, алгоритм может вывести другую с учётом min/max constraints и правил конкретного контекста. У replaced elements — например, изображений и видео — могут быть собственные intrinsic width, height и aspect ratio; CSS constraints могут ограничить или изменить их использованный размер.</p>
+      <aside class="bp-callout bp-callout-warning"><strong>Computed value ≠ used geometry</strong><p><code>getComputedStyle()</code> часто возвращает сериализованное resolved value, которое для отдельных свойств может быть уже использованным значением. Это не делает computed style универсальным источником всех размеров layout. Для геометрии конкретного элемента нужны соответствующие DOM geometry APIs и понимание их координатной системы.</p></aside>
+      <div class="le-lab-card">
+        <div class="le-lab-heading"><div><span class="le-lab-number">LAB 02</span><h3>Intrinsic sizing</h3></div><label class="le-control">Режим ширины<select id="le-intrinsic-mode"><option value="min-content">min-content</option><option value="max-content">max-content</option><option value="fit-content">fit-content</option></select></label></div>
+        <label class="le-range-label" for="le-intrinsic-space">Доступная ширина контейнера <output id="le-intrinsic-space-value">280 px</output></label>
+        <input id="le-intrinsic-space" class="le-range" type="range" min="160" max="560" step="10" value="280">
+        <div class="le-intrinsic-frame" id="le-intrinsic-frame"><div class="le-intrinsic-box" id="le-intrinsic-box"><b>Текст с разной intrinsic width</b><span>Короткие слова, длинное_непрерывное_имя_компонента и несколько обычных фраз для сравнения переносов.</span></div></div>
+        <p class="le-lab-output" id="le-intrinsic-output" aria-live="polite">Выбран min-content.</p>
+        <p class="bp-caption">Результат зависит от шрифта и браузера. Поиграй шириной контейнера и сравни минимальную, максимальную и ограниченную intrinsic ширину.</p>
+      </div>
+    </section>
+
+    <section id="le-algorithms" class="bp-section">
+      <p class="bp-section-kicker">06 · LAYOUT ALGORITHMS</p>
+      <h2>Отдельные модели — отдельные алгоритмы</h2>
+      <p>CSS задаёт несколько layout-моделей, каждая со своим алгоритмом. Движок не применяет один общий метод «положить детей в контейнер»: он выбирает поведение по formatting context и стилям.</p>
+      <h3>Block layout — последовательный поток</h3>
+      <p>В простом block flow дочерние block-level боксы располагаются последовательно в block direction. Их размеры могут зависеть от available inline size, margins, padding, borders и содержимого. Изменение ширины предка способно изменить переносы текста, а значит высоту потомков и положение следующих sibling boxes.</p>
+      <p>В блочной модели часто встречаются зависимости вверх/вниз по дереву и между соседями: сначала надо определить доступную ширину; после переноса строк становится известна высота; итоговая высота предыдущего блока сдвигает следующие. Поэтому изменение одного значения может инвалидировать существенную часть геометрии ниже по потоку.</p>
+
+      <h3>Inline layout — построение строк</h3>
+      <p>Упрощённо line layout включает следующие задачи:</p>
+      <ol>
+        <li>Сформировать последовательность inline items из текста, inline-боксов и специальных элементов.</li>
+        <li>Определить shaping и метрики текста с учётом шрифтов, языка, bidi и writing mode.</li>
+        <li>Найти допустимые точки переноса строки и выбрать переносы в пределах доступной ширины.</li>
+        <li>Сформировать line boxes и согласовать вертикальное выравнивание фрагментов.</li>
+        <li>Повторить для оставшегося текста, пока содержимое не будет размещено.</li>
+      </ol>
+      <p>Это не буквальная реализация одного и того же внутреннего цикла в каждом браузере. Это описание основных задач. Реальные Unicode shaping и line breaking значительно сложнее: важны языковые правила, grapheme clusters, bidi reordering, hyphenation, fallback fonts и inline decorations.</p>
+
+      <h3>Flexbox — распределение свободного пространства</h3>
+      <p>Flex layout часто объясняют как распределение остатка ширины. Это лишь часть алгоритма. Для каждого item вычисляются flex base size и hypothetical main size; затем алгоритм определяет, будет ли контейнер распределять положительное или отрицательное свободное пространство, учитывает <code>flex-grow</code> или <code>flex-shrink</code>, min/max constraints и фиксирует («замораживает») items, которые достигли ограничений. В процессе могут повторяться этапы распределения.</p>
+      <div class="le-algorithm-steps">
+        <div><b>1. Основа</b><span>Определить flex base size с учётом flex-basis и правил intrinsic sizing.</span></div>
+        <div><b>2. Гипотеза</b><span>Ограничить размер и получить hypothetical main size.</span></div>
+        <div><b>3. Свободное место</b><span>Сопоставить суммарные размеры items с внутренним размером контейнера.</span></div>
+        <div><b>4. Grow или shrink</b><span>Распределить положительное/отрицательное пространство с соответствующими коэффициентами.</span></div>
+        <div><b>5. Min/max и freeze</b><span>Ограничить нарушившие min/max items и повторно распределить остаток при необходимости.</span></div>
+      </div>
+      <p>При shrink учитывается scaled flex shrink factor, связанный с flex base size. Поэтому простое распределение отрицательного пространства только по значениям <code>flex-shrink</code> неверно.</p>
+
+      <h3>Grid — алгоритм размеров tracks</h3>
+      <p>Grid задаёт tracks, а алгоритм должен вычислить их базовые размеры и пределы роста. На sizing влияют фиксированные размеры, intrinsic track sizing functions (<code>min-content</code>, <code>max-content</code>, <code>auto</code>), spanning items, свободное пространство и flexible tracks (<code>fr</code>). В общем случае размер дорожки нельзя получить простым делением контейнера на число колонок.</p>
+      <ul>
+        <li>Сначала определяется размещение items и набор tracks, включая неявные дорожки.</li>
+        <li>Затем вычисляются intrinsic contributions элементов, в том числе тех, которые перекрывают несколько tracks.</li>
+        <li>Track sizing algorithm устанавливает базовые размеры и growth limits и распределяет вклад содержимого.</li>
+        <li>После разрешения intrinsic размеров учитывается доступное свободное пространство и flexible tracks.</li>
+        <li>Ограничения контейнера, gutters, min/max и процентные размеры могут изменить результат.</li>
+      </ul>
+      <p>Именно поэтому <code>1fr</code> означает не просто «одну равную долю viewport». Это flexible track sizing function, работающая внутри конкретного grid container после соответствующих этапов sizing.</p>
+
+      <h3>Flexbox и Grid на практике: min-width:auto</h3>
+      <p>У flex item автоматический минимальный размер может не позволять сжаться уже min-content size. Частый исправляющий приём — <code>min-width: 0</code> (или логический эквивалент по inline axis). Это не магический фикс: он снимает minimum constraint, но не гарантирует, что потомки будут красиво переноситься или обрезаться.</p>
+      <div class="le-lab-card">
+        <div class="le-lab-heading"><div><span class="le-lab-number">LAB 03</span><h3>Почему flex item не хочет сжиматься</h3></div><label class="le-control">Настройка<select id="le-flex-mode"><option value="auto">min-width: auto</option><option value="zero">min-width: 0</option><option value="wrap">min-width: 0 + overflow-wrap: anywhere</option></select></label></div>
+        <div class="le-flex-demo" id="le-flex-demo"><div class="le-flex-main" id="le-flex-main"><b>Основная область</b><code>very_long_unbreakable_component_identifier_2026</code><span>Текст внутри flex item может иметь собственную intrinsic minimum width.</span></div><aside class="le-flex-side">Панель действий</aside></div>
+        <p class="le-lab-output" id="le-flex-output" aria-live="polite">Автоматический минимум может удерживать item шире доступного пространства.</p>
+        <p class="bp-caption">Сравни ширину flex item и поведение длинной строки. <code>min-width: 0</code> и управление переносом — две разные задачи.</p>
+      </div>
+
+      <h3>Выбор модели — инженерное решение</h3>
+      <div class="bp-table-wrap"><table><thead><tr><th>Требование</th><th>Подходящая модель</th><th>Что проверить</th></tr></thead><tbody>
+        <tr><td>Текстовые блоки и последовательное содержимое</td><td>Normal flow / block + inline</td><td>Intrinsic content, margins, line-height, writing mode</td></tr>
+        <tr><td>Распределение элементов по одной оси</td><td>Flexbox</td><td>Base sizes, min-width:auto, grow/shrink, wrapping</td></tr>
+        <tr><td>Двумерная структура с колонками и строками</td><td>Grid</td><td>Track sizing, intrinsic contributions, explicit/implicit tracks</td></tr>
+        <tr><td>Обтекание иллюстраций текстом</td><td>Float в обычном потоке</td><td>BFC, clear, shape outside при необходимости</td></tr>
+        <tr><td>Табличные данные</td><td>Table layout</td><td>Доступность, колонки, согласование размеров ячеек</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section id="le-fragments" class="bp-section">
+      <p class="bp-section-kicker">07 · FRAGMENTATION</p>
+      <h2>Один бокс может превратиться в несколько фрагментов</h2>
+      <p>Нельзя всегда представить результат layout одним прямоугольником на каждую DOM-ноду. Текст распадается на line fragments; многоколоночный контейнер и печатная страница дробят содержимое на fragmentainers; крупный элемент может продолжиться в следующей колонке или на следующей странице согласно правилам fragmentation.</p>
+      <div class="le-fragment-demo" role="img" aria-label="Один логический блок распределён между тремя колонками как три физических фрагмента">
+        <div class="le-logical-box">Логический box<div class="le-fragments"><div>Fragment 1</div><div>Fragment 2</div><div>Fragment 3</div></div></div>
+        <p>Одна логическая сущность → несколько физических участков размещения</p>
+      </div>
+      <p>Фрагментация встречается при печати, CSS Columns и в некоторых paged media сценариях. Учитываются свойства break-before/after/inside, доступное пространство, widows/orphans, keep constraints и правила конкретного алгоритма. Иногда перенос невозможен без нарушения ограничений, и движку приходится применять определённые стандартом fallback-поведения.</p>
+      <h3>Fragment tree в Chromium LayoutNG</h3>
+      <p>В LayoutNG Chromium layout algorithm производит immutable fragment results. Это отличается от старого подхода, где изменяемые layout objects долго хранили геометрию и помечались dirty. Fragment tree удобен для частичного переиспользования результатов, painting, hit-testing и фрагментации: один layout object способен соответствовать нескольким physical fragments, а некоторые fragmentainers не обязаны иметь отдельный обычный layout object.</p>
+      <p>Для некоторых моделей (в частности, flex и grid) движку может понадобиться отдельный measure pass, чтобы определить размеры содержимого, прежде чем выполнить финальную раскладку. Если вложенные измерения повторяются без кэширования, стоимость может резко расти. В LayoutNG явные объекты входных constraints и выходных fragments позволяют хранить и переиспользовать результаты измерения и layout. Это конкретное архитектурное решение Blink, а не обещание, что любой flex/grid layout в любом браузере имеет фиксированную сложность <code>O(n)</code>.</p>
+      <p>Архитектура LayoutNG — деталь Blink/Chromium, а не нормативное требование CSS. Другие движки могут организовывать внутренние данные иначе, сохраняя веб-совместимое поведение.</p>
+    </section>
+
+    <section id="le-invalidation" class="bp-section">
+      <p class="bp-section-kicker">08 · INCREMENTAL LAYOUT</p>
+      <h2>Почему после изменения не всегда пересчитывается вся страница</h2>
+      <p>Полная компоновка всего документа после каждого небольшого изменения была бы слишком дорогой. Движки отслеживают затронутые участки и стараются переиспользовать результаты там, где входные параметры не изменились. В разных движках это может называться dirty flags, invalidation, layout roots, constraints, fragment caching и по-другому.</p>
+      <h3>Что может инвалидировать геометрию</h3>
+      <ul>
+        <li>Изменение размеров контейнера или viewport.</li>
+        <li>Изменение текста, шрифта, font loading, line-height или языковых настроек.</li>
+        <li>Добавление/удаление DOM-узлов, изменение классов и CSS-свойств, влияющих на layout.</li>
+        <li>Изменение контента изображения или replaced element, например после загрузки intrinsic dimensions.</li>
+        <li>Изменение grid/flex контекста, позиции, writing mode, scrollbar или scroll container.</li>
+        <li>События, связанные с viewport, zoom и доступным размером области отображения.</li>
+      </ul>
+      <h3>Зависимости ширины и высоты</h3>
+      <p>Например, изменение inline-size родителя может привести к новым переносам строк, изменению block-size абзацев, сдвигу всех следующих блоков и изменению размеров scrollable overflow area. Поэтому влияние может распространяться дальше изменённого элемента. Обратная зависимость тоже возможна: intrinsic sizing дочерних элементов влияет на размеры родителя.</p>
+      <h3>Containment — явная граница для части зависимостей</h3>
+      <p>CSS Containment позволяет автору сообщить браузеру, что определённые части rendering/layout могут быть изолированы. <code>contain: layout</code> ограничивает некоторые связи layout с внешним окружением; <code>contain: size</code> меняет участие внутреннего содержимого в вычислении размера; <code>contain: paint</code> ограничивает область рисования; <code>content-visibility: auto</code> позволяет пропускать часть работы для содержимого вне области видимости при соблюдении правил intrinsic placeholder sizing.</p>
+      <p>Containment влияет и на поведение документа: новые containing blocks, stacking contexts, clipping, размеры и наблюдаемость. Это не бесплатный атрибут «ускорить div». Используй его, когда структура действительно допускает такие границы.</p>
+      <aside class="bp-callout bp-callout-warning"><strong>Не обещай локальность без доказательств</strong><p>Изменение одного CSS-свойства может повлиять на соседей, потомков или большие участки страницы. И наоборот, браузер может переиспользовать результаты, которые теоретически могли бы быть затронуты. Реальную область работы определяй профилированием, а не по названию свойства.</p></aside>
+    </section>
+
+    <section id="le-geometry-api" class="bp-section">
+      <p class="bp-section-kicker">09 · LAYOUT GEOMETRY APIS</p>
+      <h2>Как JavaScript наблюдает геометрию</h2>
+      <p>DOM geometry APIs возвращают разные проекции состояния layout. Они не взаимозаменяемы и не используют одну и ту же систему координат.</p>
+      <div class="bp-table-wrap"><table><thead><tr><th>API</th><th>Что возвращает</th><th>Важное ограничение</th></tr></thead><tbody>
+        <tr><td><code>getBoundingClientRect()</code></td><td>Минимальный прямоугольник, содержащий CSS border boxes элемента, в viewport coordinates.</td><td>Учитывает CSS transforms; при нескольких фрагментах возвращает объединяющий прямоугольник.</td></tr>
+        <tr><td><code>offsetWidth / offsetHeight</code></td><td>Размер layout border box в целых CSS pixels (в обычном случае).</td><td>Округление и поведение для специальных/скрытых элементов; не даёт точную дробную геометрию.</td></tr>
+        <tr><td><code>offsetTop / offsetLeft</code></td><td>Положение относительно offsetParent по соответствующим правилам.</td><td>Это не универсальные координаты относительно viewport или document.</td></tr>
+        <tr><td><code>clientWidth / clientHeight</code></td><td>Внутренний размер padding box без border и без соответствующей полосы прокрутки (если она занимает место).</td><td>Целочисленные значения; не включает scrollable overflow.</td></tr>
+        <tr><td><code>scrollWidth / scrollHeight</code></td><td>Размер области содержимого, включая область, доступную через прокрутку.</td><td>Помогает обнаружить overflow, но не определяет его визуальную причину.</td></tr>
+        <tr><td><code>ResizeObserver</code></td><td>Асинхронные уведомления об изменении наблюдаемых box sizes.</td><td>Callback выполняется по правилам rendering update; изменение размеров в callback может вызвать дополнительные циклы и предупреждения.</td></tr>
+      </tbody></table></div>
+      <h3>Layout position и visual position — разные понятия</h3>
+      <p>Transform перемещает визуальное представление элемента, не перераспределяя место в normal flow. Поэтому <code>getBoundingClientRect()</code> обычно меняется, а <code>offsetLeft</code> остаётся основанным на layout-положении. Это один из наглядных способов увидеть разницу между геометрией размещения и визуальным преобразованием.</p>
+      <div class="le-lab-card">
+        <div class="le-lab-heading"><div><span class="le-lab-number">LAB 04</span><h3>Offset geometry против visual rectangle</h3></div><label class="le-control le-check"><input id="le-transform-toggle" type="checkbox"> применить translateX(48px)</label></div>
+        <div class="le-geometry-stage"><div class="le-geometry-target" id="le-geometry-target">Целевой элемент</div></div>
+        <div class="le-metrics" aria-live="polite"><div><span>offsetLeft</span><b id="le-offset-left">—</b></div><div><span>offsetWidth</span><b id="le-offset-width">—</b></div><div><span>rect.left</span><b id="le-rect-left">—</b></div><div><span>rect.width</span><b id="le-rect-width">—</b></div></div>
+        <p class="le-lab-output" id="le-geometry-output">Сначала снимаются исходные значения.</p>
+      </div>
+      <h3>Когда чтение геометрии запускает layout</h3>
+      <p>Если JavaScript изменил стиль, влияющий на геометрию, а затем синхронно запросил layout-dependent значение, браузеру может потребоваться немедленно выполнить style/layout, чтобы вернуть актуальный результат. Это часто называют forced synchronous layout или forced reflow. Сам вызов <code>getBoundingClientRect()</code> не всегда дорог: стоимость зависит от того, устарели ли данные, которые нужно вернуть.</p>
+    </section>
+
+    <section id="le-performance" class="bp-section">
+      <p class="bp-section-kicker">10 · PERFORMANCE ENGINEERING</p>
+      <h2>Как не создавать лишнюю работу Layout Engine</h2>
+      <h3>Layout thrashing: read → write → read → write</h3>
+      <p>Проблемный шаблон — чередовать изменения геометрии и чтение геометрических значений внутри цикла. Каждое чтение после инвалидирующей записи может вынудить браузер синхронно обновить layout. Лучше разделять фазу измерений и фазу изменений: сначала собрать нужные значения, затем выполнить записи, не читая геометрию между ними.</p>
+      <pre class="bp-code"><code>// Риск: чередование write/read.
+for (const item of items) {
+  item.style.width = `${container.offsetWidth}px`;
+  console.log(item.offsetHeight);
+}
+
+// Предпочтительнее: группировать чтения и записи.
+const width = container.offsetWidth;
+const heights = items.map(item => item.offsetHeight);
+for (const item of items) {
+  item.style.width = `${width}px`;
+}</code></pre>
+      <p>Второй пример иллюстрирует принцип batching, но не является универсальным рефакторингом любого алгоритма. Если следующая запись действительно зависит от результата измерения предыдущего элемента, нужно пересмотреть саму задачу, применить ResizeObserver или изменить архитектуру обновления.</p>
+
+      <h3>Практические рычаги</h3>
+      <div class="bp-detail-grid">
+        <article><h3>Сокращай геометрические зависимости</h3><p>Не создавай глубокие каскады размеров «родитель зависит от ребёнка, ребёнок от родителя» без необходимости. Уточняй размеры там, где это соответствует интерфейсу.</p></article>
+        <article><h3>Группируй DOM reads/writes</h3><p>Измеряй значения пакетно, затем меняй DOM/CSS. Не запускай forced layout из повторяющихся обработчиков без причины.</p></article>
+        <article><h3>Используй подходящую модель</h3><p>Grid/Flex могут выразить распределение, которое иначе пришлось бы вычислять вручную в JavaScript и обновлять многочисленными style writes.</p></article>
+        <article><h3>Применяй containment осознанно</h3><p>Ограничивай layout/paint dependencies для независимых виджетов, но проверяй влияние на размеры, позиционирование, clipping и stacking.</p></article>
+        <article><h3>Смотри на реальные bottlenecks</h3><p>Большой DOM не гарантирует медленный layout, а малый — быстрый. Важны конкретные алгоритмы, invalidation area, стили, шрифты и частота обновлений.</p></article>
+        <article><h3>Не превращай transform в универсальный костыль</h3><p>Transform часто полезен для анимации визуального перемещения, но не заменяет layout, когда нужно перераспределить пространство между соседями.</p></article>
+      </div>
+
+      <h3>Измерение forced layout: лабораторная модель</h3>
+      <p>Ниже сравниваются два шаблона операций над небольшой группой элементов. Первый чередует write/read, второй группирует все записи перед чтениями. Измерение нужно воспринимать как иллюстрацию причинно-следственной связи, а не как стабильный benchmark: результат зависит от устройства, браузера, фоновой нагрузки и оптимизаций.</p>
+      <div class="le-lab-card">
+        <div class="le-lab-heading"><div><span class="le-lab-number">LAB 05</span><h3>Read/write batching</h3></div><button class="bp-primary-button" id="le-run-layout-test" type="button">Запустить сравнение</button></div>
+        <div class="le-benchmark-bars" id="le-benchmark-bars" aria-hidden="true"><div class="le-benchmark-row"><span>Чередование</span><i id="le-sync-bar"></i><b id="le-sync-time">—</b></div><div class="le-benchmark-row"><span>Группировка</span><i id="le-batch-bar"></i><b id="le-batch-time">—</b></div></div>
+        <div class="le-benchmark-fixture" id="le-benchmark-fixture" aria-hidden="true"></div>
+        <p class="le-lab-output" id="le-benchmark-output" aria-live="polite">Нажми кнопку, чтобы выполнить два варианта измерения.</p>
+      </div>
+      <h3>Инструменты в DevTools</h3>
+      <ul>
+        <li><b>Performance panel:</b> ищи события Layout/Recalculate Style, их длительность, частоту и связь с input/animation callbacks.</li>
+        <li><b>Forced reflow insight:</b> анализируй JavaScript call stack, который инициировал синхронную геометрию.</li>
+        <li><b>Layout Shift Regions:</b> обнаруживай неожиданные перемещения визуальных областей.</li>
+        <li><b>Rendering panel:</b> Paint flashing и layout shift overlays помогают отличать layout от repaint/compositing.</li>
+        <li><b>PerformanceObserver / LayoutShift:</b> собирай информацию о layout instability, но не путай CLS с длительностью layout.</li>
+      </ul>
+    </section>
+
+    <section id="le-labs" class="bp-section">
+      <p class="bp-section-kicker">11 · ENGINEERING CHECKLIST</p>
+      <h2>Как рассуждать о проблеме компоновки</h2>
+      <p>При неожиданном расположении элемента полезно не подбирать CSS наугад, а пройти цепочку причин.</p>
+      <ol class="le-checklist">
+        <li><b>Проверь box generation.</b><span>Есть ли у элемента principal box? Не действует ли <code>display: none</code>, <code>contents</code>, pseudo content или anonymous wrapper?</span></li>
+        <li><b>Определи formatting context.</b><span>Кто размещает элемент: normal flow, inline formatting, flex, grid, table, float или out-of-flow positioning?</span></li>
+        <li><b>Найди containing block.</b><span>Относительно какого бокса разрешаются процентные размеры и координаты?</span></li>
+        <li><b>Собери ограничения.</b><span>Какие available size, min/max, intrinsic contributions, margins, padding, border и aspect ratio применяются?</span></li>
+        <li><b>Проверь письменную модель.</b><span>Какие writing-mode, direction и логические оси действуют?</span></li>
+        <li><b>Измерь реальность.</b><span>Сравни box model в DevTools с <code>getBoundingClientRect()</code>, offset/client/scroll dimensions.</span></li>
+        <li><b>Проверь момент обновления.</b><span>Не читаешь ли ты геометрию сразу после style/DOM write и не вызываешь forced layout?</span></li>
+      </ol>
+      <aside class="bp-callout bp-callout-key"><strong>Инженерный вывод</strong><p>Правильная компоновка — результат согласования модели CSS, содержимого и ограничений. Хорошее решение сначала устраняет неверную модель или constraint, а уже потом подбирает значения отступов и позиционирования.</p></aside>
+    </section>
+
+    <section id="le-sources" class="bp-section bp-sources">
+      <p class="bp-section-kicker">12 · SPECIFICATIONS & IMPLEMENTATIONS</p>
+      <h2>Первичные источники</h2>
+      <p>Для CSS-поведения нормативны спецификации и тесты платформы. Для понимания внутренних структур конкретного браузера нужны engineering docs и исходный код движка. Эти источники отвечают на разные вопросы.</p>
+      <ol>
+        <li><a href="https://www.w3.org/TR/css-display-3/" target="_blank" rel="noopener">CSS Display Module Level 3</a><span>Box generation, display types, formatting contexts, anonymous boxes, display: contents/none.</span></li>
+        <li><a href="https://www.w3.org/TR/CSS2/visuren.html" target="_blank" rel="noopener">CSS 2.1 — Visual formatting model</a><span>Normal flow, block/inline formatting, floats, positioning и containing blocks.</span></li>
+        <li><a href="https://www.w3.org/TR/css-sizing-3/" target="_blank" rel="noopener">CSS Box Sizing Module Level 3</a><span>Preferred, intrinsic и extrinsic sizing; min-content, max-content и fit-content.</span></li>
+        <li><a href="https://www.w3.org/TR/css-flexbox-1/" target="_blank" rel="noopener">CSS Flexible Box Layout Module Level 1</a><span>Flex base size, hypothetical main size, free-space distribution, min/max constraints.</span></li>
+        <li><a href="https://www.w3.org/TR/css-grid-2/" target="_blank" rel="noopener">CSS Grid Layout Module Level 2</a><span>Grid placement, implicit tracks и track sizing algorithms.</span></li>
+        <li><a href="https://www.w3.org/TR/css-break-3/" target="_blank" rel="noopener">CSS Fragmentation Module Level 3</a><span>Fragmentainers, break opportunities и ограничения разрыва.</span></li>
+        <li><a href="https://www.w3.org/TR/css-contain-3/" target="_blank" rel="noopener">CSS Containment Module Level 3</a><span>Layout, size, paint containment и content-visibility-related behavior.</span></li>
+        <li><a href="https://developer.chrome.com/docs/chromium/layoutng" target="_blank" rel="noopener">Chrome for Developers — LayoutNG</a><span>Архитектура Blink LayoutNG: constraints, fragment tree, incremental layout и reuse.</span></li>
+        <li><a href="https://chromium.googlesource.com/chromium/src/+/main/third_party/blink/renderer/core/layout/layout_ng.md" target="_blank" rel="noopener">Chromium source — LayoutNG overview</a><span>Layout algorithms, BlockNode, ConstraintSpace, PhysicalFragment и layout internals.</span></li>
+        <li><a href="https://developer.chrome.com/docs/devtools/performance/" target="_blank" rel="noopener">Chrome DevTools — Performance panel</a><span>Профилирование layout, scripting, paint и rendering work.</span></li>
+        <li><a href="https://developer.chrome.com/docs/devtools/rendering/performance" target="_blank" rel="noopener">Chrome DevTools — Rendering performance</a><span>Paint flashing, layout shift regions и визуальная диагностика.</span></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect" target="_blank" rel="noopener">MDN — getBoundingClientRect()</a><span>Геометрия border box в координатах viewport и влияние transforms.</span></li>
+      </ol>
+      <p class="bp-updated">Статус редакций на момент сверки: CSS Display Level 3 опубликован как Candidate Recommendation Draft от 5 июня 2026 года; CSS Sizing Level 3 — Working Draft от 4 сентября 2026 года. Черновой статус означает, что текст ещё может изменяться. Разделение «нормативное поведение / реализация Blink» принципиально: спецификация описывает observable behavior, а не обязательную внутреннюю архитектуру браузера.</p>
+    </section>
+
+    <section class="bp-section bp-next-section">
+      <p class="bp-section-kicker">СЛЕДУЮЩИЙ УРОВЕНЬ</p>
+      <h2>Куда двигаться дальше</h2>
+      <div class="bp-next-grid">
+        <article><span>01</span><h3>CSS Engine</h3><p><a href="../css.html#engine-internals">Каскад, style resolution, invalidation и вычисление правил</a>.</p></article>
+        <article><span>02</span><h3>Layout Engine</h3><p>Эта глава: от box generation до fragment tree и измерений.</p></article>
+        <article><span>03</span><h3>RenderingNG</h3><p><a href="https://developer.chrome.com/docs/chromium/renderingng-architecture" target="_blank" rel="noopener">Style, Layout, Pre-paint, Paint, Commit, Layerize и Raster</a>.</p></article>
+        <article><span>04</span><h3>HTML parser</h3><p><a href="https://html.spec.whatwg.org/multipage/parsing.html" target="_blank" rel="noopener">Tokenizer states, tree construction и parser-blocking scripts</a>.</p></article>
+      </div>
+    </section>
+
+    <footer class="bp-footer"><a href="browser-pipeline.html">← Вернуться к Rendering Pipeline</a><span>Modern Possibilities of Basic Web Technologies</span></footer>
+  </main>
+</body>
+</html>
