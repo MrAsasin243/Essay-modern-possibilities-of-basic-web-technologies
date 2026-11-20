@@ -86,12 +86,19 @@
       <p class="bp-section-kicker">01 · INPUTS → CONSTRAINTS → GEOMETRY</p>
       <h2>Что именно делает Layout Engine</h2>
       <p>На входе layout-алгоритм получает не просто DOM. Ему нужны как минимум структура, вычисленные CSS-значения, правила конкретного formatting context, доступное пространство и данные о содержимом. На выходе появляются геометрические результаты, которые позднее используются для painting, hit-testing, прокрутки и некоторых DOM API.</p>
-      <div class="le-flow" role="img" aria-label="Поток от DOM и computed styles через генерацию боксов и layout algorithms к fragment tree">
-        <div class="le-flow-node"><b>DOM + generated content</b><small>Элементы, текст, псевдоэлементы</small></div><span>+</span>
-        <div class="le-flow-node"><b>Computed styles</b><small>display, размер, шрифты, writing-mode</small></div><span>↓</span>
-        <div class="le-flow-node"><b>Box generation</b><small>Principal, anonymous и дочерние боксы</small></div><span>↓</span>
-        <div class="le-flow-node"><b>Formatting context</b><small>Block, inline, flex, grid, table…</small></div><span>↓</span>
-        <div class="le-flow-node"><b>Constraint solving</b><small>Доступное место, min/max, intrinsic sizes</small></div><span>↓</span>
+      <div class="le-flow" role="img" aria-label="DOM и computed styles объединяются; затем выполняются генерация боксов, выбор formatting context и разрешение ограничений, в результате формируются геометрия и фрагменты">
+        <div class="le-flow-inputs">
+          <div class="le-flow-node"><b>DOM + generated content</b><small>Элементы, текст, псевдоэлементы</small></div>
+          <span class="le-flow-join" aria-hidden="true">+</span>
+          <div class="le-flow-node"><b>Computed styles</b><small>display, размеры, шрифты, writing-mode</small></div>
+        </div>
+        <span class="le-flow-arrow" aria-hidden="true">↓</span>
+        <div class="le-flow-node"><b>Box generation</b><small>Principal, anonymous и дочерние боксы</small></div>
+        <span class="le-flow-arrow" aria-hidden="true">↓</span>
+        <div class="le-flow-node"><b>Formatting context</b><small>Block, inline, flex, grid, table…</small></div>
+        <span class="le-flow-arrow" aria-hidden="true">↓</span>
+        <div class="le-flow-node"><b>Constraint solving</b><small>Доступное место, min/max, intrinsic sizes</small></div>
+        <span class="le-flow-arrow" aria-hidden="true">↓</span>
         <div class="le-flow-node le-flow-result"><b>Geometry / fragments</b><small>Позиции, размеры, строки и фрагменты</small></div>
       </div>
       <p class="bp-caption">Это концептуальная модель, а не обязательный список классов или отдельных проходов для всех браузеров. Реальные движки могут объединять стадии, кэшировать результаты и выполнять частичную компоновку.</p>
