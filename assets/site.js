@@ -132,8 +132,30 @@
   // Панель инструментов в шапке: поиск и «Настройки»
   // ==========================================================================
   var tools = null;
-  if (topbar) { tools = el('div', { 'class': 'site-tools' }); topbar.appendChild(tools); }
+  if (topbar) {
+    // Controls exist in HTML; site.js only attaches behavior to them.
+    tools = topbar.querySelector('.site-tools');
+    if (!tools) { tools = el('div', { 'class': 'site-tools', 'aria-label': 'Инструменты сайта' }); topbar.appendChild(tools); }
+  }
 
+  // Shared reading settings. Values are validated before applying them to the root element.
+  function getReaderPref(key, fallback, allowed) {
+    var value = store.get('essay:' + key);
+    return allowed.indexOf(value) >= 0 ? value : fallback;
+  }
+  function saveReaderPref(key, value) {
+    try { store.set('essay:' + key, value); } catch (e) { saveFailed = true; }
+    applyReaderPrefs();
+  }
+  function applyReaderPrefs() {
+    var root = document.documentElement;
+    root.setAttribute('data-site-font', getReaderPref('font-size', 'normal', ['small', 'normal', 'large']));
+    root.setAttribute('data-site-width', getReaderPref('content-width', 'normal', ['narrow', 'normal', 'wide']));
+    root.setAttribute('data-site-line', getReaderPref('line-height', 'normal', ['compact', 'normal', 'relaxed']));
+    if (getReaderPref('motion', 'system', ['system', 'reduce']) === 'reduce') root.setAttribute('data-site-motion', 'reduce');
+    else root.removeAttribute('data-site-motion');
+  }
+  applyReaderPrefs();
   function buildPanel() {
     var panel = el('div', { 'class': 'site-panel', role: 'dialog', 'aria-label': 'Настройки сайта' });
     panel.appendChild(el('h3', null, 'Настройки'));
@@ -160,6 +182,38 @@
     var themeHow = el('p', { 'class': 'site-note' });
     add(themeHow, document.createTextNode('Приём: media-запрос '), el('code', null, 'prefers-color-scheme'), document.createTextNode(' плюс ручной выбор в '), el('code', null, 'localStorage'), document.createTextNode('. См. '), link('CSS → Адаптивность и пользовательские настройки', 'css.html#responsive'), document.createTextNode('.'));
     add(panel, fs, themeNote, themeHow);
+    // Reading preferences apply to all main sections.
+    var viewSet = el('fieldset', { 'class': 'site-reading-settings' });
+    viewSet.appendChild(el('legend', null, 'Чтение и отображение'));
+    var prefControls = [];
+    function makeReaderSelect(labelText, key, fallback, options) {
+      var row = el('label', { 'class': 'site-setting-row' });
+      row.appendChild(el('span', null, labelText));
+      var control = el('select', { 'aria-label': labelText });
+      options.forEach(function (o) { control.appendChild(el('option', { value: o[0] }, o[1])); });
+      control.value = getReaderPref(key, fallback, options.map(function (o) { return o[0]; }));
+      control.addEventListener('change', function () { saveReaderPref(key, control.value); });
+      row.appendChild(control);
+      viewSet.appendChild(row);
+      prefControls.push({ control: control, fallback: fallback });
+    }
+    makeReaderSelect('Размер текста', 'font-size', 'normal', [['small', 'Меньше'], ['normal', 'Обычно'], ['large', 'Больше']]);
+    makeReaderSelect('Ширина контента', 'content-width', 'normal', [['narrow', 'Уже'], ['normal', 'Обычно'], ['wide', 'Шире']]);
+    makeReaderSelect('Межстрочный интервал', 'line-height', 'normal', [['compact', 'Компактный'], ['normal', 'Обычный'], ['relaxed', 'Свободный']]);
+    makeReaderSelect('Анимация', 'motion', 'system', [['system', 'Как в системе'], ['reduce', 'Сократить']]);
+    var resetView = el('button', { type: 'button' }, 'Сбросить настройки отображения');
+    var viewNote = el('p', { 'class': 'site-note', role: 'status' });
+    resetView.addEventListener('click', function () {
+      ['essay:font-size', 'essay:content-width', 'essay:line-height', 'essay:motion'].forEach(function (key) {
+        try { store.remove(key); } catch (e) { saveFailed = true; }
+      });
+      applyReaderPrefs();
+      prefControls.forEach(function (item) { item.control.value = item.fallback; });
+      viewNote.textContent = (store.ok && !saveFailed) ? 'Настройки отображения сброшены.' : 'Настройки сброшены только до закрытия страницы: хранилище недоступно.';
+    });
+    viewNote.textContent = (store.ok && !saveFailed) ? 'Настройки сохраняются локально в этом браузере.' : 'Хранилище недоступно: настройки действуют только до закрытия страницы.';
+    add(panel, viewSet, resetView, viewNote);
+
 
     // Прогресс
     panel.appendChild(el('h3', null, 'Прогресс'));
@@ -194,15 +248,24 @@
   if (tools) {
     var supportsPopover = typeof HTMLElement !== 'undefined' && 'popover' in HTMLElement.prototype;
     var panel = buildPanel();
+    var sb = tools.querySelector('[data-site-settings-trigger]');
+    if (!sb) { sb = el('button', { type: 'button' }, 'Настройки'); tools.appendChild(sb); }
     if (supportsPopover) {
-      panel.id = 'site-settings-panel'; panel.setAttribute('popover', '');
-      var sb = el('button', { type: 'button', popovertarget: 'site-settings-panel' }, 'Настройки');
-      add(tools, sb, panel);
+      panel.id = 'site-settings-panel';
+      panel.setAttribute('popover', 'auto');
+      tools.appendChild(panel);
+      sb.setAttribute('popovertarget', panel.id);
+      sb.setAttribute('aria-controls', panel.id);
+      sb.removeAttribute('disabled');
+      panel.addEventListener('toggle', function (e) {
+        sb.setAttribute('aria-expanded', String(e.newState === 'open'));
+      });
     } else {
+      // Native details/summary is the fallback when Popover API is unavailable.
       var det = el('details', { 'class': 'site-settings' });
       det.appendChild(el('summary', null, 'Настройки'));
       det.appendChild(panel);
-      tools.appendChild(det);
+      tools.replaceChild(det, sb);
     }
   }
 
@@ -210,7 +273,7 @@
   // Поиск (диалог + combobox). Индекс загружается лениво, при первом открытии.
   // ==========================================================================
   var dialogOK = typeof HTMLDialogElement !== 'undefined' && HTMLDialogElement.prototype && typeof HTMLDialogElement.prototype.showModal === 'function';
-  var dlg = null, input, list, status, items = null, loading = null, active = -1, current = [], lastTokens = [];
+  var dlg = null, input, list, status, items = null, loading = null, active = -1, current = [], lastTokens = [], searchTrigger = null;
 
   function loadIndex() {
     if (items) return Promise.resolve(items);
@@ -304,7 +367,8 @@
   function chooseActive() { if (active >= 0 && current[active]) { var a = list.children[active].querySelector('a'); a.click(); } }
 
   function buildDialog() {
-    dlg = el('dialog', { 'class': 'site-search', 'aria-label': 'Поиск по сайту' });
+    dlg = el(dialogOK ? 'dialog' : 'div', { 'class': 'site-search', 'aria-label': 'Поиск по сайту' });
+    if (!dialogOK) { dlg.setAttribute('role', 'dialog'); dlg.setAttribute('aria-modal', 'true'); dlg.hidden = true; }
     var head = el('div', { 'class': 'ss-head' });
     input = el('input', { type: 'search', id: 'ss-input', role: 'combobox', 'aria-expanded': 'false', 'aria-controls': 'ss-list', 'aria-autocomplete': 'list', 'aria-label': 'Поиск по сайту', placeholder: 'Поиск по сайту…', autocomplete: 'off', spellcheck: 'false' });
     var close = el('button', { type: 'button', 'aria-label': 'Закрыть поиск' }, 'Закрыть');
@@ -321,37 +385,57 @@
       else if (e.key === 'ArrowUp' && current.length) { e.preventDefault(); setActive((active - 1 + current.length) % current.length); }
       else if (e.key === 'Enter') { e.preventDefault(); chooseActive(); }
     });
-    close.addEventListener('click', function () { dlg.close(); });
-    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });      // клик по подложке
+    close.addEventListener('click', closeSearch);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) closeSearch(); });
     list.addEventListener('click', function (e) {
       var a = e.target.closest && e.target.closest('a'); if (!a) return;
       var li = a.parentNode, it = current[+li.getAttribute('data-i')];
       if (it) remember(it);
-      dlg.close();
+      closeSearch();
       if (it && it.page === here) setTimeout(findTarget, 0);
     });
   }
+  function closeSearch() {
+    if (!dlg) return;
+    if (dialogOK) {
+      if (dlg.open) dlg.close();
+    } else {
+      dlg.hidden = true;
+      dlg.classList.remove('site-search-fallback-open');
+    }
+    if (searchTrigger) searchTrigger.focus();
+  }
   function openSearch() {
-    if (!dialogOK) return;
     if (!dlg) buildDialog();
-    if (!dlg.open) dlg.showModal();
+    if (dialogOK) {
+      if (!dlg.open) dlg.showModal();
+    } else {
+      dlg.hidden = false;
+      dlg.classList.add('site-search-fallback-open');
+    }
     input.focus(); input.select();
     status.textContent = items ? '' : 'Загрузка индекса…';
     loadIndex().then(function () { render(); }, function (e) { status.textContent = 'Не удалось загрузить индекс поиска: ' + e.message + '.'; });
   }
-  if (tools && dialogOK) {
+  if (tools) {
     var isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '');
-    var sbtn = el('button', { type: 'button', 'aria-haspopup': 'dialog', 'aria-keyshortcuts': 'Control+K Meta+K' });
-    add(sbtn, document.createTextNode('Поиск '), el('kbd', null, isMac ? '⌘K' : 'Ctrl K'));
-    sbtn.addEventListener('click', openSearch);
-    tools.insertBefore(sbtn, tools.firstChild);
+    searchTrigger = tools.querySelector('[data-site-search-trigger]');
+    if (!searchTrigger) {
+      searchTrigger = el('button', { type: 'button' });
+      add(searchTrigger, document.createTextNode('Поиск '), el('kbd', null, isMac ? '⌘K' : 'Ctrl K'));
+      tools.insertBefore(searchTrigger, tools.firstChild);
+    }
+    searchTrigger.setAttribute('aria-haspopup', 'dialog');
+    searchTrigger.setAttribute('aria-keyshortcuts', 'Control+K Meta+K');
+    searchTrigger.disabled = false;
+    searchTrigger.addEventListener('click', openSearch);
   }
   document.addEventListener('keydown', function (e) {
-    if (!dialogOK) return;
     var k = (e.key || '').toLowerCase();
     var typing = e.target && (/^(input|textarea|select)$/i.test(e.target.tagName) || e.target.isContentEditable);
     if ((e.ctrlKey || e.metaKey) && k === 'k') { e.preventDefault(); openSearch(); }
     else if (k === '/' && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); openSearch(); }
+    else if (!dialogOK && k === 'escape' && dlg && !dlg.hidden) { closeSearch(); }
   });
 
   // ==========================================================================

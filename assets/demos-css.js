@@ -1189,4 +1189,73 @@
       '  <label><input type="checkbox"> Отметить</label>\n' +
       '</div>'
   });
+
+  // ==========================================================================
+  // CSS Engine: live cascade layers and resolved style value
+  // ==========================================================================
+  register('css-engine-cascade', {
+    title: 'CSS Engine: каскадные слои в действии',
+    mode: 'host',
+    note: 'Изолированная таблица стилей демонстрирует приоритет cascade layers. Время пересчёта и внутренние структуры движка здесь не измеряются.',
+    code:
+      '@layer base, components;\n' +
+      '@layer base { #target { color: royalblue; } }\n' +
+      '@layer components { .target { color: seagreen; } }\n' +
+      'getComputedStyle(target).color;',
+    init: function (ctx) {
+      var id = 'css-engine-lab-' + (++uid);
+      var root = h('div', { 'class': 'css-engine-lab', id: id });
+      var preview = h('div', { 'class': 'css-engine-preview' });
+      var target = h('div', { 'class': 'target', id: id + '-target' }, 'Текст тестового элемента');
+      preview.appendChild(target);
+      var mode = select([['normal', 'Обычные декларации'], ['important', 'Декларации !important']], 'normal');
+      var extra = h('input', { type: 'checkbox', id: id + '-extra' });
+      var extraLabel = h('label', { 'class': 'demo-field', 'for': id + '-extra' });
+      extraLabel.appendChild(extra);
+      extraLabel.appendChild(document.createTextNode(' Добавить правило вне слоёв'));
+      var modeLabel = labelled('Режим каскада: ', mode);
+      var colorOut = h('code', { 'class': 'css-engine-value' }, '…');
+      var explanation = h('p', { 'class': 'demo-readout', role: 'status' });
+      var detail = h('div', { 'class': 'css-engine-detail' });
+      var style = h('style');
+      var selector = '#' + id + ' #' + id + '-target';
+      style.textContent =
+        '@layer ' + id + '-base, ' + id + '-components;\n' +
+        '@layer ' + id + '-base { ' + selector + ' { color: rgb(37, 99, 235); } }\n' +
+        '@layer ' + id + '-components { #' + id + ' .target { color: rgb(5, 150, 105); } }\n' +
+        '@layer ' + id + '-base { #' + id + ' .target[data-mode="important"] { color: rgb(185, 28, 28) !important; } }\n' +
+        '@layer ' + id + '-components { ' + selector + '[data-mode="important"] { color: rgb(124, 58, 237) !important; } }\n' +
+        '#' + id + ' .' + 'target[data-mode="normal"].unlayered { color: rgb(147, 51, 234); }';
+      document.head.appendChild(style);
+      ctx.onCleanup(function () {
+        if (style.parentNode) style.parentNode.removeChild(style);
+        if (root.parentNode) root.parentNode.removeChild(root);
+      });
+      function sync() {
+        target.setAttribute('data-mode', mode.value);
+        target.classList.toggle('unlayered', extra.checked && mode.value === 'normal');
+        extra.disabled = mode.value === 'important';
+        colorOut.textContent = getComputedStyle(target).color;
+        if (mode.value === 'normal') {
+          explanation.textContent = extra.checked
+            ? 'Победило правило вне слоёв: обычные декларации вне именованных слоёв располагаются после них.'
+            : 'Победил слой components: более поздний normal-слой имеет приоритет над base, даже несмотря на более специфичный ID-селектор в base.';
+        } else {
+          explanation.textContent = 'Победил слой base: для !important приоритет слоёв разворачивается, поэтому более ранний слой выигрывает у components.';
+        }
+        while (detail.firstChild) detail.removeChild(detail.firstChild);
+        var line = h('p');
+        line.appendChild(document.createTextNode('Resolved color из getComputedStyle(): '));
+        line.appendChild(colorOut);
+        detail.appendChild(line);
+        detail.appendChild(h('p', { 'class': 'demo-hint' }, 'Проверьте computed color в DevTools → Elements → Computed. Значение зависит от текущего режима лаборатории.'));
+      }
+      ctx.on(mode, 'change', sync);
+      ctx.on(extra, 'change', sync);
+      add(root, preview, modeLabel, extraLabel, detail, explanation);
+      ctx.live.appendChild(root);
+      sync();
+    }
+  });
+
 })();
