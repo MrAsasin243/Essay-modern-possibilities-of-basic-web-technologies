@@ -139,3 +139,132 @@
 }
 .le-benchmark-fixture { position: fixed; z-index: -1; left: -10000px; top: 0; width: 520px; height: 1000px; overflow: hidden; contain: layout style paint; visibility: hidden; }
 .le-benchmark-item { display: block; max-width: 100%; background: var(--bp-accent-weak); }
+
+/* Layout Engine flow diagram — alignment fix v2.
+   Append this block to assets/layout-engine.css. */
+.le-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: stretch;
+  gap: .35rem;
+  width: 100%;
+  max-width: 760px;
+  margin: 1.5rem auto;
+}
+
+.le-flow-inputs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 2.5rem minmax(0, 1fr);
+  align-items: stretch;
+  gap: .65rem;
+  width: 100%;
+}
+
+.le-flow-node {
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+  min-height: 6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .38rem;
+  padding: .9rem clamp(.65rem, 2vw, 1rem);
+  border: 1px solid var(--bp-border);
+  border-radius: 13px;
+  background: var(--bp-surface);
+  text-align: center;
+}
+
+.le-flow > .le-flow-node {
+  width: min(100%, 620px);
+  min-height: 5.8rem;
+  justify-self: center;
+}
+
+.le-flow-inputs .le-flow-node { min-height: 6rem; }
+
+.le-flow-node b,
+.le-flow-node small {
+  display: block;
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.le-flow-node b { font-size: .96rem; }
+.le-flow-node small { color: var(--bp-muted); font-size: .78rem; line-height: 1.4; }
+.le-flow-node.le-flow-result { border-color: var(--bp-accent); background: var(--bp-accent-weak); }
+
+.le-flow-join {
+  display: grid;
+  place-items: center;
+  align-self: center;
+  justify-self: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  color: var(--bp-muted);
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* Draw the connector from its geometric center rather than using a font glyph. */
+.le-flow-arrow {
+  position: relative;
+  display: block;
+  justify-self: stretch;
+  align-self: stretch;
+  width: 100%;
+  height: 1.75rem;
+  min-height: 1.75rem;
+  color: transparent;
+  font-size: 0;
+  line-height: 0;
+}
+
+.le-flow-arrow::before,
+.le-flow-arrow::after {
+  content: "";
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.le-flow-arrow::before {
+  top: .08rem;
+  left: calc(50% - 1px);
+  width: 2px;
+  height: .95rem;
+  border-radius: 2px;
+  background: var(--bp-accent);
+}
+
+.le-flow-arrow::after {
+  top: .78rem;
+  left: calc(50% - .32rem);
+  width: .64rem;
+  height: .64rem;
+  border-right: 2px solid var(--bp-accent);
+  border-bottom: 2px solid var(--bp-accent);
+  transform: rotate(45deg);
+}
+
+@media (max-width: 600px) {
+  .le-flow-inputs {
+    grid-template-columns: minmax(0, 1fr);
+    gap: .45rem;
+  }
+
+  .le-flow-join {
+    width: 100%;
+    height: 1.15rem;
+    min-height: 1.15rem;
+  }
+
+  .le-flow-arrow {
+    height: 1.75rem;
+    min-height: 1.75rem;
+  }
+}
