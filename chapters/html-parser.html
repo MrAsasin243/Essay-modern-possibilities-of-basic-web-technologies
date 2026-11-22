@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Инженерное устройство HTML Parser: входной поток, tokenizer, tree construction, insertion modes, восстановление ошибочной разметки, parser scripts и DOM.">
+  <meta name="theme-color" content="#111827">
+  <title>HTML Parser — как браузер строит DOM</title>
+  <link rel="stylesheet" href="../assets/browser-pipeline.css">
+  <link rel="stylesheet" href="../assets/html-parser.css">
+  <script src="../assets/html-parser.js" defer></script>
+</head>
+<body class="bp-page hp-page">
+  <a class="bp-skip-link" href="#main">Перейти к содержанию</a>
+  <header class="bp-topbar">
+    <a class="bp-brand" href="../index.html" aria-label="На главную проекта">
+      <span class="bp-brand-mark">W</span>
+      <span>Modern Web Technologies</span>
+    </a>
+    <nav class="bp-nav" aria-label="Навигация по проекту">
+      <a href="../index.html">Главная</a>
+      <a href="../html.html">HTML</a>
+      <a href="../css.html">CSS</a>
+      <a href="../javascript.html">JavaScript</a>
+      <a href="../browsers.html" aria-current="page">Браузеры</a>
+      <a href="browser-pipeline.html">Browser Pipeline</a>
+      <a href="html-parser.html" aria-current="page">HTML Parser</a>
+      <a href="layout-engine.html">Layout Engine</a>
+    </nav>
+  </header>
+
+  <main id="main" class="bp-shell">
+    <div class="bp-breadcrumb"><a href="../browsers.html">Браузеры</a><span aria-hidden="true">/</span><a href="browser-pipeline.html">Browser Pipeline</a><span aria-hidden="true">/</span><span>HTML Parser</span></div>
+
+    <section class="bp-hero">
+      <p class="bp-eyebrow">BROWSER INTERNALS · HTML SYNTAX · DOM CONSTRUCTION</p>
+      <h1>HTML Parser: как браузер строит DOM</h1>
+      <p class="bp-lead">HTML-парсер — не регулярное выражение и не проверка вложенности тегов. Это нормативно описанный потоковый алгоритм: он декодирует вход, выдаёт токены конечным автоматом, а затем по состоянию документа изменяет DOM-дерево. Именно поэтому некорректный HTML часто не приводит к остановке разбора, а преобразуется в вполне определённую структуру.</p>
+      <div class="bp-hero-meta"><span class="bp-tag">WHATWG HTML</span><span class="bp-tag">Tokenizer</span><span class="bp-tag">Tree construction</span><span class="bp-tag">Error recovery</span><span class="bp-tag">Parser scripts</span></div>
+    </section>
+
+    <section class="bp-thesis-grid" aria-label="Ключевые идеи">
+      <article class="bp-thesis"><span class="bp-number">01</span><h2>Два связанных алгоритма</h2><p>Tokenizer создаёт токены, Tree Builder интерпретирует их в контексте текущего состояния документа.</p></article>
+      <article class="bp-thesis"><span class="bp-number">02</span><h2>Ошибки имеют правила</h2><p>Для многих parse errors спецификация задаёт восстановительные действия, хотя user agent может выбрать прекращение parsing.</p></article>
+      <article class="bp-thesis"><span class="bp-number">03</span><h2>DOM может меняться во время разбора</h2><p>Parser-inserted scripts, document.write() и потоковая загрузка делают разбор реентерабельным и управляемым.</p></article>
+    </section>
+
+    <aside class="bp-callout bp-callout-key">
+      <strong>Границы применимости</strong>
+      <p>Алгоритмы этой главы относятся к разбору HTML-синтаксиса, прежде всего ресурсов с MIME type <code>text/html</code>. XML/XHTML использует XML parsing rules. Внутренние классы, потоки и оптимизации Blink, Gecko и WebKit — детали реализаций, а не обязательные имена объектов из стандарта.</p>
+    </aside>
+
+    <nav class="bp-toc" aria-label="Содержание главы">
+      <div class="bp-toc-title">Содержание</div>
+      <div class="bp-toc-grid">
+        <a href="#hp-overview">01. Общая модель парсинга</a>
+        <a href="#hp-input">02. Входной поток и декодирование</a>
+        <a href="#hp-tokenizer">03. Tokenization</a>
+        <a href="#hp-state">04. Tokenizer states</a>
+        <a href="#hp-tree">05. Tree construction</a>
+        <a href="#hp-recovery">06. Error recovery и сложные случаи</a>
+        <a href="#hp-scripts">07. Scripts и реентерабельность</a>
+        <a href="#hp-fragments">08. Fragment parsing</a>
+        <a href="#hp-incremental">09. Потоковый разбор и события</a>
+        <a href="#hp-engines">10. Реализации движков</a>
+        <a href="#hp-labs">11. Интерактивные лаборатории</a>
+        <a href="#hp-sources">12. Спецификации и исходники</a>
+      </div>
+    </nav>
+
+    <section id="hp-overview" class="bp-section">
+      <p class="bp-section-kicker">01 · PARSING MODEL</p>
+      <h2>HTML Parser — последовательность преобразований, а не один проход по тегам</h2>
+      <p>Для сетевого документа браузер получает байты. Чтобы построить DOM, нужно определить кодировку, превратить байты в поток кодовых точек, обработать окончания строк, распознать HTML-токены и применить к ним правила построения дерева. В реальном браузере загрузка следующего фрагмента данных, предварительное обнаружение ресурсов и выполнение скриптов могут перекрываться по времени с разбором.</p>
+      <div class="hp-pipeline" role="img" aria-label="Байты превращаются в символы, затем в токены, после чего Tree Construction изменяет DOM">
+        <div class="hp-pipeline-node"><b>Input bytes</b><small>Network / document source</small></div>
+        <span class="hp-pipeline-arrow" aria-hidden="true"></span>
+        <div class="hp-pipeline-node"><b>Byte stream decoder</b><small>Определение кодировки и декодирование</small></div>
+        <span class="hp-pipeline-arrow" aria-hidden="true"></span>
+        <div class="hp-pipeline-node"><b>Input preprocessing</b><small>Нормализация входного потока</small></div>
+        <span class="hp-pipeline-arrow" aria-hidden="true"></span>
+        <div class="hp-pipeline-node hp-pipeline-accent"><b>Tokenizer</b><small>Поток токенов</small></div>
+        <span class="hp-pipeline-arrow" aria-hidden="true"></span>
+        <div class="hp-pipeline-node hp-pipeline-accent"><b>Tree construction</b><small>Insertion mode + parser state</small></div>
+        <span class="hp-pipeline-arrow" aria-hidden="true"></span>
+        <div class="hp-pipeline-node hp-pipeline-result"><b>DOM Document</b><small>Дерево узлов</small></div>
+      </div>
+      <p class="bp-caption">Концептуальная схема последовательности обработки. Это не означает, что каждый блок обязательно реализован как отдельный поток или самостоятельный объект движка.</p>
+
+      <h3>Два алгоритма работают совместно</h3>
+      <div class="bp-detail-grid">
+        <article><span class="bp-stage-index">A</span><h3>Tokenizer</h3><p>Читает поток кодовых точек и поддерживает текущее состояние. Он распознаёт начала тегов, имена тегов, атрибуты, комментарии, DOCTYPE, символьные ссылки и специальные текстовые режимы. Результат — токены, а не DOM-узлы.</p></article>
+        <article><span class="bp-stage-index">B</span><h3>Tree construction</h3><p>Получает токены и выбирает правила их обработки по текущему insertion mode, стеку открытых элементов, списку активных форматирующих элементов и другим указателям. Алгоритм вставляет, перемещает, закрывает и иногда повторно создаёт DOM-элементы.</p></article>
+        <article><span class="bp-stage-index">C</span><h3>Parser state</h3><p>Состояние не сводится к одному стеку. Есть insertion mode, original insertion mode, template insertion modes, stack of open elements, active formatting elements, form/head pointers, scripting flag и дополнительные флаги.</p></article>
+      </div>
+      <aside class="bp-callout"><strong>Почему это не XML?</strong><p>HTML имеет собственные правила токенизации и восстановления дерева. XML-парсер работает по другой модели: например, ошибка well-formedness обычно является фатальной для XML-документа, тогда как HTML parsing algorithm определяет обработку множества ошибочных последовательностей.</p></aside>
+    </section>
+
+    <section id="hp-input" class="bp-section">
+      <p class="bp-section-kicker">02 · INPUT STREAM</p>
+      <h2>Входной поток: байты ещё не являются HTML-токенами</h2>
+      <p>Сетевой слой передаёт байты тела ответа. Парсеру нужны символы, поэтому до tokenization выполняется декодирование. Кодировка может определяться по BOM, транспортной информации, декларации <code>meta charset</code> и fallback-правилам HTML/Encoding Standards. Это отдельная задача: tokenizer не должен угадывать UTF-8 или читать байты как готовые символы.</p>
+      <h3>Важные стадии входа</h3>
+      <div class="bp-table-wrap"><table><thead><tr><th>Стадия</th><th>Вход</th><th>Задача</th><th>Возможный эффект</th></tr></thead><tbody>
+        <tr><td>Byte stream</td><td>Последовательность байтов</td><td>Получить ресурс и передать данные парсеру</td><td>Данные могут поступать частями</td></tr>
+        <tr><td>Encoding determination</td><td>Байты + метаданные</td><td>Выбрать кодировку по правилам HTML</td><td>Неверная кодировка меняет интерпретацию текста</td></tr>
+        <tr><td>Decoder</td><td>Байты и выбранная кодировка</td><td>Преобразовать байты в кодовые точки</td><td>Ошибочные последовательности декодируются по правилам Encoding</td></tr>
+        <tr><td>Input preprocessing</td><td>Поток кодовых точек</td><td>Нормализовать CR и CRLF</td><td>Парсер получает согласованное представление line ending</td></tr>
+        <tr><td>Tokenizer</td><td>Поток кодовых точек</td><td>Выдать токены HTML</td><td>Состояние сохраняется между порциями входа</td></tr>
+      </tbody></table></div>
+      <h3>Preprocessing и символы</h3>
+      <p>HTML input stream preprocessing нормализует carriage return: последовательность CRLF рассматривается как один LF, а одиночный CR также преобразуется в LF. Обработка U+0000 зависит от состояния tokenizer: во многих текстовых и атрибутных состояниях это parse error, после которого используется U+FFFD REPLACEMENT CHARACTER. Не следует смешивать правила декодера, preprocessing и tokenizer — это разные уровни.</p>
+      <div class="hp-formula"><b>Поток на границе tokenizer</b><code>bytes → code points → normalized input → tokens</code><small>Для fragment parsing исходные символы могут поступать из DOM API, а не из сетевого ответа.</small></div>
+      <h3>Почему важна граница между chunks</h3>
+      <p>Поток может закончиться посередине конструкции: после символа <code>&lt;</code>, внутри имени атрибута или в quoted value. Это не означает, что токен завершён. Парсер сохраняет состояние и продолжает, когда получает следующую порцию. Только настоящий EOF запускает правила завершения незакрытой конструкции.</p>
+    </section>
+
+    <section id="hp-tokenizer" class="bp-section">
+      <p class="bp-section-kicker">03 · TOKENIZATION</p>
+      <h2>Tokenizer: конечный автомат, который выдаёт токены</h2>
+      <p>Tokenizer последовательно потребляет кодовые точки. Его поведение описывается набором состояний. В одном состоянии символ может добавить данные к текущему токену, переключить состояние, вызвать reconsume — повторную обработку того же символа в новом состоянии — либо завершить токен и передать его Tree Builder.</p>
+      <h3>Основные виды токенов</h3>
+      <div class="bp-table-wrap"><table><thead><tr><th>Токен</th><th>Содержимое</th><th>Пример исходного фрагмента</th></tr></thead><tbody>
+        <tr><td>DOCTYPE</td><td>Имя и, возможно, public/system identifiers, force-quirks flag</td><td><code>&lt;!DOCTYPE html&gt;</code></td></tr>
+        <tr><td>Start tag</td><td>Имя, набор атрибутов, self-closing flag</td><td><code>&lt;img src="a.png"&gt;</code></td></tr>
+        <tr><td>End tag</td><td>Имя тега</td><td><code>&lt;/p&gt;</code></td></tr>
+        <tr><td>Comment</td><td>Текст комментария</td><td><code>&lt;!-- note --&gt;</code></td></tr>
+        <tr><td>Character</td><td>Один или несколько символов текста</td><td><code>Hello &amp;amp; world</code></td></tr>
+        <tr><td>EOF</td><td>Сигнал окончания входного потока</td><td>Конец документа</td></tr>
+      </tbody></table></div>
+      <h3>Пример прохождения обычного start tag</h3>
+      <pre class="bp-code"><code>&lt;section class="card" data-state=ready&gt;</code></pre>
+      <ol class="hp-step-list">
+        <li><b>Data</b><span>Получен символ <code>&lt;</code>; автомат переходит к распознаванию начала тега.</span></li>
+        <li><b>Tag open</b><span>Получена ASCII-буква; создаётся start tag token, начинается имя тега.</span></li>
+        <li><b>Tag name</b><span>Символы <code>section</code> добавляются в имя. ASCII uppercase в именах HTML-тегов приводится к lowercase.</span></li>
+        <li><b>Before attribute name / Attribute name</b><span>После пробела начинается атрибут <code>class</code>.</span></li>
+        <li><b>Before attribute value / Double-quoted value</b><span>Значение <code>card</code> считывается до закрывающей кавычки.</span></li>
+        <li><b>Attribute name / Unquoted value</b><span>Следующий атрибут <code>data-state</code> получает значение <code>ready</code> без кавычек.</span></li>
+        <li><b>Tag emission</b><span>При <code>&gt;</code> токен завершается и отправляется Tree Builder.</span></li>
+      </ol>
+      <aside class="bp-callout bp-callout-warning"><strong>Повторяющиеся атрибуты</strong><p>Если в start tag встречаются атрибуты с одинаковым именем, парсер сообщает parse error и игнорирует последующие повторы. DOM не обязан сохранять исходную последовательность как есть: например, <code>&lt;div id="first" id="second"&gt;</code> не создаёт два одноимённых атрибута.</p></aside>
+      <h3>Символьные ссылки — отдельная машина состояний</h3>
+      <p>В тексте и значениях атрибутов символ <code>&amp;</code> может запустить character reference state. Разрешаются named references (например, <code>&amp;amp;</code>) и numeric references (например, <code>&amp;#x1F680;</code>). Результат зависит от контекста возврата и набора правил, поэтому простая замена регулярным выражением неэквивалентна HTML tokenizer.</p>
+    </section>
+
+    <section id="hp-state" class="bp-section">
+      <p class="bp-section-kicker">04 · TOKENIZER STATES</p>
+      <h2>Состояния tokenizer зависят от контекста</h2>
+      <p>В стандарте намного больше состояний, чем «текст», «тег» и «атрибут». В частности, содержимое разных элементов разбирается в разных режимах: <code>title</code> и <code>textarea</code> используют RCDATA, <code>style</code> и часть других элементов — RAWTEXT, а <code>script</code> имеет собственное семейство script data states.</p>
+      <div class="bp-table-wrap"><table><thead><tr><th>Группа состояний</th><th>Когда используется</th><th>Что важно</th></tr></thead><tbody>
+        <tr><td>Data</td><td>Обычное содержимое HTML</td><td><code>&lt;</code> начинает markup, <code>&amp;</code> может начать character reference</td></tr>
+        <tr><td>RCDATA</td><td><code>title</code>, <code>textarea</code></td><td>Текст сохраняется, но распознаются character references и подходящий end tag</td></tr>
+        <tr><td>RAWTEXT</td><td><code>style</code>, <code>iframe</code>, <code>noembed</code>, <code>noframes</code>, <code>xmp</code> и соответствующие контексты</td><td>Большинство символов трактуется как текст; ищется соответствующий end tag</td></tr>
+        <tr><td>Script data</td><td>Содержимое <code>script</code></td><td>Есть escaped и double-escaped состояния для совместимости с историческим синтаксисом</td></tr>
+        <tr><td>PLAINTEXT</td><td>Элемент <code>plaintext</code></td><td>Остаток входа рассматривается как текст</td></tr>
+        <tr><td>Tag / attribute</td><td>Имена тегов и атрибутов</td><td>Различаются quoted/unquoted values, self-closing state и parse errors</td></tr>
+        <tr><td>Comment / DOCTYPE</td><td>Markup declaration</td><td>Несколько промежуточных состояний определяют правила начала и завершения</td></tr>
+        <tr><td>Character reference</td><td>После <code>&amp;</code></td><td>Named/numeric resolution и возврат к состоянию, из которого пришёл запрос</td></tr>
+      </tbody></table></div>
+      <h3>Почему состояние зависит от Tree Builder</h3>
+      <p>Tokenizer и Tree Builder — не независимые чёрные ящики. При обработке start tag для <code>script</code>, <code>style</code>, <code>title</code> и других элементов Tree Builder может переключить tokenizer в соответствующее текстовое состояние. Контекст текущего элемента изменяет трактовку одних и тех же символов.</p>
+      <div class="hp-state-flow">
+        <div><b>Data state</b><small>&lt;title&gt;</small></div><span aria-hidden="true">→</span>
+        <div><b>RCDATA state</b><small>Текст + character references</small></div><span aria-hidden="true">→</span>
+        <div><b>Matching end tag</b><small>&lt;/title&gt;</small></div><span aria-hidden="true">→</span>
+        <div><b>Data state</b><small>Обычная разметка продолжается</small></div>
+      </div>
+      <p class="bp-caption">В отличие от RCDATA, RAWTEXT не обрабатывает character references как обычный текстовый контекст. Для script действует отдельное семейство состояний; приведённая схема намеренно показывает только общую идею переключения режима.</p>
+    </section>
+
+    <section id="hp-tree" class="bp-section">
+      <p class="bp-section-kicker">05 · TREE CONSTRUCTION</p>
+      <h2>Tree construction: один токен может менять множество узлов</h2>
+      <p>Tree Builder принимает очередной токен и применяет правила выбранного insertion mode. Это не механическое правило «start tag — append child, end tag — удалить родителя». В зависимости от токена алгоритм может создать неявный элемент, закрыть предыдущий элемент, переместить узел, проигнорировать токен, сменить insertion mode и повторно обработать тот же токен.</p>
+      <h3>Главные структуры состояния</h3>
+      <div class="bp-detail-grid">
+        <article><h3>Stack of open elements</h3><p>Стек открытых элементов отражает путь от корневого <code>html</code> к текущему узлу. Его верхушка обычно соответствует current node. Это не всегда то же самое, что цепочка DOM-родителей: алгоритмы форматирования и перемещения узлов могут временно разносить эти представления.</p></article>
+        <article><h3>Active formatting elements</h3><p>Список хранит определённые форматирующие элементы, например <code>b</code>, <code>i</code> и <code>font</code>. Он позволяет восстановить форматирование после некоторых ошибочных последовательностей и не совпадает со стеком открытых элементов.</p></article>
+        <article><h3>Insertion mode</h3><p>Переменная задаёт, какой набор правил используется для текущего токена: например, <code>in head</code>, <code>in body</code>, <code>in table</code>, <code>in row</code> или <code>in cell</code>.</p></article>
+        <article><h3>Дополнительные указатели</h3><p>Tree Builder хранит head/form element pointers, template insertion mode stack, original insertion mode, frameset-ok flag и иные состояния, необходимые конкретным правилам.</p></article>
+      </div>
+      <h3>Insertion modes — таблица правил, а не визуальные этапы</h3>
+      <p>В WHATWG HTML определена последовательность режимов вставки. Они не означают, что парсер проходит через них все один раз. Режим меняется по мере поступления токенов; некоторые режимы передают обработку правилам другого режима, сохраняя или изменяя состояние по правилам алгоритма.</p>
+      <div class="bp-table-wrap"><table><thead><tr><th>Группа</th><th>Insertion modes</th><th>Задача</th></tr></thead><tbody>
+        <tr><td>Начало документа</td><td><code>initial</code>, <code>before html</code>, <code>before head</code></td><td>DOCTYPE, неявное создание корневого html и head</td></tr>
+        <tr><td>Head</td><td><code>in head</code>, <code>in head noscript</code>, <code>after head</code></td><td>Метаданные, title/style/script, переход к body</td></tr>
+        <tr><td>Основное содержимое</td><td><code>in body</code>, <code>text</code></td><td>Элементы документа, текстовые режимы и обработка end tags</td></tr>
+        <tr><td>Таблицы</td><td><code>in table</code>, <code>in table text</code>, <code>in caption</code>, <code>in column group</code>, <code>in table body</code>, <code>in row</code>, <code>in cell</code></td><td>Специализированная структура table, section, row, cell и восстановление ошибочного содержимого</td></tr>
+        <tr><td>Template</td><td><code>in template</code></td><td>Отдельные правила построения содержимого template и стек template insertion modes</td></tr>
+        <tr><td>Завершение / frameset</td><td><code>after body</code>, <code>in frameset</code>, <code>after frameset</code>, <code>after after body</code>, <code>after after frameset</code></td><td>Обработка конца документа и исторической frameset-модели</td></tr>
+      </tbody></table></div>
+      <h3>Начальное состояние документа и DOCTYPE</h3>
+      <p>В режиме <code>initial</code> Tree Builder обрабатывает начальные пробельные символы, комментарии и DOCTYPE. Корректно расположенный современный <code>&lt;!DOCTYPE html&gt;</code> переводит документ в no-quirks mode. Некоторые исторические DOCTYPE и отдельные ошибочные случаи могут включить quirks mode или limited-quirks mode. Если DOCTYPE отсутствует или распознан как force-quirks, результат также определяется правилами этой начальной стадии.</p>
+      <p>Затем алгоритм переходит через <code>before html</code>, <code>before head</code> и <code>in head</code>. Если исходник не содержит явных <code>html</code> или <code>head</code>, необходимые элементы создаются неявно. После завершения head-поддерева парсер переходит к <code>after head</code>, а при необходимости создаёт <code>body</code> и обрабатывает токены в <code>in body</code>.</p>
+      <pre class="bp-code"><code>&lt;!doctype html&gt;
+&lt;title&gt;Document title&lt;/title&gt;
+&lt;main&gt;Content&lt;/main&gt;
+
+DOM outline (conceptual)
+Document
+├─ DocumentType: html
+└─ html
+   ├─ head
+   │  └─ title
+   └─ body
+      └─ main</code></pre>
+      <p>Свойство <code>document.compatMode</code> различает <code>BackCompat</code> (quirks) и <code>CSS1Compat</code> (no-quirks и limited-quirks). Поэтому по одному значению <code>CSS1Compat</code> нельзя определить, какой из двух последних режимов установлен.</p>
+      <h3>Пример: автоматическое закрытие p</h3>
+      <pre class="bp-code"><code>&lt;p&gt;Первый абзац
+&lt;p&gt;Второй абзац</code></pre>
+      <p>Когда Tree Builder в режиме <code>in body</code> получает второй start tag <code>p</code>, а предыдущий <code>p</code> находится в button scope, алгоритм закрывает предыдущий абзац перед вставкой нового. Явный <code>&lt;/p&gt;</code> перед вторым тегом не требуется, чтобы получить два соседних абзаца.</p>
+      <h3>Reprocess — повторная обработка токена</h3>
+      <p>Некоторые правила сначала закрывают текущий контекст, меняют insertion mode, а затем требуют reprocess текущего токена. Это позволяет, например, встретить токен <code>tr</code> в режиме <code>in table</code>, подготовить контекст тела таблицы и обработать тот же <code>tr</code> уже в новом режиме. В алгоритме нельзя терять токен, который потребовал переключения режима.</p>
+    </section>
+
+    <section id="hp-recovery" class="bp-section">
+      <p class="bp-section-kicker">06 · ERROR RECOVERY</p>
+      <h2>Восстановление ошибок — часть алгоритма HTML</h2>
+      <p>Parse error — термин спецификации для определённого ошибочного состояния входа. Он не означает автоматически исключение JavaScript, сетевую ошибку или обязательную остановку браузера. Для многих parse errors стандарт задаёт детерминированное восстановительное поведение: проигнорировать токен, вставить или переместить узел, закрыть элемент, изменить место вставки либо продолжить разбор. При этом стандарт допускает, что user agent может прервать parsing при parse error, если не применяет предусмотренные правила восстановления; обычные браузеры ориентированы на совместимую обработку ошибочной разметки.</p>
+      <h3>Implied end tags</h3>
+      <p>В некоторых контекстах парсер генерирует implied end tags: он закрывает элементы из определённого набора без отдельного end-tag token в исходном HTML. Это применяется, например, при закрытии абзацев, элементов списка и ряда структурных элементов. Алгоритм всё равно проверяет границы scope, поэтому нельзя свести его к правилу «любой открытый тег закрывается следующим тегом».</p>
+      <h3>Active formatting elements и reconstruction</h3>
+      <p>Список активных форматирующих элементов нужен для обработки вложенности вроде <code>b</code> и <code>i</code>. Когда дальнейший токен требует восстановить форматирование, алгоритм может заново создать элементы в DOM и связать их с текущим контекстом. Поэтому дерево DOM не обязано повторять буквальную вложенность исходных start/end tags.</p>
+      <h3>Adoption Agency Algorithm</h3>
+      <p>Для определённой группы форматирующих end tags используется специальный алгоритм восстановления. Он ищет formatting element в active formatting elements, определяет furthest block и common ancestor, затем по заданным правилам перемещает и переиспользует узлы, при необходимости создаёт новые элементы. Это не просто «закрыть все теги до совпавшего»; алгоритм исторически сложен, но обеспечивает согласованное DOM-представление распространённой некорректной разметки.</p>
+      <pre class="bp-code"><code>&lt;p&gt;1&lt;b&gt;2&lt;i&gt;3&lt;/b&gt;4&lt;/i&gt;5&lt;/p&gt;</code></pre>
+      <p>После обработки <code>&lt;/b&gt;</code> парсер должен восстановить структуру форматирования так, чтобы последующий текст сохранил требуемую семантику вложенности. Точный результат следует смотреть в DOM-дереве браузера, а не выводить только по исходному тексту.</p>
+      <h3>Foster parenting: содержимое внутри table</h3>
+      <p>Если parser обрабатывает содержимое в табличном контексте и включён foster parenting, некоторые ошибочно размещённые узлы вставляются не внутрь таблицы, а перед ближайшей подходящей таблицей или в соответствующий родительский узел. Это правило предотвращает попадание произвольного содержимого в места, где табличная структура требует специальных элементов.</p>
+      <pre class="bp-code"><code>&lt;table&gt;
+  outside text
+  &lt;tr&gt;&lt;td&gt;cell&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;</code></pre>
+      <p>Текст <code>outside text</code> не обязан стать обычным дочерним текстовым узлом <code>table</code>. Результат зависит от табличного режима, pending table character tokens и алгоритма вставки.</p>
+      <h3>Scope и foreign content</h3>
+      <p>Для поиска и закрытия элементов используются разные виды scope — например, button scope, list item scope и table scope. Они ограничивают поиск структурными границами. При встрече SVG/MathML парсер применяет правила foreign content, а точки интеграции позволяют в определённых случаях вернуться к правилам HTML. HTML tokenizer и Tree Builder также выполняют корректировку имён некоторых элементов и атрибутов в foreign namespaces.</p>
+      <aside class="bp-callout bp-callout-warning"><strong>Parse errors не равны ошибкам соответствия вообще</strong><p>Conformance checker проверяет не только parse errors, но и остальные требования HTML. Валидность документа, восстановление DOM и успешное отображение — три разные характеристики. Обычный браузерный JavaScript API не предоставляет универсальный список всех parse errors, найденных парсером при загрузке страницы.</p></aside>
+    </section>
+
+    <section id="hp-scripts" class="bp-section">
+      <p class="bp-section-kicker">07 · SCRIPT EXECUTION</p>
+      <h2>Scripts могут приостанавливать и возобновлять парсер</h2>
+      <p>HTML parsing связан с исполнением скриптов. Обычный parser-inserted classic script без <code>async</code> или <code>defer</code> может быть parser-blocking: парсер доходит до элемента, должен дождаться загрузки скрипта (если он внешний) и выполнить его перед продолжением разбора. Причина — скрипт может синхронно читать или менять документ, в том числе влиять на входной поток через <code>document.write()</code>.</p>
+      <div class="bp-table-wrap"><table><thead><tr><th>Тип скрипта</th><th>Загрузка и выполнение</th><th>Отношение к парсеру</th></tr></thead><tbody>
+        <tr><td>Classic parser-inserted без async/defer</td><td>Выполняется в порядке документа; внешний файл должен быть загружен</td><td>Обычно блокирует продолжение HTML parsing</td></tr>
+        <tr><td>Classic <code>defer</code></td><td>Загружается параллельно; выполняется после завершения разбора, с сохранением порядка defer scripts</td><td>Не блокирует parsing, но участвует в завершении этапа перед DOMContentLoaded</td></tr>
+        <tr><td>Classic <code>async</code></td><td>Выполняется, когда файл готов; порядок между такими скриптами не гарантирован</td><td>Не ждёт окончания parsing, но выполнение может прервать основной поток в момент запуска</td></tr>
+        <tr><td>Module script</td><td>Имеет module graph и по умолчанию defer-like поведение для документа</td><td>Особые правила загрузки зависимостей и выполнения</td></tr>
+        <tr><td>Динамически созданный script</td><td>Поведение зависит от способа создания, атрибутов и force-async state</td><td>Не следует автоматически приравнивать к parser-inserted script</td></tr>
+      </tbody></table></div>
+      <h3>Реентерабельность и document.write()</h3>
+      <p>Tree construction может быть реентерабельным. Пока обрабатывается один токен, выполняется скрипт; вызов <code>document.write()</code> добавляет символы во входной поток, и tokenizer может быть возобновлён, чтобы выдать новые токены до завершения внешней обработки. Для этого модель парсера содержит script nesting level и parser pause flag. Поэтому «HTML сначала целиком разбирается, затем запускается JavaScript» неверно.</p>
+      <div class="hp-loop" role="img" aria-label="Parser reaches script, pauses, waits for script, executes script, resumes tokenization and tree construction">
+        <div><b>Parser</b><small>Дошёл до script</small></div><span aria-hidden="true">→</span>
+        <div><b>Pause</b><small>Ожидание загрузки при необходимости</small></div><span aria-hidden="true">→</span>
+        <div><b>Execute</b><small>Скрипт может менять DOM / input stream</small></div><span aria-hidden="true">→</span>
+        <div><b>Resume</b><small>Продолжение parsing</small></div>
+      </div>
+      <h3>Preload scanner — оптимизация реализации</h3>
+      <p>Chromium и другие браузеры могут предварительно просматривать доступную часть HTML, чтобы начать загрузку ресурсов, пока основной parser ожидает блокирующий скрипт. Это не самостоятельный нормативный этап, который обязательно обязан существовать как отдельный scanner. Предварительный сканер не заменяет Tree Builder и не гарантирует обнаружение ресурсов, которые появятся только после выполнения JavaScript.</p>
+      <h3>Связь с событиями документа</h3>
+      <p><code>document.readyState</code>, <code>DOMContentLoaded</code> и <code>load</code> отражают разные точки жизненного цикла. Завершение parsing — не то же самое, что загрузка всех зависимых ресурсов. Defer/module scripts и stylesheet dependencies влияют на момент событий по правилам HTML Standard. Эти события не говорят, что все изображения уже декодированы или что пользовательский интерфейс полностью стабилизировался.</p>
+    </section>
+
+    <section id="hp-fragments" class="bp-section">
+      <p class="bp-section-kicker">08 · FRAGMENT PARSING</p>
+      <h2>Fragment parsing: разбор зависит от контекстного элемента</h2>
+      <p>HTML fragment parsing применяется, когда нужно разобрать фрагмент с учётом контекста. Например, присваивание <code>element.innerHTML</code> не равнозначно загрузке полного HTML-документа. Контекстный элемент влияет на начальный tokenizer state и на то, какие правила Tree Builder применяются. Это особенно заметно для <code>table</code>, <code>tbody</code>, <code>select</code>, <code>textarea</code> и элементов с особым текстовым режимом.</p>
+      <div class="hp-formula"><b>Fragment parsing</b><code>context element + fragment source → fragment nodes</code><small>Результат затем используется DOM API вызывающего контекста.</small></div>
+      <p>Примеры API, которые задействуют HTML fragment parsing в определённом контексте: <code>Element.innerHTML</code>, <code>Range.createContextualFragment()</code> и операции, определённые через fragment parsing. Конкретные API могут добавлять собственные проверки безопасности и sanitizer-конфигурацию.</p>
+      <aside class="bp-callout bp-callout-warning"><strong>DOMParser и innerHTML — не взаимозаменяемы</strong><p><code>DOMParser.parseFromString(source, "text/html")</code> создаёт отдельный Document и разбирает полный документ. <code>innerHTML</code> использует контекст существующего элемента. Если нужно воспроизвести поведение таблицы, select или textarea, меняй контекст лаборатории, а не только саму строку.</p></aside>
+    </section>
+
+    <section id="hp-incremental" class="bp-section">
+      <p class="bp-section-kicker">09 · STREAMING AND COMPLETION</p>
+      <h2>Потоковый и инкрементальный разбор</h2>
+      <p>Сетевой ответ может поступать частями. Парсер способен обрабатывать уже доступный фрагмент, не ожидая полного HTML-файла. При этом tokenizer сохраняет незавершённое состояние: начало тега, имя атрибута, значение или комментарий могут продолжиться в следующем chunk. Если возникает parser-blocking script, основной разбор может приостановиться, а после разрешения блокировки продолжиться с сохранённого состояния.</p>
+      <h3>Что не следует путать</h3>
+      <div class="bp-table-wrap"><table><thead><tr><th>Понятие</th><th>Что означает</th><th>Чем не является</th></tr></thead><tbody>
+        <tr><td>Incremental parsing</td><td>Обработка входа по мере поступления</td><td>Не означает, что DOM всегда сразу отображается без задержек</td></tr>
+        <tr><td>Preload scanning</td><td>Предварительное обнаружение вероятных ресурсов</td><td>Не заменяет нормативную tokenization/tree construction</td></tr>
+        <tr><td>Parser pause</td><td>Временная остановка основного parsing algorithm, например для script</td><td>Не означает остановку всех процессов браузера или сети</td></tr>
+        <tr><td>EOF</td><td>Реальное завершение входного потока и правила завершения парсера</td><td>Не то же самое, что временная граница сетевого chunk</td></tr>
+      </tbody></table></div>
+      <p>Потоковый разбор важен для времени до первого содержимого и загрузки критических ресурсов, но на практике его эффект зависит от порядка ресурсов, блокирующих скриптов, таблиц стилей, задержек сети и того, когда браузер получает достаточно данных для построения полезной части документа.</p>
+    </section>
+
+    <section id="hp-engines" class="bp-section">
+      <p class="bp-section-kicker">10 · ENGINE IMPLEMENTATIONS</p>
+      <h2>Что общее у стандартов и что различается в движках</h2>
+      <p>HTML Standard определяет наблюдаемый алгоритм построения DOM из HTML. Он не требует от браузеров одинаковых названий классов, структуры потоков, архитектуры очередей или конкретной организации памяти. Реальные реализации имеют свои парсеры и оптимизации.</p>
+      <div class="bp-table-wrap"><table><thead><tr><th>Семейство</th><th>Реализация</th><th>Что изучать в исходниках</th></tr></thead><tbody>
+        <tr><td>Chromium / Blink</td><td>Blink HTMLDocumentParser, HTMLTokenizer, HTMLTreeBuilder и связанные script/preload components</td><td>Потоковый ввод, паузы для scripts, preload scanner, deferred parsing и взаимодействие с renderer lifecycle</td></tr>
+        <tr><td>Firefox / Gecko</td><td>Gecko HTML parser, который реализует HTML parsing model и интегрирован с DOM/Gecko</td><td>Tokenizer/tree builder, parser threading/dispatch и взаимодействие с content process</td></tr>
+        <tr><td>WebKit</td><td>HTML parsing в WebCore</td><td>HTMLDocumentParser/HTMLTreeBuilder, tokenizer и связь с WebCore DOM</td></tr>
+      </tbody></table></div>
+      <p>Сравнивать реализации нужно по конкретным задачам и версиям исходников. Нельзя делать вывод, что наличие класса с похожим именем означает одинаковую архитектуру или одинаковый порядок внутренних вызовов.</p>
+      <h3>Метод чтения исходников</h3>
+      <ol>
+        <li>Начни с точки входа парсера документа и проследи, откуда поступают новые байты/символы.</li>
+        <li>Найди tokenizer и tree builder, затем сопоставь их интерфейсы с разделами WHATWG.</li>
+        <li>Найди обработку parser-blocking scripts, parser pause/resume и fragment parsing.</li>
+        <li>Отдельно исследуй preload scanning и scheduling: это оптимизации реализации, не алгоритм построения DOM.</li>
+        <li>Подтверди предположение тестом WPT или небольшим воспроизводимым HTML примером.</li>
+      </ol>
+    </section>
+
+    <section id="hp-labs" class="bp-section">
+      <p class="bp-section-kicker">11 · INTERACTIVE LABS</p>
+      <h2>Лаборатории HTML Parser</h2>
+      <p>Первый инструмент показывает учебную подмодель tokenizer для распространённых тегов, атрибутов, комментариев и DOCTYPE. Второй использует настоящий HTML-парсер текущего браузера, чтобы продемонстрировать построение DOM из ошибочного или неполного HTML. Эти инструменты отвечают на разные вопросы и не подменяют друг друга.</p>
+
+      <div class="le-lab-card hp-lab-card">
+        <div class="le-lab-heading"><div><span class="le-lab-number">LAB 01 · TOKENIZER TRACE</span><h3>Пошаговый разбор символов</h3></div><span class="hp-lab-scope">Учебное подмножество</span></div>
+        <p>Измени строку и проходи по символам. Trace показывает состояние до/после шага и накопленные данные текущего токена. Для компактности демонстратор не реализует все состояния WHATWG: script data, RCDATA/RAWTEXT, полный character reference algorithm, foreign content и весь набор parse errors вынесены за его пределы.</p>
+        <label class="hp-field-label" for="hp-token-input">Входная строка</label>
+        <textarea id="hp-token-input" rows="3" spellcheck="false"><section class="card" data-state=ready>Text &amp; more</section></textarea>
+        <div class="hp-lab-actions"><button type="button" class="bp-primary-button" id="hp-token-step">Следующий шаг</button><button type="button" class="bp-secondary-button" id="hp-token-reset">Сначала</button><button type="button" class="bp-secondary-button" id="hp-token-run">До конца</button></div>
+        <div class="hp-token-status" id="hp-token-status" role="status" aria-live="polite">Подготовь строку и нажми «Следующий шаг».</div>
+        <div class="hp-token-current"><div><span>Символ</span><b id="hp-token-char">—</b></div><div><span>Состояние</span><b id="hp-token-state">Data</b></div><div><span>Позиция</span><b id="hp-token-position">0 / 0</b></div></div>
+        <h4>Текущий токен</h4>
+        <pre class="hp-token-output" id="hp-token-current-output">Токен ещё не создан</pre>
+        <h4>Эмиссия токенов</h4>
+        <ol class="hp-token-emitted" id="hp-token-emitted"><li>Пока пусто</li></ol>
+        <details class="bp-deep-dive"><summary>Как читать trace и что в нём упрощено</summary><p>Символы обрабатываются по одной Unicode code point. Атрибуты нормализуются по ASCII-регистру, поддерживаются quoted и unquoted values, комментарии и DOCTYPE. Символьные ссылки в этом демонстраторе остаются обычными символами текста/значения. Для реального полного поведения смотри tokenizer states в HTML Standard.</p></details>
+      </div>
+
+      <div class="le-lab-card hp-lab-card">
+        <div class="le-lab-heading"><div><span class="le-lab-number">LAB 02 · REAL BROWSER PARSER</span><h3>Исходный HTML → реальный DOM</h3></div><span class="hp-lab-scope hp-lab-real">DOMParser API</span></div>
+        <p>Выбери пример или введи свой HTML. <code>DOMParser</code> создаст отдельный HTML Document текущего браузера. Дерево строится браузерной реализацией HTML parsing algorithm, а результат сериализуется через DOM API. Это не показывает внутренние токены и все parse-error diagnostics: браузерный API не обязан выдавать такую трассу.</p>
+        <label class="hp-field-label" for="hp-parse-sample">Готовые случаи</label>
+        <select id="hp-parse-sample">
+          <option value="implicit">Неявные html / head / body</option>
+          <option value="paragraph">Автоматическое закрытие p</option>
+          <option value="table">Foster parenting в table</option>
+          <option value="formatting">Misnested b / i</option>
+          <option value="duplicate">Повторяющиеся атрибуты</option>
+          <option value="foreign">SVG namespace</option>
+          <option value="script">Script в документе</option>
+        </select>
+        <label class="hp-field-label" for="hp-parse-input">HTML-исходник</label>
+        <textarea id="hp-parse-input" rows="7" spellcheck="false"></textarea>
+        <div class="hp-lab-actions"><button type="button" class="bp-primary-button" id="hp-parse-run">Построить DOM</button><button type="button" class="bp-secondary-button" id="hp-parse-reset">Сбросить пример</button></div>
+        <div class="hp-parse-meta" id="hp-parse-meta" role="status" aria-live="polite">DOM ещё не построен.</div>
+        <div class="hp-parse-grid">
+          <div><h4>Дерево узлов</h4><div class="hp-tree-output" id="hp-parse-tree"><p class="hp-empty">Результат появится здесь.</p></div></div>
+          <div><h4>Сериализованная разметка</h4><pre class="hp-markup-output" id="hp-parse-markup">—</pre></div>
+        </div>
+        <details class="bp-deep-dive"><summary>Важное ограничение DOMParser</summary><p>Лаборатория использует изолированный Document и не вставляет результат в активную страницу. Скрипты в разобранном документе не запускаются как обычные parser-inserted scripts активного документа. Для тестирования выполнения скриптов нужна отдельная лаборатория с контролируемым browsing context и явными ограничениями безопасности.</p></details>
+      </div>
+    </section>
+
+    <section id="hp-sources" class="bp-section">
+      <p class="bp-section-kicker">12 · PRIMARY SOURCES</p>
+      <h2>Спецификации, тесты и исходный код</h2>
+      <p>При изучении парсера сначала используй нормативный алгоритм, затем сверяй конкретную реализацию и тесты. Названия и внутренние границы компонентов могут меняться, поэтому ссылки на исходники относятся к текущим веткам проектов на дату проверки.</p>
+      <div class="bp-source-list">
+        <a href="https://html.spec.whatwg.org/multipage/parsing.html" target="_blank" rel="noopener noreferrer"><b>WHATWG HTML — Parsing HTML documents</b><span>Нормативная модель: input stream, tokenizer, parse state, tree construction, parse errors, speculative parsing и fragment parsing.</span></a>
+        <a href="https://html.spec.whatwg.org/multipage/parsing.html#tokenization" target="_blank" rel="noopener noreferrer"><b>WHATWG — Tokenization</b><span>Состояния конечного автомата, виды токенов, обработка тегов, атрибутов и character references.</span></a>
+        <a href="https://html.spec.whatwg.org/multipage/parsing.html#tree-construction" target="_blank" rel="noopener noreferrer"><b>WHATWG — Tree construction</b><span>Insertion modes, stack of open elements, active formatting elements, foster parenting и adoption agency algorithm.</span></a>
+        <a href="https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody" target="_blank" rel="noopener noreferrer"><b>WHATWG — The in body insertion mode</b><span>Правила обработки большинства обычных HTML-элементов и текстовых токенов.</span></a>
+        <a href="https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intable" target="_blank" rel="noopener noreferrer"><b>WHATWG — The in table insertion mode</b><span>Специальная обработка табличной разметки и ошибочного содержимого.</span></a>
+        <a href="https://html.spec.whatwg.org/multipage/parsing.html#parsing-html-fragments" target="_blank" rel="noopener noreferrer"><b>WHATWG — Parsing HTML fragments</b><span>Контекстный разбор фрагментов для DOM API.</span></a>
+        <a href="https://chromium.googlesource.com/chromium/src/+/main/third_party/blink/renderer/core/html/parser/html_document_parser.cc" target="_blank" rel="noopener noreferrer"><b>Chromium — HTMLDocumentParser</b><span>Пример реальной реализации Blink: потоковый ввод, preload scanner, parser pause и script runner.</span></a>
+        <a href="https://firefox-source-docs.mozilla.org/overview/gecko.html" target="_blank" rel="noopener noreferrer"><b>Firefox Source Docs — Gecko</b><span>Контекст HTML parser, DOM, networking и SpiderMonkey внутри Gecko.</span></a>
+        <a href="https://github.com/WebKit/WebKit/tree/main/Source/WebCore/html/parser" target="_blank" rel="noopener noreferrer"><b>WebKit — WebCore HTML parser</b><span>Исходники tokenizer, tree builder и document parser в WebCore.</span></a>
+        <a href="https://github.com/web-platform-tests/wpt/tree/master/html/syntax" target="_blank" rel="noopener noreferrer"><b>Web Platform Tests — HTML syntax</b><span>Межбраузерные тесты parsing и синтаксических случаев.</span></a>
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/DOMParser/parseFromString" target="_blank" rel="noopener noreferrer"><b>MDN — DOMParser.parseFromString()</b><span>Документация API, используемого во второй лаборатории.</span></a>
+      </div>
+      <p class="bp-caption">Проверка основных нормативных ссылок и документации: 22 ноября 2026 года. Living Standard может изменяться; при исследовании конкретного edge case сверяй актуальную редакцию алгоритма.</p>
+    </section>
+
+    <section class="bp-section hp-next">
+      <p class="bp-section-kicker">КАК ЭТО СВЯЗАНО С ОСТАЛЬНЫМ PIPELINE</p>
+      <h2>Следующие подсистемы</h2>
+      <div class="bp-next-grid">
+        <a href="browser-pipeline.html"><b>Browser Pipeline</b><span>Как парсинг связан с навигацией, сетью, CSS и rendering.</span></a>
+        <a href="../css.html#engine-internals"><b>CSS Engine</b><span>Как CSS-текст разбирается в таблицы стилей и вычисленные значения.</span></a>
+        <a href="layout-engine.html"><b>Layout Engine</b><span>Как DOM и computed styles превращаются в боксы, фрагменты и геометрию.</span></a>
+        <a href="../javascript.html#async"><b>JavaScript Runtime</b><span>Как выполнение scripts взаимодействует с задачами и событиями.</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">HTML Parser · Browser Internals · Modern Web Technologies</footer>
+</body>
+</html>

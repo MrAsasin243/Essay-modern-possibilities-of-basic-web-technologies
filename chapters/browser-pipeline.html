@@ -23,6 +23,7 @@
       <a href="../javascript.html">JavaScript</a>
       <a href="../browsers.html" aria-current="page">Браузеры</a>
       <a href="layout-engine.html">Layout Engine</a>
+      <a href="html-parser.html">HTML Parser</a>
     </nav>
     <div class="bp-toolbar" aria-label="Инструменты страницы">
       <button class="bp-tool-button" id="bp-open-search" type="button" aria-haspopup="dialog" aria-controls="bp-search-dialog" title="Поиск (Ctrl+K)"><span aria-hidden="true">⌕</span><span>Поиск</span><kbd>Ctrl K</kbd></button>
@@ -199,6 +200,7 @@
       <h3>Спекулятивная загрузка ресурсов</h3>
       <p>Когда основной HTML-парсер приостанавливается, браузер может использовать отдельный механизм предварительного обнаружения ресурсов из ещё не обработанного HTML. Например, он может раньше начать загружать stylesheet, script или изображение. WHATWG описывает speculative parsing как допустимую оптимизацию, но детали реализации не фиксирует. Не следует считать её одинаковой во всех браузерах или полагаться на неё как на гарантию.</p>
       <aside class="bp-callout bp-callout-warning"><strong>Практический нюанс</strong><p>CSS-файл, обнаруженный поздно через JavaScript или вложенный CSS @import, может стартовать позже, чем ресурс, прямо указанный в HTML. Для критических ресурсов важны место объявления, цепочка зависимостей и приоритет загрузки.</p></aside>
+      <div class="bp-callout"><strong>Углублённое изучение:</strong><p>Отдельная глава <a href="html-parser.html">HTML Parser</a> разбирает tokenizer, insertion modes, восстановление структуры и взаимодействие со скриптами.</p></div>
     </section>
 
     <section id="css" class="bp-section">

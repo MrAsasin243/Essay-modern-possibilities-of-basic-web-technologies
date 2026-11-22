@@ -25,6 +25,7 @@
       <a href="browsers.html" aria-current="page">Браузеры</a>
       <a href="chapters/browser-pipeline.html">Архитектура отображения</a>
       <a href="chapters/layout-engine.html">Layout Engine</a>
+      <a href="chapters/html-parser.html">HTML Parser</a>
     </nav>
     <div class="site-tools" aria-label="Инструменты сайта">
       <button type="button" data-site-search-trigger disabled>Поиск <kbd>Ctrl K</kbd></button>
@@ -44,6 +45,7 @@
       <a href="#navigation">5. Что происходит при открытии URL</a>
       <a href="#network">6. Сеть: DNS, TLS, HTTP</a>
       <a href="#parsing">7. Разбор HTML и DOM</a>
+      <a class="sub" href="chapters/html-parser.html">HTML Parser: tokenizer и Tree Construction</a>
       <a href="#cssom">8. CSSOM и вычисление стилей</a>
       <a href="#rendering">9. Критический путь рендеринга</a>
       <a class="sub" href="#layout">Layout и reflow</a>
@@ -249,6 +251,7 @@
         <h3>7.3. Preload scanner</h3>
         <p>Современные браузеры могут использовать вспомогательное предварительное сканирование разметки, чтобы заранее обнаруживать ресурсы вроде изображений, стилей и скриптов, пока основной парсер занят. Это помогает эффективнее использовать сеть, но не отменяет правил блокировки и зависимостей.</p>
         <div class="callout"><strong>Вывод:</strong> порядок скриптов и их атрибуты могут влиять на скорость появления содержимого. Не добавляй <code>async</code> или <code>defer</code> механически: сначала определи зависимости и требуемый порядок выполнения.</div>
+        <div class="callout"><strong>Углублённое изучение:</strong> отдельная глава <a href="chapters/html-parser.html">HTML Parser — tokenizer, insertion modes и восстановление DOM</a> разбирает нормативный алгоритм по шагам и содержит интерактивные лаборатории.</div>
       </section>
 
       <section class="content-section" id="cssom">

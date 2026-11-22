@@ -15,6 +15,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PAGES = ['index.html', 'html.html', 'css.html', 'javascript.html', 'browsers.html']
+CHAPTERS = ['chapters/browser-pipeline.html', 'chapters/layout-engine.html', 'chapters/html-parser.html']
+CHAPTER_LABELS = {
+    'chapters/browser-pipeline.html': 'Browser Pipeline',
+    'chapters/layout-engine.html': 'Layout Engine',
+    'chapters/html-parser.html': 'HTML Parser',
+}
 SKIP_TAGS = {'script', 'style', 'noscript', 'template'}
 
 
@@ -46,14 +52,14 @@ class Extractor(HTMLParser):
         a = dict(attrs)
         if tag == 'title':
             self.in_title = True
-        if tag == 'a' and any(m == 'topnav' for _, m, _ in self.stack):
+        if tag == 'a' and any(m in ('topnav', 'bp-nav') for _, m, _ in self.stack):
             self.href = a.get('href')
             self.link_chunks = []
         void = tag in ('meta', 'link', 'br', 'img', 'input', 'hr', 'wbr')
         if not void:
             marker = ''
-            if tag == 'nav' and 'topnav' in (a.get('class') or ''):
-                marker = 'topnav'
+            if tag == 'nav' and any(name in (a.get('class') or '').split() for name in ('topnav', 'bp-nav')):
+                marker = 'bp-nav' if 'bp-nav' in (a.get('class') or '').split() else 'topnav'
             if tag == 'main':
                 self.in_main = True
                 self.main_depth = len(self.stack)
@@ -128,6 +134,23 @@ def build():
             if not title and not text:
                 continue
             entries.append([f, e[0], e[1], title or label, e[3], text])
+    # Deep-dive chapters are searchable and receive labels in SITE_DATA.
+    # Empty sections keep them out of the legacy top-level reading-progress model.
+    for f in CHAPTERS:
+        src = (ROOT / f).read_text(encoding='utf-8')
+        h.update(f.encode()); h.update(src.encode())
+        p = Extractor()
+        p.feed(src)
+        label = CHAPTER_LABELS.get(f, Path(f).stem)
+        page_title = re.sub(r'\s+', ' ', p.title).strip()
+        pages.append({'file': f, 'label': label, 'title': page_title or label, 'sections': []})
+        for e in p.entries:
+            text = re.sub(r'\s+', ' ', ''.join(e[4])).strip()
+            title = e[2]
+            if not title and not text:
+                continue
+            entries.append([f, e[0], e[1], title or label, e[3], text])
+
     digest = h.hexdigest()[:12]
     data_js = '/* Сгенерировано tools/build-search-index.py — не редактируйте вручную. */\nwindow.SITE_DATA = ' + \
         json.dumps({'v': 1, 'src': digest, 'pages': pages}, ensure_ascii=False, separators=(',', ':')) + ';\n'
